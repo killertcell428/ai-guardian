@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aig-guardian"
-version = "0.1.0"
-description = "AI Guardian — Scan, score, and filter LLM requests for security threats. Protect your AI applications from prompt injection, data leaks, and more."
+version = "0.2.0"
+description = "AI Guardian — Scan, score, and filter LLM requests for security threats. Detect, remediate, and audit AI interactions with OWASP-aligned guidance."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"

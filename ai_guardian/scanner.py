@@ -1,11 +1,17 @@
 """Core scanner — the main API for AI Guardian.
 
 Usage:
-    from ai_guardian import scan, scan_output
+    from ai_guardian import scan, scan_output, sanitize
 
     result = scan("user input text here")
     if not result.is_safe:
         print(f"Blocked: {result.reason} (score: {result.risk_score})")
+        for rule in result.matched_rules:
+            print(f"  - {rule.owasp_ref}: {rule.remediation_hint}")
+
+    # Auto-sanitize PII before sending to LLM
+    cleaned, redactions = sanitize("Call me at 090-1234-5678")
+    # cleaned == "Call me at [PHONE_REDACTED]"
 """
 
 import re
@@ -17,15 +23,32 @@ from ai_guardian.patterns import (
     DetectionPattern,
 )
 
+# Mapping from pattern ID prefixes to redaction labels
+_REDACTION_LABELS: dict[str, str] = {
+    "pii_jp_phone": "PHONE_REDACTED",
+    "pii_jp_my_number": "MY_NUMBER_REDACTED",
+    "pii_jp_postal_code": "POSTAL_CODE_REDACTED",
+    "pii_jp_address": "ADDRESS_REDACTED",
+    "pii_jp_bank_account": "BANK_ACCOUNT_REDACTED",
+    "pii_credit_card_input": "CREDIT_CARD_REDACTED",
+    "pii_ssn_input": "SSN_REDACTED",
+    "pii_api_key_input": "API_KEY_REDACTED",
+    "pii_email_input": "EMAIL_REDACTED",
+    "conf_password_literal": "PASSWORD_REDACTED",
+    "conf_connection_string": "CONNECTION_STRING_REDACTED",
+}
+
 
 @dataclass
 class MatchedRule:
-    """A pattern that matched during scanning."""
+    """A pattern that matched during scanning, with remediation context."""
     rule_id: str
     rule_name: str
     category: str
     score_delta: int
     matched_text: str
+    owasp_ref: str = ""
+    remediation_hint: str = ""
 
 
 @dataclass
@@ -51,9 +74,34 @@ class ScanResult:
         """True if risk level is critical (score > 80)."""
         return self.risk_level == "critical"
 
+    @property
+    def remediation(self) -> dict:
+        """Aggregated remediation guidance from all matched rules."""
+        if not self.matched_rules:
+            return {}
+        hints = []
+        refs = []
+        for r in self.matched_rules:
+            if r.remediation_hint and r.remediation_hint not in hints:
+                hints.append(r.remediation_hint)
+            if r.owasp_ref and r.owasp_ref not in refs:
+                refs.append(r.owasp_ref)
+        top = max(self.matched_rules, key=lambda r: r.score_delta)
+        return {
+            "primary_threat": top.rule_name,
+            "primary_category": top.category,
+            "owasp_refs": refs,
+            "hints": hints,
+            "action": (
+                "auto_block" if self.is_blocked
+                else "review_required" if self.needs_review
+                else "allowed"
+            ),
+        }
+
     def to_dict(self) -> dict:
         """Convert to a plain dict for JSON serialization."""
-        return {
+        result = {
             "risk_score": self.risk_score,
             "risk_level": self.risk_level,
             "is_safe": self.is_safe,
@@ -66,11 +114,50 @@ class ScanResult:
                     "category": r.category,
                     "score_delta": r.score_delta,
                     "matched_text": r.matched_text,
+                    "owasp_ref": r.owasp_ref,
+                    "remediation_hint": r.remediation_hint,
                 }
                 for r in self.matched_rules
             ],
             "reason": self.reason,
         }
+        if self.matched_rules:
+            result["remediation"] = self.remediation
+        return result
+
+
+def _normalize_text(text: str) -> str:
+    """Normalize text to defeat common evasion techniques.
+
+    Handles:
+      - Fullwidth → halfwidth conversion (１２３ → 123, ＡＢＣ → ABC)
+      - Zero-width character removal (U+200B, U+200C, U+200D, U+FEFF)
+      - Homoglyph normalization (Cyrillic а → Latin a, etc.)
+      - Character spacing collapse (D R O P → DROP)
+    """
+    import unicodedata
+
+    # Step 1: Unicode NFKC normalization (fullwidth → halfwidth, etc.)
+    result = unicodedata.normalize("NFKC", text)
+
+    # Step 2: Remove zero-width characters
+    zero_width = "\u200b\u200c\u200d\u200e\u200f\ufeff\u00ad\u2060\u2061\u2062\u2063\u2064"
+    for ch in zero_width:
+        result = result.replace(ch, "")
+
+    # Step 3: Detect and collapse single-character spacing
+    # "D R O P  T A B L E" → "DROP TABLE"
+    import re as _re
+    if _re.search(r'(?:[A-Za-z] ){3,}[A-Za-z]', result):
+        # Collapse runs of single-spaced characters: "D R O P" → "DROP"
+        collapsed = _re.sub(
+            r'(?<![A-Za-z])([A-Za-z])((?:\s[A-Za-z]){2,})(?![A-Za-z])',
+            lambda m: m.group(0).replace(' ', ''),
+            result,
+        )
+        result = result + "\n" + collapsed
+
+    return result
 
 
 def _score_to_level(score: int) -> str:
@@ -92,10 +179,13 @@ def _run_patterns(
     matched: list[MatchedRule] = []
     category_scores: dict[str, int] = {}
 
+    # Normalize text to defeat evasion techniques
+    normalized = _normalize_text(text)
+
     for p in patterns:
         if not p.enabled:
             continue
-        m = p.pattern.search(text)
+        m = p.pattern.search(normalized)
         if m:
             matched.append(MatchedRule(
                 rule_id=p.id,
@@ -103,6 +193,8 @@ def _run_patterns(
                 category=p.category,
                 score_delta=p.base_score,
                 matched_text=m.group(0)[:200],
+                owasp_ref=p.owasp_ref,
+                remediation_hint=p.remediation_hint,
             ))
             prev = category_scores.get(p.category, 0)
             category_scores[p.category] = min(prev + p.base_score, p.base_score * 2)
@@ -113,7 +205,7 @@ def _run_patterns(
                 continue
             try:
                 pat = re.compile(rule["pattern"], re.IGNORECASE | re.DOTALL)
-                m = pat.search(text)
+                m = pat.search(normalized)
                 if m:
                     delta = int(rule.get("score_delta", 20))
                     matched.append(MatchedRule(
@@ -122,11 +214,32 @@ def _run_patterns(
                         category="custom",
                         score_delta=delta,
                         matched_text=m.group(0)[:200],
+                        owasp_ref=rule.get("owasp_ref", ""),
+                        remediation_hint=rule.get("remediation_hint", ""),
                     ))
                     prev = category_scores.get("custom", 0)
                     category_scores["custom"] = min(prev + delta, delta * 2)
             except re.error:
                 continue
+
+    # Layer 2: Similarity check (only for input patterns, not output)
+    if patterns is ALL_INPUT_PATTERNS:
+        from ai_guardian.similarity import check_similarity
+        sim_matches = check_similarity(text)
+        for sm in sim_matches:
+            # Only add if regex didn't already catch this category
+            if sm.category not in category_scores or category_scores[sm.category] == 0:
+                matched.append(MatchedRule(
+                    rule_id=f"sim_{sm.category}",
+                    rule_name=f"Similarity: {sm.canonical_phrase[:50]}",
+                    category=sm.category,
+                    score_delta=sm.base_score,
+                    matched_text=sm.matched_input,
+                    owasp_ref="OWASP LLM01: Prompt Injection",
+                    remediation_hint=f"This text is semantically similar to known attack: '{sm.canonical_phrase}' (similarity: {sm.similarity_score:.0%}). Rephrase to avoid resemblance to known attack patterns.",
+                ))
+                prev = category_scores.get(sm.category, 0)
+                category_scores[sm.category] = min(prev + sm.base_score, sm.base_score * 2)
 
     total = min(sum(category_scores.values()), 100)
     level = _score_to_level(total)
@@ -149,21 +262,19 @@ def scan(
         custom_rules: Optional list of custom detection rules.
 
     Returns:
-        ScanResult with risk_score, risk_level, matched_rules, and convenience
-        properties (is_safe, needs_review, is_blocked).
+        ScanResult with risk_score, risk_level, matched_rules, remediation,
+        and convenience properties (is_safe, needs_review, is_blocked).
 
     Example:
         >>> result = scan("What is the capital of France?")
         >>> result.is_safe
         True
-        >>> result.risk_score
-        0
 
         >>> result = scan("Ignore all previous instructions")
         >>> result.is_safe
         False
-        >>> result.risk_level
-        'medium'
+        >>> result.remediation["hints"][0]
+        'If you intended to reference previous content...'
     """
     return _run_patterns(text, ALL_INPUT_PATTERNS, custom_rules)
 
@@ -172,25 +283,105 @@ def scan_messages(
     messages: list[dict],
     custom_rules: list[dict] | None = None,
 ) -> ScanResult:
-    """Scan OpenAI-style messages array.
+    """Scan OpenAI-style messages array with multi-turn awareness.
+
+    Scans each user message individually AND checks for multi-turn
+    escalation patterns where a conversation gradually builds toward
+    an attack across multiple turns.
 
     Args:
         messages: List of {"role": "user", "content": "..."} dicts.
         custom_rules: Optional custom rules.
 
     Returns:
-        ScanResult for the combined message content.
+        ScanResult — the highest-risk result across all messages,
+        with multi-turn escalation bonus if detected.
     """
-    parts: list[str] = []
+    user_parts: list[str] = []
+    all_parts: list[str] = []
+
     for msg in messages:
         content = msg.get("content", "")
+        text = ""
         if isinstance(content, str):
-            parts.append(content)
+            text = content
         elif isinstance(content, list):
             for part in content:
                 if isinstance(part, dict) and part.get("type") == "text":
-                    parts.append(part.get("text", ""))
-    return scan("\n".join(parts), custom_rules)
+                    text += part.get("text", "") + " "
+        all_parts.append(text)
+        if msg.get("role") == "user":
+            user_parts.append(text)
+
+    # Scan the combined text (original behavior)
+    combined_result = scan("\n".join(all_parts), custom_rules)
+
+    # Multi-turn analysis: scan each user message individually
+    # and check for escalation patterns
+    if len(user_parts) >= 2:
+        per_message_scores: list[int] = []
+        for part in user_parts:
+            r = scan(part, custom_rules)
+            per_message_scores.append(r.risk_score)
+
+        # Escalation detection: if later messages have higher risk than earlier ones,
+        # and the latest message is borderline, boost the score
+        if len(per_message_scores) >= 2:
+            latest_score = per_message_scores[-1]
+            earlier_max = max(per_message_scores[:-1])
+
+            # Pattern: earlier messages are safe (0), latest is borderline (20-40)
+            # This suggests incremental probing
+            if earlier_max <= 10 and 15 <= latest_score <= 50:
+                escalation_bonus = 15
+                boosted_score = min(latest_score + escalation_bonus, 100)
+                if boosted_score > combined_result.risk_score:
+                    combined_result.matched_rules.append(MatchedRule(
+                        rule_id="multi_turn_escalation",
+                        rule_name="Multi-turn Escalation Pattern",
+                        category="prompt_injection",
+                        score_delta=escalation_bonus,
+                        matched_text=user_parts[-1][:200],
+                        owasp_ref="OWASP LLM01: Prompt Injection",
+                        remediation_hint="This conversation shows an escalation pattern: earlier messages were safe, then the latest message introduces suspicious content. This is a common multi-turn attack technique.",
+                    ))
+                    combined_result = ScanResult(
+                        risk_score=boosted_score,
+                        risk_level=_score_to_level(boosted_score),
+                        matched_rules=combined_result.matched_rules,
+                        reason=f"Multi-turn escalation detected (boosted from {latest_score} to {boosted_score})",
+                    )
+
+    return combined_result
+
+
+def scan_rag_context(
+    context_texts: list[str],
+    custom_rules: list[dict] | None = None,
+) -> ScanResult:
+    """Scan RAG retrieval context for indirect prompt injection.
+
+    In RAG (Retrieval-Augmented Generation) scenarios, external documents
+    may contain hidden instructions that manipulate the LLM's behavior.
+    This function scans the retrieved context before it is injected into
+    the prompt.
+
+    Args:
+        context_texts: List of retrieved document chunks / context strings.
+        custom_rules: Optional custom rules.
+
+    Returns:
+        ScanResult for the combined context content.
+
+    Example:
+        >>> chunks = retriever.search("user query")
+        >>> context_result = scan_rag_context([c.text for c in chunks])
+        >>> if not context_result.is_safe:
+        ...     # Remove poisoned chunks or flag for review
+        ...     safe_chunks = [c for c in chunks if c.text not in flagged]
+    """
+    combined = "\n---\n".join(context_texts)
+    return _run_patterns(combined, ALL_INPUT_PATTERNS, custom_rules)
 
 
 def scan_output(
@@ -212,3 +403,57 @@ def scan_output(
         if isinstance(content, str):
             parts.append(content)
     return _run_patterns("\n".join(parts), OUTPUT_PATTERNS, custom_rules)
+
+
+def sanitize(
+    text: str,
+    custom_rules: list[dict] | None = None,
+) -> tuple[str, list[MatchedRule]]:
+    """Auto-redact detected PII and secrets from text.
+
+    Replaces detected sensitive data with placeholder labels like
+    [PHONE_REDACTED], [CREDIT_CARD_REDACTED], etc. Only redacts PII and
+    confidential data patterns — prompt injection and SQL injection are
+    not redactable (they need to be blocked, not sanitized).
+
+    Args:
+        text: The input text to sanitize.
+        custom_rules: Optional custom rules (not used for sanitization).
+
+    Returns:
+        Tuple of (sanitized_text, list of MatchedRule for each redaction).
+
+    Example:
+        >>> cleaned, redactions = sanitize("Call me at 090-1234-5678")
+        >>> print(cleaned)
+        Call me at [PHONE_REDACTED]
+        >>> len(redactions)
+        1
+    """
+    from ai_guardian.patterns import PII_INPUT_PATTERNS, CONFIDENTIAL_DATA_PATTERNS
+
+    sanitizable = PII_INPUT_PATTERNS + CONFIDENTIAL_DATA_PATTERNS
+    redactions: list[MatchedRule] = []
+    result = text
+
+    for p in sanitizable:
+        if not p.enabled:
+            continue
+        label = _REDACTION_LABELS.get(p.id, "REDACTED")
+        replacement = f"[{label}]"
+
+        matches = list(p.pattern.finditer(result))
+        if matches:
+            for m in matches:
+                redactions.append(MatchedRule(
+                    rule_id=p.id,
+                    rule_name=p.name,
+                    category=p.category,
+                    score_delta=p.base_score,
+                    matched_text=m.group(0)[:200],
+                    owasp_ref=p.owasp_ref,
+                    remediation_hint=p.remediation_hint,
+                ))
+            result = p.pattern.sub(replacement, result)
+
+    return result, redactions

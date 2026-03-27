@@ -25,8 +25,14 @@ Usage:
     output_result = scan_output({"choices": [{"message": {"content": "..."}}]})
 """
 
-from ai_guardian.scanner import scan, scan_output, scan_messages, ScanResult
+from ai_guardian.scanner import scan, scan_output, scan_messages, scan_rag_context, sanitize, ScanResult
 from ai_guardian.patterns import DetectionPattern
+from ai_guardian.similarity import check_similarity
+from ai_guardian.compliance import get_compliance_report, get_compliance_summary
 
-__version__ = "0.1.0"
-__all__ = ["scan", "scan_output", "scan_messages", "ScanResult", "DetectionPattern"]
+__version__ = "0.2.0"
+__all__ = [
+    "scan", "scan_output", "scan_messages", "scan_rag_context", "sanitize",
+    "ScanResult", "DetectionPattern", "check_similarity",
+    "get_compliance_report", "get_compliance_summary",
+]
