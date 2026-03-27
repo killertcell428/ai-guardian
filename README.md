@@ -1,7 +1,7 @@
 # AI Guardian
 
 [![CI](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml)
-[![TestPyPI](https://img.shields.io/badge/TestPyPI-v0.1.0-blue)](https://test.pypi.org/project/aig-guardian/)
+[![PyPI](https://img.shields.io/pypi/v/aig-guardian)](https://pypi.org/project/aig-guardian/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
