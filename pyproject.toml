@@ -4,15 +4,18 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aig-guardian"
-version = "0.2.0"
-description = "AI Guardian — Scan, score, and filter LLM requests for security threats. Detect, remediate, and audit AI interactions with OWASP-aligned guidance."
+version = "0.3.0"
+description = "AI Guardian — Agent governance platform. Detect threats, enforce policies, audit operations across any AI agent. From LLM security to AGI-era governance."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
 authors = [
     { name = "AI Guardian Team" },
 ]
-keywords = ["ai", "security", "llm", "prompt-injection", "guardrails", "filtering"]
+keywords = ["ai", "security", "llm", "prompt-injection", "guardrails", "agent-governance", "ai-agent"]
+
+[project.scripts]
+aig = "ai_guardian.cli:main"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",

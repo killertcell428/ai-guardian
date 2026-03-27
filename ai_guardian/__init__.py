@@ -29,10 +29,17 @@ from ai_guardian.scanner import scan, scan_output, scan_messages, scan_rag_conte
 from ai_guardian.patterns import DetectionPattern
 from ai_guardian.similarity import check_similarity
 from ai_guardian.compliance import get_compliance_report, get_compliance_summary
+from ai_guardian.activity import ActivityStream, ActivityEvent
+from ai_guardian.policy import Policy, PolicyRule, load_policy, evaluate
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
+    # Core scanning (v0.1.0)
     "scan", "scan_output", "scan_messages", "scan_rag_context", "sanitize",
     "ScanResult", "DetectionPattern", "check_similarity",
+    # Compliance (v0.2.0)
     "get_compliance_report", "get_compliance_summary",
+    # Agent Governance (v0.3.0)
+    "ActivityStream", "ActivityEvent",
+    "Policy", "PolicyRule", "load_policy", "evaluate",
 ]
