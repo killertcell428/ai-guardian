@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ai-guardian"
+name = "aig-guardian"
 version = "0.1.0"
 description = "AI Guardian — Scan, score, and filter LLM requests for security threats. Protect your AI applications from prompt injection, data leaks, and more."
 readme = "README.md"

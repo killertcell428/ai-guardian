@@ -1,5 +1,10 @@
 # AI Guardian
 
+[![CI](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml)
+[![TestPyPI](https://img.shields.io/badge/TestPyPI-v0.1.0-blue)](https://test.pypi.org/project/aig-guardian/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
+
 **Scan, score, and filter LLM requests before they reach your model.**
 
 AI Guardian is a lightweight Python library that scans prompts and LLM responses for security threats — prompt injection, data leaks, PII exposure, SQL injection, and more. Zero dependencies. Works with any LLM.
