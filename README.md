@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://ai-guardian.io/docs">Docs</a> &middot;
-  <a href="https://ai-guardian.io/challenge">Gandalf Challenge</a> &middot;
-  <a href="https://ai-guardian.io/docs/compliance/japan">Japan Compliance</a> &middot;
+  <a href="https://ai-guardian-mauve.vercel.app/docs">Docs</a> &middot;
+  <a href="https://ai-guardian-mauve.vercel.app/challenge">Gandalf Challenge</a> &middot;
+  <a href="https://ai-guardian-mauve.vercel.app/docs/compliance/japan">Japan Compliance</a> &middot;
   <a href="https://pypi.org/project/aig-guardian/">PyPI</a>
 </p>
 
@@ -197,7 +197,7 @@ print(result.matched_rules[0].remediation_hint)
 
 Can you trick an AI into revealing a secret password? Each level uses AI Guardian's real detection engine.
 
-> **[Play Gandalf Challenge](https://ai-guardian.io/challenge)** — 7 levels, from zero defense to Human-in-the-Loop
+> **[Play Gandalf Challenge](https://ai-guardian-mauve.vercel.app/challenge)** — 7 levels, from zero defense to Human-in-the-Loop
 
 ## Dashboard (Optional)
 

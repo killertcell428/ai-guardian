@@ -23,6 +23,6 @@ def get_badge_svg() -> str:
     return BADGE_SVG
 
 
-def get_badge_html(link: str = "https://ai-guardian.io") -> str:
+def get_badge_html(link: str = "https://ai-guardian-mauve.vercel.app") -> str:
     """Return the AI Guardian trust badge as an HTML anchor wrapping the SVG."""
     return f'<a href="{link}" target="_blank" rel="noopener" title="Protected by AI Guardian">{BADGE_SVG}</a>'

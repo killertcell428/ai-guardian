@@ -27,7 +27,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/ai-guardian/ai-guardian"
-Documentation = "https://ai-guardian.io/docs"
+Documentation = "https://ai-guardian-mauve.vercel.app/docs"
 Repository = "https://github.com/ai-guardian/ai-guardian"
 
 [tool.hatch.build.targets.wheel]
