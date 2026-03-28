@@ -38,6 +38,10 @@ def main(argv: list[str] | None = None) -> int:
     logs_p.add_argument("--days", type=int, default=7, help="Days to look back (default: 7)")
     logs_p.add_argument("--limit", type=int, default=20, help="Max events (default: 20)")
     logs_p.add_argument("--json", action="store_true", help="Output as JSON")
+    logs_p.add_argument("--global", dest="use_global", action="store_true", help="Query global logs (all projects)")
+    logs_p.add_argument("--alerts", action="store_true", help="Show alerts only (blocked/reviewed)")
+    logs_p.add_argument("--export-csv", metavar="PATH", help="Export to CSV file")
+    logs_p.add_argument("--export-excel", metavar="PATH", help="Export summary + events to Excel-compatible CSVs")
 
     # aig policy
     policy_p = sub.add_parser("policy", help="Policy management")
@@ -50,6 +54,11 @@ def main(argv: list[str] | None = None) -> int:
     report_p = sub.add_parser("report", help="Generate compliance report")
     report_p.add_argument("--days", type=int, default=30, help="Report period in days")
     report_p.add_argument("--format", choices=["text", "json"], default="text")
+
+    # aig maintenance
+    maint_p = sub.add_parser("maintenance", help="Log maintenance (rotate, compress)")
+    maint_p.add_argument("--retention-days", type=int, default=60, help="Keep full logs for N days (default: 60)")
+    maint_p.add_argument("--compress-after", type=int, default=7, help="Compress after N days (default: 7)")
 
     # aig scan (quick scan from CLI)
     scan_p = sub.add_parser("scan", help="Scan text for threats")
@@ -67,6 +76,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_status(args)
     elif args.command == "report":
         return cmd_report(args)
+    elif args.command == "maintenance":
+        return cmd_maintenance(args)
     elif args.command == "scan":
         return cmd_scan(args)
     else:
@@ -116,11 +127,26 @@ def cmd_logs(args) -> int:
     from ai_guardian.activity import ActivityStream
 
     stream = ActivityStream()
+
+    # Excel export
+    if args.export_excel:
+        path = stream.export_excel_summary(args.export_excel, days=args.days, use_global=args.use_global)
+        print(f"Exported to {path} and {path.replace('_summary', '_events')}")
+        return 0
+
+    # CSV export
+    if args.export_csv:
+        count = stream.export_csv(args.export_csv, days=args.days, use_global=args.use_global)
+        print(f"Exported {count} events to {args.export_csv}")
+        return 0
+
     events = stream.query(
         days=args.days,
         action=args.action,
         agent_type=args.agent_type,
         risk_above=args.risk_above,
+        alerts_only=args.alerts,
+        use_global=args.use_global,
         limit=args.limit,
     )
 
@@ -256,6 +282,24 @@ def cmd_report(args) -> int:
         print(f"  Compliance: {compliance['coverage_rate']}%")
         print(f"  Regulations covered: {compliance['covered']}/{compliance['total_requirements']}")
 
+    return 0
+
+
+def cmd_maintenance(args) -> int:
+    """Log maintenance: rotate and compress."""
+    from ai_guardian.activity import ActivityStream
+
+    stream = ActivityStream()
+    stats = stream.rotate_logs(
+        retention_days=args.retention_days,
+        compress_after_days=args.compress_after,
+    )
+    print(f"Log maintenance complete:")
+    print(f"  Compressed: {stats['compressed']} files")
+    print(f"  Deleted (>{args.retention_days} days): {stats['deleted']} files")
+    if stats["errors"]:
+        print(f"  Errors: {stats['errors']}")
+    print(f"\n  Note: Alert logs (~/.ai-guardian/alerts/) are never deleted.")
     return 0
 
 
