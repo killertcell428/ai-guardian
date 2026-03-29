@@ -10,6 +10,9 @@ permissions:
   contents: write   # GitHub Release creation
   id-token: write   # PyPI Trusted Publishing (OIDC)
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # opt-in to Node.js 24 runners
+
 jobs:
   # ── 1. Build ──────────────────────────────────────────────────────────────
   build:
@@ -71,7 +74,7 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         # No username/password needed — uses OIDC trusted publishing.
-        # Configure at: https://pypi.org/manage/project/ai-guardian/settings/publishing/
+        # Configure at: https://pypi.org/manage/project/aig-guardian/settings/publishing/
 
   # ── 3. GitHub Release with auto-changelog ─────────────────────────────────
   github-release:
@@ -123,7 +126,7 @@ jobs:
             fi
             echo "### Installation"
             echo '```bash'
-            echo "pip install ai-guardian==${{ needs.build.outputs.version }}"
+            echo "pip install aig-guardian==${{ needs.build.outputs.version }}"
             echo '```'
             if [ -n "$PREV_TAG" ]; then
               echo ""
@@ -141,7 +144,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "ai-guardian ${{ github.ref_name }}"
+          name: "aig-guardian ${{ github.ref_name }}"
           body: ${{ steps.changelog.outputs.body }}
           files: dist/*
           make_latest: true
