@@ -19,7 +19,7 @@ I'd like to add **AI Guardian** to the *LLM Security Libraries / Defensive Tools
 **Markdown line to add:**
 
 ```markdown
-- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Open-source LLM security library. Detects prompt injection, PII leaks, jailbreaks with OWASP LLM Top 10 coverage and remediation hints.
+- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Open-source LLM security library. 53 detection patterns covering prompt injection, jailbreaks, PII leaks, and data exfiltration. OWASP LLM Top 10 coverage with remediation hints. 100% benchmark precision, zero dependencies.
 ```
 
 **Why it belongs here:**
@@ -51,7 +51,7 @@ Proposing to add **AI Guardian** under the *AI / LLM Application Security* secti
 **Markdown line to add:**
 
 ```markdown
-- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Open-source LLM security library. Detects prompt injection, PII leaks, jailbreaks with OWASP LLM Top 10 coverage and remediation hints.
+- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Open-source LLM security library. 53 detection patterns covering prompt injection, jailbreaks, PII leaks, and data exfiltration. OWASP LLM Top 10 coverage with remediation hints. 100% benchmark precision, zero dependencies.
 ```
 
 **Why it belongs here:**
@@ -83,7 +83,7 @@ I'd like to add **AI Guardian** to the *Safety, Security & Alignment / Guardrail
 **Markdown line to add:**
 
 ```markdown
-- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Open-source LLM security library. Detects prompt injection, PII leaks, jailbreaks with OWASP LLM Top 10 coverage and remediation hints.
+- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Open-source LLM security library. 53 detection patterns covering prompt injection, jailbreaks, PII leaks, and data exfiltration. OWASP LLM Top 10 coverage with remediation hints. 100% benchmark precision, zero dependencies.
 ```
 
 **Why it belongs here:**
