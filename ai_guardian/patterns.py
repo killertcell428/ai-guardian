@@ -278,32 +278,9 @@ SQL_INJECTION_PATTERNS: list[DetectionPattern] = [
 ]
 
 # === Data Exfiltration ===
-DATA_EXFIL_PATTERNS: list[DetectionPattern] = [
-    DetectionPattern(
-        id="exfil_pii_request",
-        name="PII Extraction Request",
-        category="data_exfiltration",
-        pattern=_p(
-            r"(list|extract|export|dump|retrieve)\s+(all\s+)?(user(s|\s+data)?|customer(s|\s+data)?|employee(s|\s+records?)?|personal\s+data|private\s+information|credentials?)"
-        ),
-        base_score=50,
-        description="Attempts to extract PII.",
-        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
-        remediation_hint="This looks like a bulk data extraction request. If you need to work with user data, use aggregated/anonymized datasets instead. Never ask an AI to retrieve raw PII from connected systems.",
-    ),
-    DetectionPattern(
-        id="exfil_api_keys",
-        name="API Key / Secret Extraction",
-        category="data_exfiltration",
-        pattern=_p(
-            r"(show|give|tell|print|reveal)\s+(me\s+)?(the\s+)?(api\s+key|secret\s+key|private\s+key|access\s+token|password|credentials?)"
-        ),
-        base_score=60,
-        description="Attempts to extract API keys or secrets.",
-        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
-        remediation_hint="Never ask AI to reveal credentials. Use your organization's secret manager (AWS Secrets Manager, HashiCorp Vault, etc.) to access API keys securely.",
-    ),
-]
+# NOTE: DATA_EXFIL_PATTERNS is imported from ai_guardian.filters.patterns
+# at the bottom of this file (canonical location with 4 patterns).
+# This comment marks where the legacy 2-pattern definition used to live.
 
 # === Command Injection ===
 COMMAND_INJECTION_PATTERNS: list[DetectionPattern] = [
@@ -702,6 +679,7 @@ OUTPUT_PATTERNS: list[DetectionPattern] = [
 # This avoids duplication while ensuring both the scanner.py (legacy) and
 # the Guard class (via filters/) use the same full set of patterns.
 from ai_guardian.filters.patterns import (  # noqa: E402
+    DATA_EXFIL_PATTERNS,  # supersedes the local 2-pattern definition above
     JAILBREAK_ROLEPLAY_PATTERNS,
     TOKEN_EXHAUSTION_PATTERNS,
 )

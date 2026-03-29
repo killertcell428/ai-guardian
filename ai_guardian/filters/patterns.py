@@ -216,6 +216,36 @@ DATA_EXFIL_PATTERNS: list[DetectionPattern] = [
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="Use your organization's secret manager (AWS Secrets Manager, Vault, etc.) to access keys securely.",
     ),
+    DetectionPattern(
+        id="exfil_send_to_external",
+        name="Send Data to External Destination",
+        category="data_exfiltration",
+        pattern=_p(
+            r"(send|forward|transmit|post|upload|exfiltrate|leak|pipe|copy)\s+"
+            r"[\s\S]{0,60}"
+            r"(to\s+)?"
+            r"(https?://[^\s]{4,}|[a-zA-Z0-9][\w.-]{1,63}\.(com|io|net|org|co|xyz|ru|cn|tk)[^\s]*"
+            r"|[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,})"
+        ),
+        base_score=65,
+        description="Attempt to send or exfiltrate data to an external URL or email address.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="Instructions to send data to external hosts are a strong indicator of a data exfiltration attack. AI agents should never be allowed to make outbound network requests to arbitrary URLs based on user input.",
+    ),
+    DetectionPattern(
+        id="exfil_keyword",
+        name="Exfiltrate / Data Leak Keyword",
+        category="data_exfiltration",
+        pattern=_p(
+            r"\b(exfiltrat(e|ion)|data\s+(exfil|leak|theft|breach)|"
+            r"leak\s+(the\s+)?(data|database|secrets?|credentials?|config)|"
+            r"steal\s+(the\s+)?(data|database|secrets?|credentials?))\b"
+        ),
+        base_score=70,
+        description="Explicit data exfiltration or data leak keywords detected.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="'Exfiltrate', 'data leak', and similar keywords in a prompt are strong attack signals. These should be blocked in any production AI application.",
+    ),
 ]
 
 # ---------------------------------------------------------------------------
