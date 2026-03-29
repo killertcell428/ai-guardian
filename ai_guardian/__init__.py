@@ -14,4 +14,4 @@ from ai_guardian.guard import Guard
 from ai_guardian.types import CheckResult, MatchedRule, RiskLevel
 
 __all__ = ["Guard", "CheckResult", "MatchedRule", "RiskLevel"]
-__version__ = "0.1.0"
+__version__ = "0.4.0"

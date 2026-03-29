@@ -6,7 +6,7 @@ body:
       value: |
         Share a big-picture idea for ai-guardian — architectural direction, new integrations,
         detection categories, SaaS features, etc. For concrete feature requests with a clear
-        implementation path, please use the [Feature Request issue template](https://github.com/your-org/ai-guardian/issues/new?template=feature_request.yml) instead.
+        implementation path, please use the [Feature Request issue template](https://github.com/killertcell428/ai-guardian/issues/new?template=feature_request.yml) instead.
 
   - type: textarea
     id: idea

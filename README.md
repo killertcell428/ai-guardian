@@ -1,11 +1,11 @@
 # ai-guardian
 
-[![CI](https://github.com/your-org/ai-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/ai-guardian/actions/workflows/ci.yml)
+[![CI](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
 [![Python versions](https://img.shields.io/pypi/pyversions/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Downloads](https://img.shields.io/pypi/dm/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
-[![codecov](https://codecov.io/gh/your-org/ai-guardian/branch/main/graph/badge.svg)](https://codecov.io/gh/your-org/ai-guardian)
+[![codecov](https://codecov.io/gh/killertcell428/ai-guardian/branch/main/graph/badge.svg)](https://codecov.io/gh/killertcell428/ai-guardian)
 
 **Protect your LLM application from prompt injection, PII leaks, jailbreaks, and SQL injection — in 3 lines of code.**
 
@@ -78,6 +78,8 @@ pip install 'ai-guardian[openai]'
 # Everything
 pip install 'ai-guardian[all]'
 ```
+
+> **Which package?** `ai-guardian` (this package) is the official release with Guard class API, middleware, and all features. The legacy `aig-guardian` (v0.3.x) provides a functional `scan()` API and is maintained internally for Claude Code hook compatibility only.
 
 ---
 
@@ -285,10 +287,10 @@ We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before 
 
 If ai-guardian helps protect your application, consider giving it a star — it helps others find the project.
 
-[![GitHub stars](https://img.shields.io/github/stars/your-org/ai-guardian?style=social)](https://github.com/your-org/ai-guardian/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/killertcell428/ai-guardian?style=social)](https://github.com/killertcell428/ai-guardian/stargazers)
 
 Have questions or want to share how you're using it?
-[Open a Discussion →](https://github.com/your-org/ai-guardian/discussions)
+[Open a Discussion →](https://github.com/killertcell428/ai-guardian/discussions)
 
 ---
 

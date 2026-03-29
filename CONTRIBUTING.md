@@ -12,7 +12,7 @@ Thank you for your interest in contributing!
 ## Setup
 
 ```bash
-git clone https://github.com/your-org/ai-guardian
+git clone https://github.com/killertcell428/ai-guardian
 cd ai-guardian
 pip install -e '.[dev]'
 ```

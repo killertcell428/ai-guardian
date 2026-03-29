@@ -30,7 +30,7 @@ Audit log             ← immutable event trail
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/ai-guardian
+git clone https://github.com/killertcell428/ai-guardian
 cd ai-guardian
 
 # Copy and fill in environment variables
@@ -164,4 +164,4 @@ See `backend/README.md` for full deployment documentation.
 | Managed hosting             | —            | —           | ✅                 |
 | SSO / SAML                  | —            | —           | ✅                 |
 
-Interested in the managed SaaS version? [Join the waitlist →](https://github.com/your-org/ai-guardian/discussions)
+Interested in the managed SaaS version? [Join the waitlist →](https://github.com/killertcell428/ai-guardian/discussions)
