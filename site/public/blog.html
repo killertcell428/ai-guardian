@@ -501,16 +501,13 @@
 <div class="filter-section">
   <div class="filter-tabs" id="filterTabs">
     <button class="filter-tab active" data-filter="all">
-      All <span class="tab-count" id="count-all">6</span>
+      All <span class="tab-count" id="count-all">2</span>
     </button>
     <button class="filter-tab" data-filter="technical">
       Technical <span class="tab-count" id="count-technical">0</span>
     </button>
     <button class="filter-tab" data-filter="product">
       Product <span class="tab-count" id="count-product">0</span>
-    </button>
-    <button class="filter-tab" data-filter="tutorial">
-      Tutorial <span class="tab-count" id="count-tutorial">0</span>
     </button>
   </div>
 </div>
@@ -583,71 +580,28 @@
 const articles = [
   {
     id: 1,
-    title: "AIエージェント導入で「セキュリティは？」と聞かれたときに見せる技術対策",
-    category: "technical",
-    platform: "qiita",
-    date: "2026-03-29",
-    summary: "AIエージェント導入時にセキュリティ担当から必ず聞かれる質問への技術的な回答。ai-guardianを使ったプロンプトインジェクション対策、PII検出、監査ログの実装方法を解説。",
-    url: "https://qiita.com/sharu389no/items/7c3904e7e40a8bec505d",
-    icon: "\ud83d\udee1\ufe0f"
-  },
-  {
-    id: 2,
     title: "AIエージェント導入で「セキュリティどうするの？」と聞かれたときの技術的な答え方",
     category: "technical",
     platform: "zenn",
     date: "2026-03-29",
     summary: "企業がAIエージェントを導入する際のセキュリティ課題と、ai-guardianによる実践的な解決策。OWASP LLM Top 10に基づく脅威分析と対策を体系的に解説。",
     url: "https://zenn.dev/sharu389no/articles/e07c926d87ac57",
-    icon: "\ud83d\udd10"
+    icon: "\ud83d\udee1\ufe0f"
   },
   {
-    id: 3,
-    title: "OSSのサービス展開を0からClaude Codeで全自動化してみた",
-    category: "product",
-    platform: "qiita",
-    date: "2026-03-28",
-    summary: "ai-guardianの開発・デプロイ・SNS投稿・記事執筆まで、Claude Codeで全自動化した体験記。OSSプロダクトのローンチを1人で完走するための実践的なワークフロー。",
-    url: "https://qiita.com/sharu389no/items/a328d98f2928a8d0972b",
-    icon: "\ud83d\ude80"
-  },
-  {
-    id: 4,
+    id: 2,
     title: "OSSのサービス展開を0からClaude Codeで全自動化した話",
     category: "product",
     platform: "zenn",
     date: "2026-03-28",
-    summary: "開発・デプロイ・SNS投稿・記事執筆まで、Claude Codeで全自動化。OSSプロダクトのローンチパイプラインを構築した経緯と学びを共有します。",
+    summary: "ai-guardianの開発・デプロイ・SNS投稿・記事執筆まで、Claude Codeで全自動化。OSSプロダクトのローンチパイプラインを構築した経緯と学びを共有します。",
     url: "https://zenn.dev/sharu389no/articles/ed98efe89e7f1e",
     icon: "\ud83e\udd16"
-  },
-  {
-    id: 5,
-    title: "60日で30件のCVE — MCPサーバー導入前に知っておくべきセキュリティリスクと実践的対策",
-    category: "technical",
-    platform: "qiita",
-    date: "2026-03-27",
-    summary: "MCPサーバーに60日で30件のCVEが報告された現実。導入前に知っておくべきセキュリティリスクと、ai-guardianを活用した実践的な防御策を解説。",
-    url: "https://qiita.com/sharu389no/items/b60aba6e167999975743",
-    icon: "\u26a0\ufe0f"
-  },
-  {
-    id: 6,
-    title: "How to Get Your First 1,000 GitHub Stars: The Complete Open-Source Growth Guide",
-    category: "product",
-    platform: "devto",
-    date: "2026-03-29",
-    summary: "A practical guide to growing your open-source project from 0 to 1,000 GitHub stars. Covering launch strategy, community building, content marketing, and metrics tracking.",
-    url: "https://dev.to/iris1031/how-to-get-your-first-1000-github-stars-the-complete-open-source-growth-guide-4367",
-    icon: "\u2b50"
   }
 ];
 
 const platforms = {
-  zenn:  { label: "Zenn",   icon: "Z" },
-  qiita: { label: "Qiita",  icon: "Q" },
-  note:  { label: "note",   icon: "n" },
-  devto: { label: "Dev.to", icon: "D" }
+  zenn: { label: "Zenn", icon: "Z" }
 };
 
 const categoryLabels = {
