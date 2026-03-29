@@ -20,6 +20,9 @@ pip install 'aig-guardian[langchain]'
 # OpenAI プロキシラッパー付き
 pip install 'aig-guardian[openai]'
 
+# Anthropic Claude プロキシラッパー付き
+pip install 'aig-guardian[anthropic]'
+
 # YAML ポリシー対応
 pip install 'aig-guardian[yaml]'
 
@@ -81,10 +84,40 @@ guard = Guard(policy="strict")
 
 カスタム YAML ポリシーについては [configuration.md](configuration.md) を参照してください。
 
+## Anthropic Claude との連携
+
+```python
+from ai_guardian import Guard
+from ai_guardian.middleware.anthropic_proxy import SecureAnthropic
+
+guard = Guard(policy="strict")
+client = SecureAnthropic(api_key="sk-ant-...", guard=guard)
+
+message = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=256,
+    messages=[{"role": "user", "content": "こんにちは！"}],
+)
+```
+
+## 業種別ポリシーテンプレート
+
+[`policy_templates/`](../policy_templates/) に業種別の設定済みポリシーが用意されています：
+
+```python
+# 金融向け（PCI-DSS / 金融庁ガイドライン対応）
+guard = Guard(policy_file="policy_templates/finance.yaml")
+
+# 医療向け（HIPAA / 個人情報保護法対応）
+guard = Guard(policy_file="policy_templates/healthcare.yaml")
+```
+
+利用可能なテンプレート: `finance` / `healthcare` / `ecommerce` / `internal_tools` / `education` / `customer_support` / `developer_tools`
+
 ## 次のステップ
 
 - [設定リファレンス](configuration.md) — 閾値、カスタムルール、YAML ポリシー
-- [ミドルウェアガイド](middleware.md) — FastAPI、LangChain、OpenAI との連携
+- [ミドルウェアガイド](middleware.md) — FastAPI、LangChain、OpenAI、Anthropic との連携
 - [Human-in-the-Loop](human-in-the-loop.md) — セルフホスト型レビューダッシュボード
 - [API リファレンス](api-reference.md) — クラス・メソッドの完全ドキュメント
 - [サンプル集](../examples/README.md) — 実行可能なコード例

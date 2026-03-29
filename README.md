@@ -351,6 +351,18 @@ ruff check ai_guardian/ tests/
 
 ---
 
+## 「Secured by AI Guardian」バッジ
+
+ai-guardian を採用されたプロジェクトは、README に以下のバッジを貼ることができます：
+
+```markdown
+[![Secured by AI Guardian](https://raw.githubusercontent.com/killertcell428/ai-guardian/main/.github/badge-secured.svg)](https://github.com/killertcell428/ai-guardian)
+```
+
+[![Secured by AI Guardian](https://raw.githubusercontent.com/killertcell428/ai-guardian/main/.github/badge-secured.svg)](https://github.com/killertcell428/ai-guardian)
+
+---
+
 ## 採用事例・導入検討中の方へ
 
 導入の相談・PoC サポートは [GitHub Discussions](https://github.com/killertcell428/ai-guardian/discussions) または
