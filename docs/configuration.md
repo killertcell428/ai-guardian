@@ -1,6 +1,6 @@
-# Configuration
+# 設定
 
-## Guard constructor
+## Guard コンストラクタ
 
 ```python
 Guard(
@@ -11,16 +11,16 @@ Guard(
 )
 ```
 
-| Parameter              | Type           | Default     | Description                                              |
+| パラメータ             | 型             | デフォルト  | 説明                                                     |
 |------------------------|----------------|-------------|----------------------------------------------------------|
-| `policy`               | `str`          | `"default"` | Built-in policy name: `"default"`, `"strict"`, `"permissive"` |
-| `policy_file`          | `str \| None`  | `None`      | Path to a YAML policy file (overrides `policy`)          |
-| `auto_block_threshold` | `int \| None`  | `None`      | Override block threshold (0–100)                         |
-| `auto_allow_threshold` | `int \| None`  | `None`      | Override allow threshold (0–100)                         |
+| `policy`               | `str`          | `"default"` | 組み込みポリシー名: `"default"`, `"strict"`, `"permissive"` |
+| `policy_file`          | `str \| None`  | `None`      | YAML ポリシーファイルのパス（`policy` より優先）         |
+| `auto_block_threshold` | `int \| None`  | `None`      | ブロック閾値の上書き（0〜100）                           |
+| `auto_allow_threshold` | `int \| None`  | `None`      | 許可閾値の上書き（0〜100）                               |
 
-## Built-in policies
+## 組み込みポリシー
 
-### `"default"` (recommended)
+### `"default"`（推奨）
 
 ```
 block  when score >= 81   (CRITICAL)
@@ -44,30 +44,30 @@ allow  when score <= 40
 log    otherwise
 ```
 
-## Inline threshold override
+## インライン閾値の上書き
 
 ```python
-# Block anything above 70, allow anything below 25
+# スコア 70 以上をブロック、25 以下を許可
 guard = Guard(auto_block_threshold=70, auto_allow_threshold=25)
 ```
 
-## YAML policy file
+## YAML ポリシーファイル
 
-Requires `pip install 'ai-guardian[yaml]'`.
+`pip install 'ai-guardian[yaml]'` が必要です。
 
 ```yaml
 # policy.yaml
 name: my-company-policy
 description: Custom policy for ACME Corp
 
-# Score at which requests are automatically blocked (0-100)
+# リクエストを自動ブロックするスコア（0-100）
 auto_block_threshold: 75
 
-# Score at which requests are automatically allowed without further checks (0-100)
+# リクエストを追加チェックなしで自動許可するスコア（0-100）
 auto_allow_threshold: 20
 
 custom_rules:
-  # Block any mention of a competitor by name
+  # 競合他社名の言及をブロック
   - id: block_competitor
     name: Competitor Mention
     description: Flag any message mentioning CompetitorX
@@ -75,7 +75,7 @@ custom_rules:
     score_delta: 60
     enabled: true
 
-  # Warn when users ask for financial data in bulk
+  # 財務データの一括取得を警告
   - id: bulk_financial_export
     name: Bulk Financial Data Request
     description: Detect attempts to export large amounts of financial records
@@ -88,45 +88,45 @@ custom_rules:
 guard = Guard(policy_file="policy.yaml")
 ```
 
-### YAML schema reference
+### YAML スキーマリファレンス
 
-| Field                  | Type     | Required | Description                                       |
-|------------------------|----------|----------|---------------------------------------------------|
-| `name`                 | string   | no       | Human-readable name                               |
-| `description`          | string   | no       | Free-form description                             |
-| `auto_block_threshold` | integer  | no       | Override block threshold (0–100)                  |
-| `auto_allow_threshold` | integer  | no       | Override allow threshold (0–100)                  |
-| `custom_rules`         | list     | no       | List of `CustomRule` objects (see below)          |
+| フィールド             | 型       | 必須 | 説明                                              |
+|------------------------|----------|------|---------------------------------------------------|
+| `name`                 | string   | いいえ | 人間が読める名前                                  |
+| `description`          | string   | いいえ | 自由記述の説明文                                  |
+| `auto_block_threshold` | integer  | いいえ | ブロック閾値の上書き（0〜100）                    |
+| `auto_allow_threshold` | integer  | いいえ | 許可閾値の上書き（0〜100）                        |
+| `custom_rules`         | list     | いいえ | `CustomRule` オブジェクトのリスト（後述）         |
 
-#### CustomRule fields
+#### CustomRule のフィールド
 
-| Field         | Type    | Required | Description                                                       |
-|---------------|---------|----------|-------------------------------------------------------------------|
-| `id`          | string  | yes      | Unique identifier (snake_case)                                    |
-| `name`        | string  | yes      | Human-readable label shown in `reasons`                           |
-| `description` | string  | no       | Longer explanation                                                |
-| `pattern`     | string  | yes      | Python regex (compiled with `re.IGNORECASE` by default)           |
-| `score_delta` | integer | yes      | Points added to risk score when pattern matches (1–100)           |
-| `enabled`     | boolean | yes      | Set to `false` to disable without removing the rule               |
+| フィールド    | 型      | 必須 | 説明                                                              |
+|---------------|---------|------|-------------------------------------------------------------------|
+| `id`          | string  | はい | 一意の識別子（snake_case）                                        |
+| `name`        | string  | はい | `reasons` に表示される人間が読めるラベル                          |
+| `description` | string  | いいえ | 詳細な説明                                                        |
+| `pattern`     | string  | はい | Python 正規表現（デフォルトで `re.IGNORECASE` 付きでコンパイル）  |
+| `score_delta` | integer | はい | パターンがマッチした際にリスクスコアに加算されるポイント（1〜100）|
+| `enabled`     | boolean | はい | `false` にするとルールを削除せず無効化できる                      |
 
-## Risk scoring model
+## リスクスコアリングモデル
 
-Scores are calculated as follows:
+スコアは以下のように算出されます。
 
-1. Each matched pattern contributes its `score_delta`.
-2. Within the same category, scores are **capped at 2× the highest base score** to prevent runaway accumulation from noisy input.
-3. Final score is clamped to `[0, 100]`.
+1. マッチしたパターンごとに `score_delta` が加算される。
+2. 同一カテゴリ内では、ノイズの多い入力によるスコアの暴走を防ぐため、**最大ベーススコアの 2 倍**が上限となる。
+3. 最終スコアは `[0, 100]` にクランプされる。
 
-| Score range | Risk level | Symbol         |
+| スコア範囲  | リスクレベル | アクション     |
 |-------------|------------|----------------|
-| 0 – 30      | LOW        | safe           |
-| 31 – 60     | MEDIUM     | log & allow    |
-| 61 – 80     | HIGH       | log & allow    |
-| 81 – 100    | CRITICAL   | block          |
+| 0 〜 30     | LOW        | 安全           |
+| 31 〜 60    | MEDIUM     | ログ記録＆許可 |
+| 61 〜 80    | HIGH       | ログ記録＆許可 |
+| 81 〜 100   | CRITICAL   | ブロック       |
 
-## Environment variable configuration
+## 環境変数による設定
 
-For the self-hosted backend only (see `backend/.env.example`):
+セルフホスト型バックエンド専用です（`backend/.env.example` を参照）。
 
 ```bash
 DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/ai_guardian

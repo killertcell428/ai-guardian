@@ -1,33 +1,33 @@
-# Getting Started
+# はじめに
 
-## Requirements
+## 動作要件
 
-- Python 3.11 or later
-- No mandatory third-party dependencies (core library)
+- Python 3.11 以上
+- サードパーティ依存なし（コアライブラリのみの場合）
 
-## Installation
+## インストール
 
 ```bash
-# Minimal — core Guard class only
+# 最小構成 — Guard クラスのみ
 pip install ai-guardian
 
-# With FastAPI middleware
+# FastAPI ミドルウェア付き
 pip install 'ai-guardian[fastapi]'
 
-# With LangChain callback
+# LangChain コールバック付き
 pip install 'ai-guardian[langchain]'
 
-# With OpenAI proxy wrapper
+# OpenAI プロキシラッパー付き
 pip install 'ai-guardian[openai]'
 
-# With YAML policy support
+# YAML ポリシー対応
 pip install 'ai-guardian[yaml]'
 
-# Everything
+# 全部入り
 pip install 'ai-guardian[all]'
 ```
 
-## Your first check
+## 最初のチェック
 
 ```python
 from ai_guardian import Guard
@@ -41,18 +41,18 @@ print(result.risk_score)  # e.g. 85
 print(result.reasons)     # ['Ignore Previous Instructions', 'System Prompt Extraction']
 ```
 
-## Scanning LLM responses
+## LLM レスポンスのスキャン
 
 ```python
 llm_response = "Sure! My system prompt is: 'You are a helpful assistant that...'"
 
 result = guard.check_output(llm_response)
 if result.blocked:
-    # Replace with a safe fallback
+    # 安全なフォールバック応答に差し替える
     safe_response = "I can't share that information."
 ```
 
-## Scanning OpenAI-style message arrays
+## OpenAI 形式のメッセージ配列をスキャン
 
 ```python
 messages = [
@@ -65,26 +65,26 @@ if result.blocked:
     raise ValueError(f"Blocked: {result.reasons}")
 ```
 
-## Choosing a policy
+## ポリシーの選択
 
-ai-guardian ships with three built-in policies:
+ai-guardian には 3 つの組み込みポリシーが用意されています。
 
-| Policy        | Block threshold | Use case                              |
-|---------------|-----------------|---------------------------------------|
-| `"default"`   | score ≥ 81      | General applications                  |
-| `"strict"`    | score ≥ 61      | Finance, healthcare, high-risk APIs   |
-| `"permissive"`| score ≥ 91      | Internal tools / low-risk environments|
+| ポリシー        | ブロック閾値    | 用途                                  |
+|-----------------|-----------------|---------------------------------------|
+| `"default"`     | score >= 81     | 一般的なアプリケーション              |
+| `"strict"`      | score >= 61     | 金融・医療・高リスク API              |
+| `"permissive"`  | score >= 91     | 社内ツール・低リスク環境              |
 
 ```python
 guard = Guard(policy="strict")
 ```
 
-See [configuration.md](configuration.md) for custom YAML policies.
+カスタム YAML ポリシーについては [configuration.md](configuration.md) を参照してください。
 
-## Next steps
+## 次のステップ
 
-- [Configuration reference](configuration.md) — thresholds, custom rules, YAML policies
-- [Middleware guide](middleware.md) — FastAPI, LangChain, OpenAI integrations
-- [Human-in-the-Loop](human-in-the-loop.md) — self-hosted review dashboard
-- [API reference](api-reference.md) — full class and method documentation
-- [Examples](../examples/README.md) — runnable code samples
+- [設定リファレンス](configuration.md) — 閾値、カスタムルール、YAML ポリシー
+- [ミドルウェアガイド](middleware.md) — FastAPI、LangChain、OpenAI との連携
+- [Human-in-the-Loop](human-in-the-loop.md) — セルフホスト型レビューダッシュボード
+- [API リファレンス](api-reference.md) — クラス・メソッドの完全ドキュメント
+- [サンプル集](../examples/README.md) — 実行可能なコード例

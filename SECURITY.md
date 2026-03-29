@@ -1,70 +1,68 @@
-# Security Policy
+# セキュリティポリシー
 
-## Supported Versions
+## サポート対象バージョン
 
 | Version | Supported          |
 | ------- | ------------------ |
 | 0.1.x   | :white_check_mark: |
 
-We release security patches for the latest minor version only.
+セキュリティパッチは最新のマイナーバージョンに対してのみリリースします。
 
-## Reporting a Vulnerability
+## 脆弱性の報告
 
-**Please do not open a public GitHub issue for security vulnerabilities.**
+**セキュリティ上の脆弱性について、公開の GitHub Issue を作成しないでください。**
 
-### Option 1 — GitHub Private Security Advisory (preferred)
+### 方法 1 — GitHub Private Security Advisory（推奨）
 
-1. Go to the repository → **Security** tab → **Advisories** → **New draft security advisory**.
-2. Fill in the details (description, affected version, reproduction steps, suggested fix).
-3. Submit. The maintainers will respond within **72 hours**.
+1. リポジトリの **Security** タブ → **Advisories** → **New draft security advisory** に移動します。
+2. 詳細（説明、影響を受けるバージョン、再現手順、修正案）を記入します。
+3. 送信してください。メンテナーが **72時間以内** に返答します。
 
-### Option 2 — Email
+### 方法 2 — メール
 
-Send a report to **security@killertcell428.dev** with:
+以下の情報を **security@killertcell428.dev** に送信してください。
 
-- A description of the vulnerability
-- Steps to reproduce
-- Affected version(s)
-- Any known mitigations
-- Your contact information (optional, for acknowledgement)
+- 脆弱性の説明
+- 再現手順
+- 影響を受けるバージョン
+- 既知の緩和策
+- 連絡先情報（任意、謝辞掲載のため）
 
-PGP key: available on request.
+PGP key: リクエストに応じて提供します。
 
-## Response Process
+## 対応プロセス
 
-1. **Acknowledgement** — we confirm receipt within 72 hours.
-2. **Assessment** — we evaluate impact and severity within 7 days.
-3. **Fix** — we develop and test a patch.
-4. **Disclosure** — we coordinate a release date with you and publish a GitHub Security Advisory.
-5. **Credit** — with your permission, we list you in the advisory and CHANGELOG.
+1. **受領確認** — 72時間以内に受領を確認します。
+2. **評価** — 7日以内に影響度と深刻度を評価します。
+3. **修正** — パッチを開発・テストします。
+4. **公開** — 報告者とリリース日を調整し、GitHub Security Advisory を公開します。
+5. **クレジット** — 報告者の許可を得た上で、advisory および CHANGELOG にお名前を掲載します。
 
-We follow [responsible disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure): please give us a reasonable window (typically 90 days) before public disclosure.
+私たちは [responsible disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure) の方針に従っています。公開前に合理的な猶予期間（通常90日間）をいただくようお願いします。
 
-## Scope
+## 対象範囲
 
-The following are **in scope**:
+以下は **対象範囲内** です:
 
-- Bypasses of the `Guard` class detection logic (false-negative exploits)
-- Information leakage from the library itself
-- Remote code execution via crafted input
-- Dependency vulnerabilities in the published packages
-- Security issues in the self-hosted backend (`backend/`)
+- `Guard` クラスの検出ロジックのバイパス（false-negative を利用した攻撃）
+- ライブラリ自体からの情報漏洩
+- 細工された入力によるリモートコード実行
+- 公開パッケージにおける依存関係の脆弱性
+- セルフホスト型バックエンド（`backend/`）のセキュリティ問題
 
-The following are **out of scope**:
+以下は **対象範囲外** です:
 
-- Attacks that require physical access to the host machine
-- Social engineering of maintainers
-- Issues in third-party dependencies that have no direct impact on ai-guardian
+- ホストマシンへの物理アクセスを必要とする攻撃
+- メンテナーに対するソーシャルエンジニアリング
+- ai-guardian に直接的な影響を及ぼさないサードパーティ依存関係の問題
 
-## Security Design Notes
+## セキュリティ設計に関する補足
 
-ai-guardian is a **defence-in-depth layer**, not a complete security solution. It works by
-pattern-matching known attack signatures and should be combined with:
+ai-guardian は **多層防御の一層** であり、完全なセキュリティソリューションではありません。既知の攻撃パターンとのパターンマッチングによって動作するため、以下と組み合わせて使用してください。
 
-- Input validation at the API boundary
-- Output sanitisation before rendering to users
-- Principle of least privilege for LLM system prompts
-- Rate limiting and audit logging
+- API 境界での入力バリデーション
+- ユーザーへの表示前の出力サニタイズ
+- LLM システムプロンプトに対する最小権限の原則
+- レート制限と監査ログ
 
-A sophisticated attacker may craft inputs that evade the current pattern set. We actively
-maintain and expand detection patterns — contributions are welcome via the standard PR process.
+高度な攻撃者が現在のパターンセットを回避する入力を作成する可能性があります。検出パターンの維持・拡充は継続的に行っており、通常の PR プロセスによるコントリビューションを歓迎します。

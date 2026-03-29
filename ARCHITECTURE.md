@@ -1,8 +1,8 @@
-# AI Guardian Architecture
+# AI Guardian アーキテクチャ
 
-## Overview
+## 概要
 
-AI Guardian is a **universal governance layer for AI agents**. It monitors, controls, and audits every operation that AI agents (Claude Code, Cursor, custom agents) perform in enterprise environments.
+AI Guardian は **AIエージェント向け汎用ガバナンスレイヤー** である。エンタープライズ環境でAIエージェント（Claude Code、Cursor、独自エージェント）が実行するすべての操作を監視・制御・監査する。
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -42,79 +42,79 @@ AI Guardian is a **universal governance layer for AI agents**. It monitors, cont
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Module Architecture
+## モジュール構成
 
 ```
 ai_guardian/
 │
-├── scanner.py              # Layer 0: Core threat detection
-│   ├── scan()              #   Scan user input (48 patterns + similarity)
-│   ├── scan_output()       #   Scan LLM responses
-│   ├── scan_messages()     #   Multi-turn conversation scanning
-│   ├── scan_rag_context()  #   RAG document scanning
-│   ├── sanitize()          #   Auto-redact PII
-│   └── _normalize_text()   #   Evasion defeat (NFKC, zero-width, spacing)
+├── scanner.py              # Layer 0: 脅威検出コア
+│   ├── scan()              #   ユーザー入力スキャン（48パターン + 類似度）
+│   ├── scan_output()       #   LLM応答スキャン
+│   ├── scan_messages()     #   マルチターン会話スキャン
+│   ├── scan_rag_context()  #   RAGドキュメントスキャン
+│   ├── sanitize()          #   PII自動マスキング
+│   └── _normalize_text()   #   回避手法の無効化（NFKC、ゼロ幅文字、スペース挿入）
 │
-├── patterns.py             # Detection pattern definitions
-│   ├── PROMPT_INJECTION    #   12 EN + 6 JA patterns
-│   ├── SQL_INJECTION       #   6 patterns
-│   ├── PII_INPUT           #   8 patterns (JP: My Number, phone, etc.)
-│   ├── COMMAND_INJECTION   #   2 patterns
-│   ├── CONFIDENTIAL        #   3 patterns
-│   ├── LEGAL_RISK          #   2 patterns (trade secret, copyright)
-│   └── OUTPUT_PATTERNS     #   7 patterns (PII leak, secret leak)
+├── patterns.py             # 検出パターン定義
+│   ├── PROMPT_INJECTION    #   英語12 + 日本語6パターン
+│   ├── SQL_INJECTION       #   6パターン
+│   ├── PII_INPUT           #   8パターン（マイナンバー、電話番号等）
+│   ├── COMMAND_INJECTION   #   2パターン
+│   ├── CONFIDENTIAL        #   3パターン
+│   ├── LEGAL_RISK          #   2パターン（営業秘密、著作権）
+│   └── OUTPUT_PATTERNS     #   7パターン（PII漏洩、秘密情報漏洩）
 │
-├── similarity.py           # Layer 2: Semantic similarity detection
-│   ├── ATTACK_CORPUS       #   40 canonical attack phrases (EN + JA)
-│   ├── _ATTACK_SIGNAL_WORDS #  Signal word filter (reduces false positives)
-│   └── check_similarity()  #   Fuzzy matching via difflib + n-grams
+├── similarity.py           # Layer 2: 意味的類似度検出
+│   ├── ATTACK_CORPUS       #   40件の標準的な攻撃フレーズ（英語 + 日本語）
+│   ├── _ATTACK_SIGNAL_WORDS #  シグナルワードフィルタ（誤検知削減用）
+│   └── check_similarity()  #   difflib + n-gramによるファジーマッチング
 │
-├── activity.py             # Activity Stream (multi-tier logging)
-│   ├── ActivityEvent       #   Universal event schema (AGI-ready fields)
-│   ├── ActivityStream      #   3-tier: Local + Global + Alert archive
-│   │   ├── record()        #     Append to all applicable tiers
-│   │   ├── query()         #     Filter by action/agent/risk/user
-│   │   ├── summary()       #     Aggregate stats (by_user, by_project, etc.)
-│   │   ├── export_csv()    #     Excel-compatible CSV export
-│   │   ├── export_excel_summary()  #  Summary + events bundle
-│   │   ├── rotate_logs()   #     Compress after 7d, delete after 60d
-│   │   └── get_alert_knowledge()   #  Alert history for auto-fix AI
-│   └── _dict_to_event()    #   Tolerant deserialization
+├── activity.py             # Activity Stream（多階層ログ）
+│   ├── ActivityEvent       #   汎用イベントスキーマ（AGI対応フィールド含む）
+│   ├── ActivityStream      #   3階層: Local + Global + Alert アーカイブ
+│   │   ├── record()        #     該当する全階層に追記
+│   │   ├── query()         #     action/agent/risk/user でフィルタ
+│   │   ├── summary()       #     集計統計（by_user, by_project 等）
+│   │   ├── export_csv()    #     Excel互換CSVエクスポート
+│   │   ├── export_excel_summary()  #  サマリ + イベント一括出力
+│   │   ├── rotate_logs()   #     7日後に圧縮、60日後に削除
+│   │   └── get_alert_knowledge()   #  自動修正AI向けアラート履歴
+│   └── _dict_to_event()    #   寛容なデシリアライゼーション
 │
-├── policy.py               # Policy Engine (declarative YAML rules)
-│   ├── PolicyRule          #   allow/deny/review + conditions (AGI stubs)
-│   ├── Policy              #   Rule collection + default decision
-│   ├── load_policy()       #   YAML/JSON loader (stdlib-only parser)
-│   ├── evaluate()          #   First-match rule evaluation
-│   ├── save_policy()       #   YAML-like output
-│   └── _default_policy()   #   14 built-in security rules
+├── policy.py               # ポリシーエンジン（宣言的YAMLルール）
+│   ├── PolicyRule          #   allow/deny/review + conditions（AGIスタブ）
+│   ├── Policy              #   ルールコレクション + デフォルト判定
+│   ├── load_policy()       #   YAML/JSONローダー（標準ライブラリのみ）
+│   ├── evaluate()          #   先頭一致ルール評価
+│   ├── save_policy()       #   YAML形式出力
+│   └── _default_policy()   #   14個の組み込みセキュリティルール
 │
-├── compliance.py           # Japan regulatory mapping
-│   ├── ComplianceItem      #   Regulation → Feature → Status
-│   ├── get_compliance_report()   #  24 items, all covered
-│   └── get_compliance_summary()  #  Coverage rate: 100%
+├── compliance.py           # 日本の法規制マッピング
+│   ├── ComplianceItem      #   法規制 → 機能 → 対応状況
+│   ├── get_compliance_report()   #  24項目、全項目対応済み
+│   └── get_compliance_summary()  #  カバー率: 100%
 │
-├── cli.py                  # CLI entry point (aig command)
-│   ├── aig init            #   Project setup + Claude Code hooks
-│   ├── aig logs            #   Activity Stream viewer
-│   ├── aig policy          #   Policy management
-│   ├── aig status          #   Governance overview
-│   ├── aig report          #   Compliance report
-│   ├── aig maintenance     #   Log rotation
-│   └── aig scan            #   Quick threat scan
+├── cli.py                  # CLIエントリポイント（aig コマンド）
+│   ├── aig init            #   プロジェクト初期化 + Claude Code hooks設定
+│   ├── aig logs            #   Activity Stream 閲覧
+│   ├── aig policy          #   ポリシー管理
+│   ├── aig status          #   ガバナンス概要
+│   ├── aig report          #   コンプライアンスレポート
+│   ├── aig maintenance     #   ログローテーション
+│   └── aig scan            #   脅威クイックスキャン
 │
 ├── adapters/
-│   └── claude_code.py      # Claude Code hooks integration
-│       ├── install_hooks()       #  Auto-configure .claude/settings.json
-│       ├── generate_hooks_config()  # PreToolUse hook config
-│       └── HOOK_SCRIPT           #  Interceptor (scan + policy + log)
+│   └── claude_code.py      # Claude Code hooks連携
+│       ├── install_hooks()       #  .claude/settings.json の自動設定
+│       ├── generate_hooks_config()  # PreToolUse hook設定生成
+│       └── HOOK_SCRIPT           #  インターセプタ（スキャン + ポリシー + ログ）
 │
-└── badge.py                # UI badge component (SVG)
+└── badge.py                # UIバッジコンポーネント（SVG）
 ```
 
-## Data Flow
+## データフロー
 
-### Agent Operation → Governance Decision
+### エージェント操作 → ガバナンス判定
 
 ```
 1. Agent calls a tool (e.g., Bash "rm -rf /")
@@ -155,7 +155,29 @@ ai_guardian/
    - exit 2 → deny (tool blocked, reason in stderr)
 ```
 
-## Log Architecture
+### フローの説明
+
+1. エージェントがツールを呼び出す（例: Bash で `rm -rf /`）
+2. アダプタが呼び出しをインターセプト（Claude Code hook: PreToolUse）
+3. ActivityEvent を構築（action、target、user_id、agent_type を記録）
+4. 脅威スキャンを実行（該当する場合）
+   - `_normalize_text()` で回避手法を無効化
+   - 48個の正規表現でパターンマッチング
+   - 40フレーズで類似度チェック
+   - リスクスコアとリスクレベルを算出
+5. ポリシー評価
+   - `ai-guardian-policy.yaml` を読み込み
+   - ルールを上から順に照合（最初に一致したルールが適用）
+   - 判定結果を返す
+6. Activity Stream に全階層で記録
+   - Local: プロジェクトローカルログ
+   - Global: 全プロジェクト横断ログ
+   - Alert: ブロック/レビュー対象のみ
+7. エージェントに判定結果を返却
+   - `exit 0` → 許可（ツール実行）
+   - `exit 2` → 拒否（ツールブロック、理由を stderr に出力）
+
+## ログアーキテクチャ
 
 ```
 Per-project (user-visible):
@@ -175,34 +197,45 @@ Global (CISO/audit, cross-project):
       └── ...                   ← NEVER deleted (knowledge base)
 ```
 
-## AGI-Ready Schema
+### ログ階層の説明
 
-ActivityEvent includes fields for future governance dimensions:
+- **プロジェクト単位**（ユーザーから参照可能）
+  - `.ai-guardian/logs/` 配下に日次JSONLファイルを保存
+  - 7日経過後に自動圧縮、60日経過後に自動削除
 
-| Field | Type | Purpose | Status |
+- **グローバル**（CISO・監査用、プロジェクト横断）
+  - `~/.ai-guardian/global/` に全プロジェクトのログを集約
+  - `~/.ai-guardian/alerts/` にブロック・レビュー対象イベントのみ保存
+  - アラートログは削除されない（ナレッジベースとして永続保持）
+
+## AGI対応スキーマ
+
+ActivityEvent には将来のガバナンス拡張に備えたフィールドが含まれている。
+
+| フィールド | 型 | 用途 | 状態 |
 |-------|------|---------|--------|
-| `autonomy_level` | int (1-5) | Agent autonomy scale | Schema ready |
-| `delegation_chain` | list[str] | Agent-to-agent delegation tracking | Schema ready |
-| `estimated_cost` | float | API/compute cost governance | Schema ready |
-| `memory_scope` | str | Knowledge boundary enforcement | Schema ready |
-| `suggested_fix` | str | AI-suggested safe alternative | Schema ready |
-| `fix_applied` | bool | Was auto-fix applied? | Schema ready |
+| `autonomy_level` | int (1-5) | エージェント自律度スケール | スキーマ定義済み |
+| `delegation_chain` | list[str] | エージェント間の委任追跡 | スキーマ定義済み |
+| `estimated_cost` | float | API/計算コストのガバナンス | スキーマ定義済み |
+| `memory_scope` | str | 知識境界の強制 | スキーマ定義済み |
+| `suggested_fix` | str | AIが提案する安全な代替操作 | スキーマ定義済み |
+| `fix_applied` | bool | 自動修正が適用されたか | スキーマ定義済み |
 
-PolicyRule `conditions` dict supports future checks:
+PolicyRule の `conditions` は将来の条件チェックに対応している。
 
 ```yaml
 conditions:
-  autonomy_level: 3        # Require level 3+ to execute
-  cost_limit: 1.0          # Block if estimated cost > $1
-  department: "engineering" # Only engineering department
-  memory_retention: "90d"  # Auto-forget after 90 days
+  autonomy_level: 3        # レベル3以上でないと実行不可
+  cost_limit: 1.0          # 推定コストが$1超で拒否
+  department: "engineering" # engineering部門のみ許可
+  memory_retention: "90d"  # 90日後に自動削除
 ```
 
-## Security Design Principles
+## セキュリティ設計原則
 
-1. **Zero dependencies** — Pure Python stdlib (no supply chain risk)
-2. **Fail-open by default** — Hook errors don't block agent (graceful degradation)
-3. **Append-only logs** — JSONL files, no update/delete operations
-4. **Policy-as-code** — YAML in git, version controlled, auditable
-5. **Agent-agnostic** — Adapter pattern for any agent type
-6. **Detection + remediation** — Every block includes OWASP ref + fix guidance
+1. **外部依存ゼロ** --- Python標準ライブラリのみ使用（サプライチェーンリスクの排除）
+2. **デフォルトで許可** --- hookのエラー時はエージェントをブロックしない（グレースフルデグラデーション）
+3. **追記専用ログ** --- JSONLファイルへの追記のみ、更新・削除操作なし
+4. **ポリシー as コード** --- YAMLをgitで管理し、バージョン管理と監査を実現
+5. **エージェント非依存** --- アダプタパターンにより任意のエージェントに対応
+6. **検出 + 修復** --- すべてのブロックにOWASPリファレンスと修正ガイダンスを付与

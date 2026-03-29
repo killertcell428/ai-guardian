@@ -1,6 +1,6 @@
-# API Reference
+# API リファレンス
 
-## `ai_guardian` — top-level exports
+## `ai_guardian` — トップレベルエクスポート
 
 ```python
 from ai_guardian import Guard, CheckResult, MatchedRule, RiskLevel
@@ -22,14 +22,14 @@ class RiskLevel(str, Enum):
 
 ## `MatchedRule`
 
-Represents a single pattern that fired during a scan.
+スキャン中にマッチした個々のパターンを表します。
 
 ```python
 @dataclass
 class MatchedRule:
     id:          str    # e.g. "pi_ignore_previous"
     name:        str    # e.g. "Ignore Previous Instructions"
-    score_delta: int    # points contributed to the total risk score
+    score_delta: int    # 合計リスクスコアへの加算ポイント
     owasp_ref:   str    # e.g. "OWASP LLM01: Prompt Injection"
     cwe_ref:     str    # e.g. "CWE-20"
 ```
@@ -38,21 +38,21 @@ class MatchedRule:
 
 ## `CheckResult`
 
-Returned by every `Guard` scan method.
+`Guard` のすべてのスキャンメソッドが返すオブジェクトです。
 
 ```python
 @dataclass
 class CheckResult:
-    blocked:     bool             # True if risk_score >= auto_block_threshold
+    blocked:     bool             # risk_score >= auto_block_threshold の場合 True
     risk_score:  int              # 0–100
     risk_level:  RiskLevel        # LOW / MEDIUM / HIGH / CRITICAL
-    reasons:     list[str]        # human-readable names of matched rules
+    reasons:     list[str]        # マッチしたルールの人間が読める名前
     matched_rules: list[MatchedRule]
-    remediation: dict             # structured remediation hints (see below)
-    input_text:  str              # scanned text (first 500 chars)
+    remediation: dict             # 構造化された修復ヒント（後述）
+    input_text:  str              # スキャン対象テキスト（先頭 500 文字）
 ```
 
-### `remediation` structure
+### `remediation` の構造
 
 ```python
 {
@@ -70,7 +70,7 @@ class CheckResult:
 
 ## `Guard`
 
-### Constructor
+### コンストラクタ
 
 ```python
 Guard(
@@ -81,11 +81,11 @@ Guard(
 )
 ```
 
-### Methods
+### メソッド
 
 #### `check_input(text: str) -> CheckResult`
 
-Scan a plain-text user prompt.
+プレーンテキストのユーザープロンプトをスキャンします。
 
 ```python
 result = guard.check_input("Ignore previous instructions")
@@ -93,8 +93,7 @@ result = guard.check_input("Ignore previous instructions")
 
 #### `check_messages(messages: list[dict]) -> CheckResult`
 
-Scan an OpenAI-style messages array. Only `user` and `assistant` roles are scanned
-by default; `system` prompts are skipped.
+OpenAI 形式のメッセージ配列をスキャンします。デフォルトでは `user` と `assistant` ロールのみがスキャン対象で、`system` プロンプトはスキップされます。
 
 ```python
 result = guard.check_messages([
@@ -106,7 +105,7 @@ result = guard.check_messages([
 
 #### `check_output(text: str) -> CheckResult`
 
-Scan an LLM response for leaked credentials or PII.
+LLM レスポンスをスキャンし、認証情報や個人情報の漏洩を検出します。
 
 ```python
 result = guard.check_output(llm_response_text)
@@ -114,7 +113,7 @@ result = guard.check_output(llm_response_text)
 
 #### `check_response(response: dict) -> CheckResult`
 
-Scan an OpenAI-style response object (extracts `choices[*].message.content`).
+OpenAI 形式のレスポンスオブジェクトをスキャンします（`choices[*].message.content` を抽出）。
 
 ```python
 response = openai_client.chat.completions.create(...)
@@ -127,7 +126,7 @@ result = guard.check_response(response.model_dump())
 
 ### `AIGuardianMiddleware`
 
-Starlette middleware class. See [middleware.md](middleware.md).
+Starlette ミドルウェアクラスです。詳細は [middleware.md](middleware.md) を参照してください。
 
 ```python
 from ai_guardian.middleware.fastapi import AIGuardianMiddleware
@@ -146,7 +145,7 @@ app.add_middleware(
 
 ### `AIGuardianCallback`
 
-LangChain `BaseCallbackHandler` subclass.
+LangChain の `BaseCallbackHandler` サブクラスです。
 
 ```python
 from ai_guardian.middleware.langchain import AIGuardianCallback, GuardianBlockedError
@@ -155,13 +154,13 @@ callback = AIGuardianCallback(
     guard=guard,
     block_on_input=True,
     block_on_output=False,
-    on_blocked=None,   # optional callable(result: CheckResult) -> None
+    on_blocked=None,   # 任意のコールバック callable(result: CheckResult) -> None
 )
 ```
 
 ### `GuardianBlockedError`
 
-Raised by all integrations when a request is blocked.
+リクエストがブロックされた際にすべての連携機能から送出される例外です。
 
 ```python
 class GuardianBlockedError(Exception):
@@ -174,7 +173,7 @@ class GuardianBlockedError(Exception):
 
 ### `SecureOpenAI`
 
-Drop-in replacement for `openai.OpenAI`.
+`openai.OpenAI` のドロップイン置き換えです。
 
 ```python
 from ai_guardian.middleware.openai_proxy import SecureOpenAI
@@ -188,7 +187,7 @@ client = SecureOpenAI(
 
 ### `AsyncSecureOpenAI`
 
-Async variant:
+非同期版:
 
 ```python
 from ai_guardian.middleware.openai_proxy import AsyncSecureOpenAI
@@ -203,21 +202,21 @@ response = await client.chat.completions.create(...)
 
 ### `PolicyManager`
 
-Loads and manages policies. Usually not used directly.
+ポリシーの読み込みと管理を行います。通常は直接使用しません。
 
 ```python
 from ai_guardian.policies.manager import PolicyManager
 
 pm = PolicyManager()
-policy = pm.load("strict")            # built-in
-policy = pm.load_from_file("p.yaml") # custom YAML
+policy = pm.load("strict")            # 組み込みポリシー
+policy = pm.load_from_file("p.yaml") # カスタム YAML
 ```
 
 ---
 
-## Exceptions
+## 例外
 
-| Exception              | Module                          | When raised                                     |
+| 例外                   | モジュール                      | 送出タイミング                                  |
 |------------------------|---------------------------------|-------------------------------------------------|
-| `GuardianBlockedError` | `ai_guardian.middleware`        | Request exceeds block threshold in integrations |
-| `PolicyLoadError`      | `ai_guardian.policies.manager`  | Invalid or missing YAML policy file             |
+| `GuardianBlockedError` | `ai_guardian.middleware`        | 連携機能でブロック閾値を超えた場合              |
+| `PolicyLoadError`      | `ai_guardian.policies.manager`  | YAML ポリシーファイルが無効または見つからない場合|

@@ -1,15 +1,15 @@
-# Contributing to ai-guardian
+# ai-guardian への貢献ガイド
 
-Thank you for your interest in contributing!
+コントリビューションに興味を持っていただきありがとうございます！
 
-## Ways to contribute
+## 貢献の方法
 
-- **New detection patterns** — add rules in `ai_guardian/filters/patterns.py`
-- **New middleware** — add integrations under `ai_guardian/middleware/`
-- **Bug fixes** — open an issue first to discuss the fix
-- **Documentation** — improve README or docstrings
+- **検出パターンの追加** — `ai_guardian/filters/patterns.py` にルールを追加する
+- **middleware の追加** — `ai_guardian/middleware/` 配下に連携モジュールを追加する
+- **バグ修正** — まず issue を作成し、修正方針を議論してから着手する
+- **ドキュメント改善** — README や docstring の充実化
 
-## Setup
+## セットアップ
 
 ```bash
 git clone https://github.com/killertcell428/ai-guardian
@@ -17,43 +17,43 @@ cd ai-guardian
 pip install -e '.[dev]'
 ```
 
-## Running tests
+## テストの実行
 
 ```bash
 pytest tests/ -v
 pytest tests/ --cov=ai_guardian --cov-report=term-missing
 ```
 
-## Adding a detection pattern
+## 検出パターンの追加手順
 
-1. Open `ai_guardian/filters/patterns.py`.
-2. Add a `DetectionPattern` to the appropriate list (or create a new category list and add it to `ALL_INPUT_PATTERNS` / `OUTPUT_PATTERNS`).
-3. Include `owasp_ref` and `remediation_hint` — these are displayed to developers when a rule fires.
-4. Add a test in `tests/test_filters.py` that asserts the new rule matches an example string and does NOT match clean input.
-5. Run `pytest` to confirm all tests pass.
+1. `ai_guardian/filters/patterns.py` を開く。
+2. 該当するリストに `DetectionPattern` を追加する（新しいカテゴリが必要な場合はリストを作成し、`ALL_INPUT_PATTERNS` / `OUTPUT_PATTERNS` に登録する）。
+3. `owasp_ref` と `remediation_hint` を必ず含める。ルールが発火した際に開発者へ表示される情報となる。
+4. `tests/test_filters.py` にテストを追加する。対象文字列にマッチすること、かつ正常な入力にはマッチしないことの両方を検証する。
+5. `pytest` を実行し、全テストが通ることを確認する。
 
-## Adding a middleware integration
+## middleware 連携の追加手順
 
-1. Create `ai_guardian/middleware/<framework>.py`.
-2. Guard the import with a `try/except ImportError` that raises a clear message directing users to the right `pip install` extra.
-3. Export the class in `ai_guardian/middleware/__init__.py`.
-4. Add the optional dependency to `pyproject.toml` under `[project.optional-dependencies]`.
-5. Write tests in `tests/test_middleware.py` with `@pytest.mark.skipif(not HAS_<FRAMEWORK>, ...)`.
+1. `ai_guardian/middleware/<framework>.py` を作成する。
+2. import 部分を `try/except ImportError` で囲み、必要な `pip install` のエクストラを案内する明確なエラーメッセージを出す。
+3. `ai_guardian/middleware/__init__.py` でクラスを export する。
+4. `pyproject.toml` の `[project.optional-dependencies]` にオプション依存パッケージを追加する。
+5. `tests/test_middleware.py` に `@pytest.mark.skipif(not HAS_<FRAMEWORK>, ...)` を付けたテストを書く。
 
-## Pull request checklist
+## PR チェックリスト
 
-- [ ] Tests pass (`pytest tests/ -v`)
-- [ ] New patterns have both a positive test and a negative (clean input) test
-- [ ] Docstrings updated for public API changes
-- [ ] `CHANGELOG.md` entry added (if applicable)
+- [ ] テストが通ること（`pytest tests/ -v`）
+- [ ] 新しいパターンには正例テストと負例（正常入力）テストの両方があること
+- [ ] 公開 API の変更に対して docstring が更新されていること
+- [ ] 必要に応じて `CHANGELOG.md` にエントリを追加していること
 
-## Code style
+## コードスタイル
 
 ```bash
 ruff check ai_guardian/ tests/
 ruff format ai_guardian/ tests/
 ```
 
-## Reporting security vulnerabilities
+## セキュリティ脆弱性の報告
 
-Please do **not** open public GitHub issues for security vulnerabilities. Email the maintainers directly (see repository contact info).
+セキュリティ脆弱性については、公開の GitHub issue を作成**しないで**ください。リポジトリの連絡先情報を参照し、メンテナーへ直接メールで報告してください。
