@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`aig scan --file PATH`** — scan a file directly from the CLI (useful for CI workflows and pre-commit hooks). Returns JSON with `--json` flag for machine consumption.
+- **GitHub Actions example workflow** (`examples/github-actions/ai-guardian-scan.yml`) — copy-paste CI workflow that scans prompt files on every push/PR, posts warnings/errors as annotations
 - **LangGraph `GuardNode`** (`ai_guardian/middleware/langgraph.py`) — drop-in node for `StateGraph` that scans user messages before they reach the LLM. Supports:
   - `raise_on_block=True` (default) — raises `GuardianBlockedError` on blocked input
   - `raise_on_block=False` — sets `state["guard_blocked"] = True` for conditional routing

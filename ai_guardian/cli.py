@@ -13,6 +13,8 @@ Usage:
     aig policy check             # Validate policy file
     aig policy show              # Show all rules
     aig scan "rm -rf /"          # Scan text for threats
+    aig scan --file prompt.txt   # Scan a file
+    echo "text" | aig scan       # Scan from stdin
     aig report --days 30         # Generate compliance report
     aig maintenance              # Rotate and compress old logs
 """
@@ -84,6 +86,12 @@ def main(argv: list[str] | None = None) -> int:
     # aig scan (quick scan from CLI)
     scan_p = sub.add_parser("scan", help="Scan text for threats")
     scan_p.add_argument("text", nargs="?", help="Text to scan (or read from stdin)")
+    scan_p.add_argument(
+        "--file",
+        dest="scan_file",
+        metavar="PATH",
+        help="Scan a file instead of a text argument (reads entire file contents)",
+    )
     scan_p.add_argument(
         "--json",
         dest="json_output",
@@ -509,9 +517,22 @@ def cmd_scan(args) -> int:
     """Quick scan from CLI."""
     from ai_guardian import scan
 
-    text = args.text
-    if not text:
-        text = sys.stdin.read()
+    # Resolve text source: --file flag > positional text > stdin
+    scan_file = getattr(args, "scan_file", None)
+    if scan_file:
+        file_path = Path(scan_file)
+        if not file_path.exists():
+            print(f"Error: file not found: {scan_file}", file=sys.stderr)
+            return 2
+        try:
+            text = file_path.read_text(encoding="utf-8", errors="replace")
+        except OSError as e:
+            print(f"Error reading file: {e}", file=sys.stderr)
+            return 2
+    else:
+        text = args.text
+        if not text:
+            text = sys.stdin.read()
 
     result = scan(text)
 
