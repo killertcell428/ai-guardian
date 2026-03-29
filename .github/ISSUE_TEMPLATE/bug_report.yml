@@ -1,111 +1,85 @@
-name: Bug Report
-description: Something isn't working as expected
-title: "[Bug]: "
-labels: ["bug", "triage"]
-assignees: []
-
+name: "🐛 Bug Report"
+description: "Report a detection false positive, false negative, or crash"
+title: "[Bug] "
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
         Thanks for taking the time to report a bug! Please fill in as much detail as possible.
 
-  - type: checkboxes
-    id: prerequisites
-    attributes:
-      label: Before you submit
-      options:
-        - label: I have searched [existing issues](https://github.com/killertcell428/ai-guardian/issues) and this is not a duplicate
-          required: true
-        - label: I am using the latest released version of ai-guardian
-          required: false
-
   - type: input
     id: version
     attributes:
-      label: ai-guardian version
-      description: Run `python -c "import ai_guardian; print(ai_guardian.__version__)"` or `pip show ai-guardian`
-      placeholder: "0.1.0"
-    validations:
-      required: true
-
-  - type: input
-    id: python-version
-    attributes:
-      label: Python version
-      description: Run `python --version`
-      placeholder: "3.11.9"
+      label: aig-guardian version
+      description: Run `pip show aig-guardian` to get the version
+      placeholder: "0.4.0"
     validations:
       required: true
 
   - type: dropdown
-    id: os
+    id: bug_type
     attributes:
-      label: Operating System
+      label: Bug Type
       options:
-        - Linux
-        - macOS
-        - Windows
+        - False Positive (safe input was flagged)
+        - False Negative (attack was not detected)
+        - Crash / Exception
+        - Performance issue
         - Other
     validations:
       required: true
 
-  - type: dropdown
-    id: integration
-    attributes:
-      label: Integration used
-      description: Which part of ai-guardian are you using?
-      multiple: true
-      options:
-        - Core (Guard class)
-        - FastAPI middleware
-        - LangChain callback
-        - OpenAI proxy wrapper
-        - YAML policy loading
-        - Self-hosted backend
-
   - type: textarea
     id: description
     attributes:
-      label: Bug description
-      description: A clear and concise description of what the bug is.
+      label: Describe the bug
+      placeholder: "A clear description of what happened vs. what you expected"
     validations:
       required: true
 
   - type: textarea
-    id: reproduction
+    id: reproduce
     attributes:
-      label: Steps to reproduce
-      description: Minimal code snippet or steps that reproduce the issue.
+      label: Minimal reproduction
+      description: Please provide a minimal code snippet to reproduce the issue
       render: python
       placeholder: |
         from ai_guardian import Guard
-
         guard = Guard()
-        result = guard.check_input("...")
-        # unexpected behaviour here
+        result = guard.check_input("your input here")
+        print(result)
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: Expected behaviour
-      description: What did you expect to happen?
+      label: Expected behavior
+      placeholder: "What should have happened?"
     validations:
       required: true
 
   - type: textarea
     id: actual
     attributes:
-      label: Actual behaviour
-      description: What actually happened? Include the full traceback if applicable.
-      render: text
+      label: Actual behavior
+      placeholder: "What actually happened? Include any error messages or stack traces."
     validations:
       required: true
 
-  - type: textarea
-    id: context
+  - type: input
+    id: python_version
     attributes:
-      label: Additional context
-      description: Any other information that might help (policy file contents, environment details, etc.)
+      label: Python version
+      placeholder: "3.11.8"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      placeholder: "Ubuntu 22.04 / Windows 11 / macOS 14"
+    validations:
+      required: false

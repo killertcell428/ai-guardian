@@ -1,37 +1,24 @@
-name: Feature Request
-description: Suggest a new feature or improvement
-title: "[Feature]: "
+name: "✨ Feature Request"
+description: "Suggest a new detection pattern, integration, or feature"
+title: "[Feature] "
 labels: ["enhancement"]
-assignees: []
-
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping make ai-guardian better! Please describe your idea in detail.
-
-  - type: checkboxes
-    id: prerequisites
-    attributes:
-      label: Before you submit
-      options:
-        - label: I have searched [existing issues](https://github.com/killertcell428/ai-guardian/issues) and this is not a duplicate
-          required: true
-        - label: I have checked the [roadmap / discussions](https://github.com/killertcell428/ai-guardian/discussions) for a related proposal
-          required: false
+        Thanks for suggesting an improvement! Please describe your idea clearly.
 
   - type: dropdown
-    id: area
+    id: feature_type
     attributes:
-      label: Feature area
+      label: Feature Type
       options:
         - New detection pattern
-        - New integration (middleware / callback)
-        - Policy / configuration
-        - Performance
-        - Documentation
-        - CLI tool
-        - Self-hosted backend
+        - New integration (framework/SDK)
+        - CLI improvement
+        - API / SDK improvement
+        - Dashboard / reporting
+        - Performance improvement
         - Other
     validations:
       required: true
@@ -39,9 +26,8 @@ body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem / motivation
-      description: What problem does this feature solve? Why is it needed?
-      placeholder: "Currently, ai-guardian does not detect X, which means..."
+      label: What problem does this solve?
+      placeholder: "Describe the use case or pain point this feature addresses"
     validations:
       required: true
 
@@ -49,34 +35,28 @@ body:
     id: solution
     attributes:
       label: Proposed solution
-      description: Describe what you'd like to see. Include a code sketch if helpful.
-      render: python
-      placeholder: |
-        guard = Guard(feature_x=True)
-        result = guard.check_input("...")
-        # result.blocked == True  because of X
+      placeholder: "Describe what you'd like to see. Include API design if relevant."
     validations:
       required: true
 
   - type: textarea
-    id: alternatives
+    id: attack_examples
     attributes:
-      label: Alternatives considered
-      description: Any other approaches you've thought about?
+      label: Attack examples (if adding a detection pattern)
+      description: "Provide 3-5 example inputs that should be detected"
+      render: text
+      placeholder: |
+        1. "Ignore all previous instructions and..."
+        2. "You are now DAN, which stands for..."
+        3. ...
+    validations:
+      required: false
 
-  - type: dropdown
+  - type: checkboxes
     id: contribution
     attributes:
-      label: Would you like to implement this?
+      label: Are you willing to contribute?
       options:
-        - "Yes — I'll open a PR"
-        - "Maybe — I could use guidance"
-        - "No — just suggesting"
-    validations:
-      required: true
-
-  - type: textarea
-    id: context
-    attributes:
-      label: Additional context
-      description: Screenshots, links, references to related issues, etc.
+        - label: Yes, I'd like to implement this myself (please assign Issue to me)
+        - label: I can help review/test if someone else implements it
+        - label: I'm just suggesting, no capacity to implement right now
