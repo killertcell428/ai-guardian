@@ -91,6 +91,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Output results as JSON (machine-readable)",
     )
 
+    # aig benchmark
+    bench_p = sub.add_parser("benchmark", help="Run built-in adversarial test suite")
+    bench_p.add_argument("--category", help="Test only this category (e.g., jailbreak)")
+    bench_p.add_argument("--json", dest="json_output", action="store_true", help="Output as JSON")
+    bench_p.add_argument(
+        "--threshold", type=int, default=1, help="Minimum score to count as detected (default: 1)"
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "init":
@@ -109,6 +117,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_doctor(args)
     elif args.command == "scan":
         return cmd_scan(args)
+    elif args.command == "benchmark":
+        return cmd_benchmark(args)
     else:
         parser.print_help()
         return 0
@@ -542,6 +552,37 @@ def cmd_scan(args) -> int:
             if rule.remediation_hint:
                 print(f"    Fix: {rule.remediation_hint[:80]}")
     return 0 if result.is_safe else 1
+
+
+def cmd_benchmark(args) -> int:
+    """Run built-in adversarial benchmark suite."""
+    from ai_guardian.benchmark import ATTACK_CORPUS, BenchmarkSuite
+
+    categories = [args.category] if getattr(args, "category", None) else None
+    threshold = getattr(args, "threshold", 1)
+    suite = BenchmarkSuite(threshold=threshold, categories=categories)
+
+    if getattr(args, "json_output", False):
+        print(suite.run_json())
+        return 0
+
+    # Human-readable output
+    result = suite.run()
+    print(result.summary())
+
+    if result.false_positive_examples:
+        print("\nFalse-positive inputs (safe inputs incorrectly flagged):")
+        for ex in result.false_positive_examples[:5]:
+            print(f"  - {ex}")
+
+    for cat_result in result.category_results:
+        if cat_result.missed_examples:
+            print(f"\nMissed {cat_result.category} attacks:")
+            for ex in cat_result.missed_examples[:3]:
+                print(f"  - {ex}")
+
+    # Exit 0 if overall precision ≥ 90%, else 1
+    return 0 if result.overall_precision >= 90.0 else 1
 
 
 if __name__ == "__main__":
