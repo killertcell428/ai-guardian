@@ -7,12 +7,11 @@ from __future__ import annotations
 
 import sys
 import types
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from ai_guardian import Guard
-
 
 # ---------------------------------------------------------------------------
 # Helpers — build a minimal anthropic stub so tests run without the real SDK
@@ -90,7 +89,6 @@ def _make_client(guard: Guard | None = None, response_text: str = "Hello!"):
     client._guard = g
     client._check_output = True
 
-    import types as _types
     import ai_guardian.middleware.anthropic_proxy as _mod
     client.messages = _mod._SecureMessages(_make_stub_messages(response_text), g, True)
     return client

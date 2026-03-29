@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for PROMPT_LEAK_PATTERNS (Issue #1).
 
 Verifies that the new prompt-leaking detection patterns correctly identify
@@ -6,11 +5,8 @@ verbatim-repetition and indirect system prompt extraction attacks.
 """
 from __future__ import annotations
 
-import pytest
-
 from ai_guardian import Guard
 from ai_guardian.patterns import PROMPT_LEAK_PATTERNS
-
 
 # ---------------------------------------------------------------------------
 # Helper

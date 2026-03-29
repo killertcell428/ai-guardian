@@ -92,7 +92,7 @@ class SecureAnthropic:
 
     def __init__(
         self,
-        guard: "Guard",
+        guard: Guard,
         check_output: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -107,7 +107,7 @@ class SecureAnthropic:
 
 
 class _SecureMessages:
-    def __init__(self, messages: Any, guard: "Guard", check_output: bool) -> None:
+    def __init__(self, messages: Any, guard: Guard, check_output: bool) -> None:
         self._messages = messages
         self._guard = guard
         self._check_output = check_output

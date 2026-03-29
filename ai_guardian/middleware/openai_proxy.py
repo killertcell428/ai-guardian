@@ -55,7 +55,7 @@ class SecureOpenAI:
 
     def __init__(
         self,
-        guard: "Guard",
+        guard: Guard,
         check_output: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -70,7 +70,7 @@ class SecureOpenAI:
 
 
 class _SecureChat:
-    def __init__(self, chat: Any, guard: "Guard", check_output: bool) -> None:
+    def __init__(self, chat: Any, guard: Guard, check_output: bool) -> None:
         self._chat = chat
         self.completions = _SecureCompletions(chat.completions, guard, check_output)
 
@@ -79,7 +79,7 @@ class _SecureChat:
 
 
 class _SecureCompletions:
-    def __init__(self, completions: Any, guard: "Guard", check_output: bool) -> None:
+    def __init__(self, completions: Any, guard: Guard, check_output: bool) -> None:
         self._completions = completions
         self._guard = guard
         self._check_output = check_output
