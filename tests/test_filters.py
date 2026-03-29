@@ -1,5 +1,4 @@
 """Tests for the filter engine."""
-import pytest
 
 from ai_guardian.filters.input_filter import filter_input, filter_messages
 from ai_guardian.filters.output_filter import filter_output, filter_response

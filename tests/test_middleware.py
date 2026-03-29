@@ -1,5 +1,4 @@
 """Tests for middleware integrations (FastAPI only — no external deps required)."""
-import json
 import pytest
 
 from ai_guardian import Guard
@@ -10,6 +9,7 @@ from ai_guardian import Guard
 try:
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
+
     from ai_guardian.middleware.fastapi import AIGuardianMiddleware
 
     HAS_FASTAPI = True

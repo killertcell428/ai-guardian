@@ -50,7 +50,7 @@ class AIGuardianCallback(BaseCallbackHandler):
 
     def __init__(
         self,
-        guard: "Guard",
+        guard: Guard,
         block_on_output: bool = True,
         raise_on_block: bool = True,
     ) -> None:
@@ -101,7 +101,7 @@ class AIGuardianCallback(BaseCallbackHandler):
     # Output scanning
     # ------------------------------------------------------------------
 
-    def on_llm_end(self, response: "LLMResult", **kwargs: Any) -> None:
+    def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
         if not self.block_on_output:
             return
         for generations in response.generations:

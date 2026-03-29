@@ -1,5 +1,4 @@
 """Tests for the Guard class."""
-import pytest
 
 from ai_guardian import Guard
 from ai_guardian.types import RiskLevel

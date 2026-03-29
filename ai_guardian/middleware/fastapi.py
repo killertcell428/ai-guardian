@@ -52,7 +52,7 @@ class AIGuardianMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app,
-        guard: "Guard",
+        guard: Guard,
         check_output: bool = False,
         paths: list[str] | None = None,
     ) -> None:

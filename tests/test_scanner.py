@@ -1,5 +1,5 @@
 """Tests for ai_guardian scanner."""
-from ai_guardian import scan, scan_output, scan_messages, sanitize, check_similarity
+from ai_guardian import check_similarity, sanitize, scan, scan_messages, scan_output
 
 
 class TestSafePrompts:

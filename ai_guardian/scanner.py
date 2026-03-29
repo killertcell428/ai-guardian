@@ -430,7 +430,7 @@ def sanitize(
         >>> len(redactions)
         1
     """
-    from ai_guardian.patterns import PII_INPUT_PATTERNS, CONFIDENTIAL_DATA_PATTERNS
+    from ai_guardian.patterns import CONFIDENTIAL_DATA_PATTERNS, PII_INPUT_PATTERNS
 
     sanitizable = PII_INPUT_PATTERNS + CONFIDENTIAL_DATA_PATTERNS
     redactions: list[MatchedRule] = []

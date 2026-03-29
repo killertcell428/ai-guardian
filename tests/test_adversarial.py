@@ -9,8 +9,8 @@ Run with: pytest tests/test_adversarial.py -v
 """
 
 import pytest
-from ai_guardian import scan, scan_output, scan_rag_context
 
+from ai_guardian import scan, scan_output, scan_rag_context
 
 # ============================================================================
 # Test data: realistic attacks and safe inputs
@@ -293,7 +293,7 @@ class TestDetectionMetrics:
         rate = (detected / total * 100) if total > 0 else 0
         print(f"\n=== Detection Rate: {detected}/{total} ({rate:.1f}%) ===")
         if missed:
-            print(f"Missed attacks:")
+            print("Missed attacks:")
             for m in missed:
                 print(f"  - {m}")
         # Target: >90% detection rate
@@ -313,7 +313,7 @@ class TestDetectionMetrics:
         rate = (false_positives / total * 100) if total > 0 else 0
         print(f"\n=== False Positive Rate: {false_positives}/{total} ({rate:.1f}%) ===")
         if flagged:
-            print(f"Falsely flagged:")
+            print("Falsely flagged:")
             for f in flagged:
                 print(f"  - {f}")
         # Target: <5% false positive rate

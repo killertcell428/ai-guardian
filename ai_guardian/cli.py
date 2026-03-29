@@ -208,7 +208,7 @@ def cmd_logs(args) -> int:
 
 def cmd_policy(args) -> int:
     """Policy management."""
-    from ai_guardian.policy import load_policy, save_policy, _default_policy
+    from ai_guardian.policy import _default_policy, load_policy, save_policy
 
     if args.action == "check":
         policy_path = "ai-guardian-policy.yaml"
@@ -266,7 +266,7 @@ def cmd_status(args) -> int:
     # Check activity
     stream = ActivityStream()
     summary = stream.summary(days=7)
-    print(f"\n  Activity (last 7 days):")
+    print("\n  Activity (last 7 days):")
     print(f"    Total events: {summary['total_events']}")
     print(f"    Blocked: {summary['blocked_count']}")
     if summary["by_agent"]:
@@ -275,9 +275,9 @@ def cmd_status(args) -> int:
     # Check Claude Code hooks
     claude_hooks = Path(".claude/settings.json")
     if claude_hooks.exists():
-        print(f"\n  Claude Code: Hooks configured")
+        print("\n  Claude Code: Hooks configured")
     else:
-        print(f"\n  Claude Code: Not configured (run 'aig init --agent claude-code')")
+        print("\n  Claude Code: Not configured (run 'aig init --agent claude-code')")
 
     # Compliance
     try:
@@ -293,7 +293,7 @@ def cmd_status(args) -> int:
 def cmd_report(args) -> int:
     """Generate compliance report."""
     from ai_guardian.activity import ActivityStream
-    from ai_guardian.compliance import get_compliance_summary, get_compliance_report
+    from ai_guardian.compliance import get_compliance_summary
 
     stream = ActivityStream()
     summary = stream.summary(days=args.days)
@@ -327,12 +327,12 @@ def cmd_maintenance(args) -> int:
         retention_days=args.retention_days,
         compress_after_days=args.compress_after,
     )
-    print(f"Log maintenance complete:")
+    print("Log maintenance complete:")
     print(f"  Compressed: {stats['compressed']} files")
     print(f"  Deleted (>{args.retention_days} days): {stats['deleted']} files")
     if stats["errors"]:
         print(f"  Errors: {stats['errors']}")
-    print(f"\n  Note: Alert logs (~/.ai-guardian/alerts/) are never deleted.")
+    print("\n  Note: Alert logs (~/.ai-guardian/alerts/) are never deleted.")
     return 0
 
 
@@ -376,8 +376,8 @@ def cmd_doctor(args) -> int:
 
     # 3. ai_guardian module importable
     try:
-        from ai_guardian.activity import ActivityStream, ActivityEvent
-        from ai_guardian.policy import load_policy, evaluate
+        from ai_guardian.activity import ActivityEvent, ActivityStream
+        from ai_guardian.policy import evaluate, load_policy
         ok("ai_guardian module imports OK")
     except ImportError as e:
         fail(f"ai_guardian import failed: {e}")

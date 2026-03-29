@@ -21,15 +21,12 @@ Usage:
 """
 
 import csv
-import gzip
-import io
-import json
-import os
 import getpass
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone, timedelta
+import gzip
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-
 
 # Default retention periods
 LOG_RETENTION_DAYS = 60       # Full logs kept for 60 days
@@ -92,7 +89,7 @@ class ActivityEvent:
 
     def __post_init__(self):
         if not self.timestamp:
-            self.timestamp = datetime.now(timezone.utc).isoformat()
+            self.timestamp = datetime.now(UTC).isoformat()
         if not self.event_id:
             import uuid
             self.event_id = uuid.uuid4().hex[:12]
@@ -155,7 +152,7 @@ class ActivityStream:
 
     def _log_path(self, base_dir: Path, date: str | None = None) -> Path:
         if date is None:
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            date = datetime.now(UTC).strftime("%Y-%m-%d")
         return base_dir / f"{date}.jsonl"
 
     def record(self, event: ActivityEvent) -> None:
@@ -201,7 +198,7 @@ class ActivityStream:
             base_dir = self.local_dir
 
         events: list[ActivityEvent] = []
-        today = datetime.now(timezone.utc).date()
+        today = datetime.now(UTC).date()
 
         for i in range(days):
             date = (today - timedelta(days=i)).isoformat()
@@ -248,7 +245,7 @@ class ActivityStream:
                         except json.JSONDecodeError:
                             continue
         else:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if line:
@@ -363,7 +360,7 @@ class ActivityStream:
             writer = csv.writer(f)
             writer.writerow(["AI Guardian Activity Report"])
             writer.writerow(["Period", f"Last {days} days"])
-            writer.writerow(["Generated", datetime.now(timezone.utc).isoformat()])
+            writer.writerow(["Generated", datetime.now(UTC).isoformat()])
             writer.writerow([])
 
             writer.writerow(["Key Metrics"])
@@ -419,7 +416,7 @@ class ActivityStream:
         Returns stats about what was done.
         """
         stats = {"compressed": 0, "deleted": 0, "errors": 0}
-        today = datetime.now(timezone.utc).date()
+        today = datetime.now(UTC).date()
 
         for base_dir in [self.local_dir, self.global_dir] if self.enable_global else [self.local_dir]:
             for f in sorted(base_dir.glob("*.jsonl")):

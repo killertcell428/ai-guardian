@@ -11,7 +11,7 @@ Each pattern has:
   - remediation_hint: actionable guidance for developers/reviewers
 """
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass

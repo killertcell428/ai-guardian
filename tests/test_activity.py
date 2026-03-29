@@ -1,9 +1,8 @@
 """Tests for Activity Stream — multi-tier logging, rotation, export."""
-import json
 import tempfile
 from pathlib import Path
 
-from ai_guardian.activity import ActivityStream, ActivityEvent
+from ai_guardian.activity import ActivityEvent, ActivityStream
 
 
 class TestActivityEvent:
