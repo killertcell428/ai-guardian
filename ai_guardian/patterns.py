@@ -698,6 +698,14 @@ OUTPUT_PATTERNS: list[DetectionPattern] = [
 ]
 
 # === Combined ===
+# Import new pattern lists that live in the canonical filters.patterns module.
+# This avoids duplication while ensuring both the scanner.py (legacy) and
+# the Guard class (via filters/) use the same full set of patterns.
+from ai_guardian.filters.patterns import (  # noqa: E402
+    JAILBREAK_ROLEPLAY_PATTERNS,
+    TOKEN_EXHAUSTION_PATTERNS,
+)
+
 ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     PROMPT_INJECTION_PATTERNS
     + JAPANESE_INJECTION_PATTERNS
@@ -708,4 +716,6 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + CONFIDENTIAL_DATA_PATTERNS
     + LEGAL_RISK_PATTERNS
     + PROMPT_LEAK_PATTERNS
+    + TOKEN_EXHAUSTION_PATTERNS
+    + JAILBREAK_ROLEPLAY_PATTERNS
 )

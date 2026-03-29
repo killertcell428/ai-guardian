@@ -679,6 +679,103 @@ PROMPT_LEAK_PATTERNS: list[DetectionPattern] = [
 # ---------------------------------------------------------------------------
 # Combined pattern lists
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Jailbreak / Roleplay Bypass Patterns — OWASP LLM01
+# ---------------------------------------------------------------------------
+# These patterns catch attempts to bypass AI safety guardrails through
+# roleplay scenarios, fictional framing, and social engineering.
+# ---------------------------------------------------------------------------
+JAILBREAK_ROLEPLAY_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="jb_evil_roleplay",
+        name="Evil/Unethical AI Roleplay",
+        category="jailbreak",
+        pattern=_p(
+            r"(roleplay|act|pretend|play|simulate)\s+(as\s+)?(a|an)\s+"
+            r"(evil|malicious|uncensored|unethical|harmful|dangerous|unrestricted|dark)\s+"
+            r"(ai|assistant|bot|chatbot|model|llm|version)"
+        ),
+        base_score=60,
+        description="Attempt to get AI to roleplay as an evil or unrestricted version of itself.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="This is a jailbreak roleplay attack. AI roles should only be defined in the system prompt by the application developer, not via user input. Reject or sanitize roleplay instructions that reference 'evil', 'unethical', or 'uncensored' AI personas.",
+    ),
+    DetectionPattern(
+        id="jb_no_restrictions",
+        name="No Restrictions / No Safety Filters Bypass",
+        category="jailbreak",
+        pattern=_p(
+            r"(without|with\s+no|ignore\s+(all\s+)?|bypass\s+(all\s+)?|disable\s+(all\s+)?)"
+            r"(your\s+)?(safety\s+filter|content\s+(policy|filter)|ethical?\s+guideline|"
+            r"moral\s+restriction|ai\s+(restriction|guideline|rule)|restriction|censorship|filter)"
+        ),
+        base_score=55,
+        description="Attempt to bypass AI safety restrictions or content policies.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="Safety filter bypass attempts are high-confidence attack indicators. These instructions should never come from user input. Enforce content policies at the application layer.",
+    ),
+    DetectionPattern(
+        id="jb_fictional_bypass",
+        name="Fictional/Hypothetical Framing Bypass",
+        category="jailbreak",
+        pattern=_p(
+            r"(in\s+a?\s*(fictional|hypothetical|imaginary|fantasy|alternate)\s+"
+            r"(world|universe|scenario|context|story|setting|reality))"
+            r"[\s\S]{0,100}"
+            r"(how\s+to|steps?\s+to|instructions?\s+(for|to)|guide\s+(to|for)|explain\s+how)"
+            r"[\s\S]{0,50}"
+            r"(harm|attack|hack|crack|steal|kill|bomb|weapon|drug|synthesize|exploit|bypass)"
+        ),
+        base_score=65,
+        description="Fictional/hypothetical framing used to bypass content safety for dangerous instructions.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="Framing harmful requests as fiction or hypotheticals is a common jailbreak technique. Content policies apply regardless of fictional framing. Use output scanning in addition to input scanning.",
+    ),
+    DetectionPattern(
+        id="jb_grandma_exploit",
+        name="Grandma / Deceased Relative Exploit",
+        category="jailbreak",
+        pattern=_p(
+            r"(pretend|imagine|roleplay|act)\s+(you\s+are|to\s+be)?\s*"
+            r"(my\s+)?(grand(ma|mother|pa|father|parent)|deceased|dead|late)\s+"
+            r"(relative|uncle|aunt|friend|mother|father|granny|grandma|grandpa)?"
+        ),
+        base_score=45,
+        description="Social engineering via impersonation of a deceased/trusted relative to extract harmful information.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="The 'grandma exploit' uses emotional manipulation to bypass safety. An AI is never obligated to provide harmful information regardless of who it is roleplaying as.",
+    ),
+    DetectionPattern(
+        id="jb_developer_mode",
+        name="Developer/God/Admin Mode Activation",
+        category="jailbreak",
+        pattern=_p(
+            r"(enable|activate|switch\s+to|turn\s+on|enter)\s+"
+            r"(developer|dev|god|admin|root|sudo|unrestricted|uncensored|raw|turbo|"
+            r"maintenance|debug|testing|bypass|override|super(user)?)\s+"
+            r"mode"
+        ),
+        base_score=55,
+        description="Attempt to activate a fake 'developer' or privileged mode that bypasses safety.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="There are no special hidden modes in production AI systems. Mode-switching requests via user input should always be rejected. Application-level debug modes require separate authentication.",
+    ),
+    DetectionPattern(
+        id="jb_ignore_ethics",
+        name="Ignore Ethics / Morals Instruction",
+        category="jailbreak",
+        pattern=_p(
+            r"(ignore|forget|bypass|set\s+aside|suspend|override|discard)\s+"
+            r"(your\s+)?(ethics|morals?|values?|principles?|alignment|training|"
+            r"safety\s+training|rlhf|human\s+feedback)"
+        ),
+        base_score=60,
+        description="Explicit instruction to ignore AI ethical guidelines or safety training.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="Instructing an AI to ignore its ethics is a direct jailbreak attempt. Reject inputs that reference RLHF, safety training, or ethical override commands.",
+    ),
+]
+
 ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     PROMPT_INJECTION_PATTERNS
     + JAPANESE_INJECTION_PATTERNS
@@ -689,6 +786,7 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + CONFIDENTIAL_DATA_PATTERNS
     + TOKEN_EXHAUSTION_PATTERNS
     + PROMPT_LEAK_PATTERNS
+    + JAILBREAK_ROLEPLAY_PATTERNS
 )
 
 OUTPUT_PATTERNS: list[DetectionPattern] = [
