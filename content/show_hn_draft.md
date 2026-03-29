@@ -1,28 +1,69 @@
-# Show HN: AI Guardian — Open-source LLM security with remediation, not just blocking
+# Show HN: AI Guardian — Open-source LLM security library
 
-## Title (for HN post)
-Show HN: AI Guardian – Open-source LLM security scanner with remediation hints (Python, zero deps)
+## 投稿タイミング
+**月〜水曜 EST 9:00-10:00（日本時間 夜22:00-23:00）** に投稿すること
+→ HNのトラフィックが最も高い時間帯。朝一番のページに乗れれば数百upvote狙える。
 
-## URL
+---
+
+## タイトル（コピペ用）
+```
+Show HN: AI Guardian – Open-source LLM security library with remediation hints (Python, zero deps)
+```
+
+## URL（コピペ用）
+```
 https://github.com/killertcell428/ai-guardian
+```
 
-## Text
+## 本文（コピペ用）
+```
+I built an open-source Python library that scans LLM prompts and
+responses for security threats.
 
-I built an open-source Python library that scans LLM prompts and responses for security threats. The key difference from existing tools (LLM Guard, Rebuff, etc.) is that it doesn't just block — it explains WHY something was flagged and HOW to fix it.
+The key difference from existing tools (LLM Guard, Rebuff, etc.):
+it doesn't just block — it explains WHY something was flagged and
+HOW to fix it.
 
-**What it does:**
-- 48 detection patterns (prompt injection, SQL injection, PII, secrets)
-- OWASP LLM Top 10 and CWE classification on every detection
-- Remediation hints: "Your request matched 'ignore previous instructions'. If you meant to reference earlier content, try 'skip the earlier section' instead."
-- Auto-sanitization: `sanitize("Call me at 090-1234-5678")` → `"Call me at [PHONE_REDACTED]"`
-- Layer 2 semantic similarity (catches paraphrased attacks that bypass regex)
-- RAG context scanning (indirect prompt injection in retrieved documents)
-- Multi-turn attack detection
+  from ai_guardian import Guard
+  guard = Guard()
+  result = guard.check_input("Ignore previous instructions and...")
+  # result.risk_score = 94, result.reasons = ["prompt_injection"],
+  # result.remediation = "..."
 
-**Zero dependencies** — pure Python stdlib. `pip install aig-guardian`
+What it detects (48 patterns):
+- Prompt injection & jailbreaks ("ignore previous instructions", DAN, roleplay abuse)
+- SQL injection in LLM pipelines (UNION SELECT, blind injection)
+- PII & credential leaks (API keys, credit cards, My Number / マイナンバー)
+- Indirect prompt injection in RAG documents
+- Multi-turn attack sequences
 
-**Try the Gandalf Challenge:** An interactive game where you try to trick an AI into revealing a secret password. Each level uses progressively harder AI Guardian defenses. [Link]
+Other features:
+- OWASP LLM Top 10 + CWE classification on every detection
+- Auto-sanitize: sanitize("Call me at 090-1234-5678") → "Call me at [PHONE_REDACTED]"
+- FastAPI middleware, LangChain callback, OpenAI proxy — 3-line integration
+- Zero required dependencies (pure Python stdlib)
 
-Built for the Japanese market initially (native My Number / マイナンバー detection, Japanese prompt injection patterns, compliance reporting for Japan's AI regulations), but works for any language.
+Try the Gandalf Challenge — an interactive game where you try to
+trick the AI into revealing a secret password. Each level uses
+harder defenses: https://ai-guardian-mauve.vercel.app/challenge
 
-Would love feedback on the detection patterns and any bypass techniques you find!
+pip install aig-guardian  (v0.4.0, just released today)
+
+Would love feedback on detection patterns and any bypasses you find!
+```
+
+---
+
+## 投稿手順
+1. https://news.ycombinator.com/submit を開く
+2. タイトルをコピペ
+3. URLをコピペ
+4. 「submit」→ 本文は**コメント欄の最初の返信**として投稿する（HNのルール）
+5. 投稿後すぐに本文コメントを追加する
+
+## 投稿後のアクション
+- [ ] 投稿後30分以内に本文コメントを追加
+- [ ] コメントが来たら**1時間以内に返信**（初動のエンゲージメントがランキングに影響）
+- [ ] Reddit r/Python, r/netsec にクロスポスト（翌日）
+- [ ] URLを `content/weekly_x_drafts/` にメモしてTwitterでシェア
