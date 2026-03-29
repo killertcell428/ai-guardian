@@ -11,7 +11,32 @@
 [![Downloads](https://img.shields.io/pypi/dm/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
 [![codecov](https://codecov.io/gh/killertcell428/ai-guardian/branch/main/graph/badge.svg)](https://codecov.io/gh/killertcell428/ai-guardian)
 
-**Protect your LLM application from prompt injection, PII leaks, jailbreaks, and SQL injection — in 3 lines of code.**
+**LLM アプリケーションをプロンプトインジェクション・PII 漏洩・ジェイルブレイク・SQL インジェクションから守る、オープンソースのセキュリティミドルウェア。**
+
+---
+
+## Why ai-guardian?
+
+LLM を使ったアプリケーションが急速に普及する一方、セキュリティ対策は追いついていません。
+
+- **78% の AI エージェント関連インシデント**は、過剰な権限付与が原因（Gartner, 2025）
+- **OWASP LLM Top 10** で挙げられる脅威の多くは、入出力のスキャンだけで防げる
+- しかし、既存のガードレールツールは設定が複雑で、日本語対応も不十分
+
+ai-guardian は「**3行で導入、ゼロ依存、日本語対応**」を設計原則に、LLM アプリの入出力をリアルタイムでスキャンし、危険なリクエストを LLM に届く前にブロックします。
+
+### 主な特長
+
+| | |
+|---|---|
+| **3行で導入** | `pip install` して `Guard()` を呼ぶだけ。既存コードの変更不要 |
+| **50+ 検出パターン** | プロンプトインジェクション、PII、SQLi、コマンドインジェクション等 |
+| **日本語ネイティブ対応** | マイナンバー、住所、電話番号、日本語攻撃パターンを検出 |
+| **ゼロ依存** | Python 標準ライブラリのみ。FastAPI/LangChain/OpenAI は任意のオプション |
+| **OWASP 準拠** | 全ルールに OWASP LLM Top 10 参照と改善ヒントを付与 |
+| **ドロップイン統合** | FastAPI ミドルウェア、LangChain コールバック、OpenAI プロキシラッパー |
+
+### 動作イメージ
 
 ```
 Without ai-guardian                     With ai-guardian
@@ -38,17 +63,7 @@ print(result.reasons)     # ['Ignore Previous Instructions', 'System Prompt Extr
 
 ---
 
-## Features
-
-- **50+ detection patterns** covering OWASP LLM Top 10
-- **Zero required dependencies** — pure Python core
-- **Drop-in integrations** for FastAPI, LangChain, and OpenAI SDK
-- **Japanese PII support** — My Number, phone numbers, addresses, bank accounts
-- **Custom policies** via YAML — set thresholds and add your own regex rules
-- **OWASP references & remediation hints** on every match
-- **SaaS upgrade path** — Human-in-the-Loop review dashboard (self-hosted)
-
-### Detection Coverage
+## Detection Coverage
 
 | Category | Examples | OWASP Ref |
 |---|---|---|
