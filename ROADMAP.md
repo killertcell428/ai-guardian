@@ -32,7 +32,7 @@ OSS Core（無料・永久）
 
 ---
 
-## Phase 0: 種まき（〜2026-04-12）★ 現在地
+## Phase 0: 種まき（〜2026-04-12）✅ Phase 1 先行完了
 
 **ゴール**: 最初の 50 スター・100 PyPI DL/日・コミュニティの芽
 
@@ -73,10 +73,12 @@ OSS Core（無料・永久）
 - [ ] 全日本AIハッカソン 2026（4/25）参加
 
 ### プロダクト
-- [ ] Anthropic SDK 統合（Issue #3）
-- [ ] Policy Template Hub 公開（業種別ポリシー YAML）
-- [ ] バッジ「Secured by AI Guardian」作成（採用企業が README に貼れる）
-- [ ] VS Code 拡張のプロトタイプ（aig scan をエディタから実行）
+- [x] Anthropic SDK 統合（Issue #3） ← v0.5.0 完了
+- [x] Policy Template Hub 公開（業種別ポリシー YAML） ← v0.5.0 完了
+- [x] バッジ「Secured by AI Guardian」作成（採用企業が README に貼れる） ← 完了
+- [x] VS Code 拡張のプロトタイプ（aig scan をエディタから実行） ← v0.6.0 完了
+- [x] **LangGraph GuardNode** 統合 ← v0.6.2 追加（Phase 1 先行実装）
+- [x] **ベンチマーク 100% 精度達成**（53/53 attacks, 0% false positive） ← v0.6.1
 
 ### KPI 目標
 | 指標 | 目標 |
