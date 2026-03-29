@@ -21,8 +21,8 @@ if TYPE_CHECKING:
     from ai_guardian.guard import Guard
 
 try:
-    from langchain_core.callbacks.base import BaseCallbackHandler  # type: ignore[import]
-    from langchain_core.outputs import LLMResult  # type: ignore[import]
+    from langchain_core.callbacks.base import BaseCallbackHandler
+    from langchain_core.outputs import LLMResult
 except ImportError as e:
     raise ImportError(
         "langchain-core is required for AIGuardianCallback. "

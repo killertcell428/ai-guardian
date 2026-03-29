@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from ai_guardian.guard import Guard
 
 try:
-    import openai  # type: ignore[import]
+    import openai
 except ImportError as e:
     raise ImportError(
         "openai is required for SecureOpenAI. Install it with: pip install 'aig-guardian[openai]'"

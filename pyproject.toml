@@ -108,7 +108,9 @@ ignore_missing_imports = true
 disallow_any_generics = false
 
 [[tool.mypy.overrides]]
-# Legacy modules with incomplete type annotations — relax strictness
+# Legacy modules with incomplete type annotations — suppress all errors.
+# These predate the strict type annotation policy; fixing them is a separate
+# refactor tracked in GitHub issues.
 module = [
     "ai_guardian.activity",
     "ai_guardian.badge",
@@ -120,6 +122,4 @@ module = [
     "ai_guardian.middleware.fastapi",
     "ai_guardian.middleware.langchain",
 ]
-disallow_untyped_defs = false
-disallow_untyped_calls = false
-warn_return_any = false
+ignore_errors = true

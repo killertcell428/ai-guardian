@@ -6,7 +6,7 @@ from ai_guardian.filters.input_filter import filter_input, filter_messages
 from ai_guardian.filters.output_filter import filter_output, filter_response
 from ai_guardian.filters.scorer import _build_remediation
 from ai_guardian.policies.manager import Policy, load_policy
-from ai_guardian.types import CheckResult, RiskLevel
+from ai_guardian.types import CheckResult, MatchedRule, RiskLevel
 
 
 class Guard:
@@ -101,7 +101,7 @@ class Guard:
     # Internals
     # ------------------------------------------------------------------
 
-    def _make_result(self, score: int, level: RiskLevel, matched) -> CheckResult:
+    def _make_result(self, score: int, level: RiskLevel, matched: list[MatchedRule]) -> CheckResult:
         blocked = self._policy.should_block(score)
         reasons = list({r.rule_name for r in matched})
         remediation = _build_remediation(matched)

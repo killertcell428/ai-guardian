@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from ai_guardian.guard import Guard
 
 try:
-    import anthropic  # type: ignore[import]
+    import anthropic
 except ImportError as e:
     raise ImportError(
         "anthropic is required for SecureAnthropic. "
