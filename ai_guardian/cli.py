@@ -84,6 +84,7 @@ def main(argv: list[str] | None = None) -> int:
     # aig scan (quick scan from CLI)
     scan_p = sub.add_parser("scan", help="Scan text for threats")
     scan_p.add_argument("text", nargs="?", help="Text to scan (or read from stdin)")
+    scan_p.add_argument("--json", dest="json_output", action="store_true", help="Output results as JSON (machine-readable)")
 
     args = parser.parse_args(argv)
 
@@ -498,10 +499,35 @@ def cmd_scan(args) -> int:
         text = sys.stdin.read()
 
     result = scan(text)
+
+    if getattr(args, "json_output", False):
+        # Machine-readable JSON output (used by VS Code extension and CI tooling)
+        output = {
+            "risk_score": result.risk_score,
+            "risk_level": result.risk_level.upper() if hasattr(result.risk_level, "upper") else str(result.risk_level).split(".")[-1],
+            "blocked": result.is_blocked,
+            "is_safe": result.is_safe,
+            "reasons": [result.reason] if result.reason else [],
+            "matched_rules": [
+                {
+                    "rule_id": r.rule_id,
+                    "rule_name": r.rule_name,
+                    "category": r.category,
+                    "score_delta": r.score_delta,
+                    "matched_text": r.matched_text,
+                    "owasp_ref": r.owasp_ref,
+                    "remediation_hint": r.remediation_hint,
+                }
+                for r in result.matched_rules
+            ],
+        }
+        print(json.dumps(output, ensure_ascii=False))
+        return 0 if result.is_safe else 1
+
     if result.is_safe:
         print(f"SAFE (score={result.risk_score})")
     else:
-        print(f"{result.risk_level.upper()} (score={result.risk_score})")
+        print(f"{result.risk_level.upper() if hasattr(result.risk_level, 'upper') else str(result.risk_level).split('.')[-1]} (score={result.risk_score})")
         for rule in result.matched_rules:
             print(f"  {rule.rule_name}: {rule.owasp_ref}")
             if rule.remediation_hint:
