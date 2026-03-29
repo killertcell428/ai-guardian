@@ -39,9 +39,12 @@ langchain = ["langchain-core>=0.1.0"]
 # OpenAI proxy wrapper
 openai = ["openai>=1.0.0"]
 
+# Anthropic SDK integration
+anthropic = ["anthropic>=0.20.0"]
+
 # Full SaaS server (backend + all integrations)
 server = [
-    "ai-guardian[yaml,fastapi,openai]",
+    "aig-guardian[yaml,fastapi,openai]",
     "uvicorn[standard]>=0.30.0",
     "sqlalchemy>=2.0.0",
     "alembic>=1.13.0",
@@ -56,11 +59,11 @@ server = [
 ]
 
 # Everything
-all = ["ai-guardian[yaml,fastapi,langchain,openai]"]
+all = ["aig-guardian[yaml,fastapi,langchain,openai,anthropic]"]
 
 # Development
 dev = [
-    "ai-guardian[all]",
+    "aig-guardian[all]",
     "pytest>=8.2.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov>=5.0.0",

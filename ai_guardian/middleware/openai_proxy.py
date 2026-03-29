@@ -26,7 +26,7 @@ try:
 except ImportError as e:
     raise ImportError(
         "openai is required for SecureOpenAI. "
-        "Install it with: pip install 'ai-guardian[openai]'"
+        "Install it with: pip install 'aig-guardian[openai]'"
     ) from e
 
 

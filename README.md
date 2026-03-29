@@ -109,6 +109,9 @@ pip install 'aig-guardian[langchain]'
 # OpenAI プロキシラッパー付き
 pip install 'aig-guardian[openai]'
 
+# Anthropic Claude プロキシラッパー付き
+pip install 'aig-guardian[anthropic]'
+
 # 全部入り
 pip install 'aig-guardian[all]'
 ```
@@ -240,6 +243,37 @@ response = client.chat.completions.create(
     model="gpt-4o",
     messages=[{"role": "user", "content": "こんにちは！"}],
 )
+```
+
+### Anthropic Claude プロキシラッパー
+
+```python
+from ai_guardian import Guard
+from ai_guardian.middleware.anthropic_proxy import SecureAnthropic
+
+guard = Guard()
+client = SecureAnthropic(api_key="sk-ant-...", guard=guard)
+
+# anthropic.Anthropic と同一の使い方 — スキャンは透過的に行われます
+message = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "こんにちは！"}],
+)
+```
+
+### Policy Template Hub
+
+業種別の YAML ポリシーテンプレートが [`policy_templates/`](policy_templates/) に用意されています：
+
+```python
+# 金融向けポリシー（PCI-DSS 対応、厳格モード）
+guard = Guard(policy_file="policy_templates/finance.yaml")
+
+# 医療向けポリシー（HIPAA / 個人情報保護法 対応）
+guard = Guard(policy_file="policy_templates/healthcare.yaml")
+
+# その他: ecommerce / internal_tools / education / customer_support / developer_tools
 ```
 
 ---
