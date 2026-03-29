@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/ai-guardian
+      url: https://pypi.org/p/aig-guardian
 
     steps:
       - name: Download distributions
