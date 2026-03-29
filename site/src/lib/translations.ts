@@ -50,7 +50,7 @@ export const t = {
     flowGuardian: { en: "AI Guardian", ja: "AI Guardian" },
     flowGuardianSub: { en: "Security Proxy · <5ms", ja: "セキュリティプロキシ · <5ms" },
     flowSafeOnly: { en: "Safe Only →", ja: "安全なもののみ →" },
-    flowLLM: { en: "Your LLM", ja: "あなたのLLM" },�インフラ変更も不要。",
+    flowLLM: { en: "Your LLM", ja: "あなたのLLM" },
     },
     step1Title: {
       en: "Change one line: your base URL",
