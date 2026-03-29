@@ -1,4 +1,5 @@
 """Guard: the main entry point for ai-guardian."""
+
 from __future__ import annotations
 
 from ai_guardian.filters.input_filter import filter_input, filter_messages
@@ -57,9 +58,7 @@ class Guard:
         Returns:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
-        score, level, matched = filter_input(
-            text, self._policy.custom_rules or None
-        )
+        score, level, matched = filter_input(text, self._policy.custom_rules or None)
         return self._make_result(score, level, matched)
 
     def check_messages(self, messages: list[dict]) -> CheckResult:
@@ -71,9 +70,7 @@ class Guard:
         Returns:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
-        score, level, matched = filter_messages(
-            messages, self._policy.custom_rules or None
-        )
+        score, level, matched = filter_messages(messages, self._policy.custom_rules or None)
         return self._make_result(score, level, matched)
 
     def check_output(self, text: str) -> CheckResult:
@@ -85,9 +82,7 @@ class Guard:
         Returns:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
-        score, level, matched = filter_output(
-            text, self._policy.custom_rules or None
-        )
+        score, level, matched = filter_output(text, self._policy.custom_rules or None)
         return self._make_result(score, level, matched)
 
     def check_response(self, response_body: dict) -> CheckResult:
@@ -99,9 +94,7 @@ class Guard:
         Returns:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
-        score, level, matched = filter_response(
-            response_body, self._policy.custom_rules or None
-        )
+        score, level, matched = filter_response(response_body, self._policy.custom_rules or None)
         return self._make_result(score, level, matched)
 
     # ------------------------------------------------------------------

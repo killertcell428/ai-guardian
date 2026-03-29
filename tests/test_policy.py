@@ -1,4 +1,5 @@
 """Tests for Policy Engine."""
+
 import tempfile
 from pathlib import Path
 
@@ -22,7 +23,9 @@ class TestPolicyRule:
 
     def test_conditions_field(self):
         rule = PolicyRule(
-            id="test", action="*", decision="review",
+            id="test",
+            action="*",
+            decision="review",
             conditions={"autonomy_level": 3, "cost_limit": 1.0},
         )
         assert rule.conditions["autonomy_level"] == 3
@@ -90,7 +93,13 @@ class TestPolicyEvaluation:
         policy = Policy(
             name="Test",
             rules=[
-                PolicyRule(id="block_prod", action="shell:exec", target="*production*", decision="deny", reason="No prod access"),
+                PolicyRule(
+                    id="block_prod",
+                    action="shell:exec",
+                    target="*production*",
+                    decision="deny",
+                    reason="No prod access",
+                ),
             ],
             default_decision="allow",
         )
@@ -121,7 +130,7 @@ class TestPolicySaveLoad:
         assert len(policy.rules) > 0
 
     def test_parse_yaml(self):
-        yaml_text = '''
+        yaml_text = """
 name: "Test Policy"
 version: "1.0"
 default_decision: allow
@@ -137,7 +146,7 @@ rules:
     target: "*"
     decision: review
     reason: "All writes need review"
-'''
+"""
         data = _parse_simple_yaml(yaml_text)
         assert data["name"] == "Test Policy"
         assert len(data["rules"]) == 2

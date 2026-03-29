@@ -42,6 +42,7 @@ _REDACTION_LABELS: dict[str, str] = {
 @dataclass
 class MatchedRule:
     """A pattern that matched during scanning, with remediation context."""
+
     rule_id: str
     rule_name: str
     category: str
@@ -54,6 +55,7 @@ class MatchedRule:
 @dataclass
 class ScanResult:
     """Outcome of scanning text through AI Guardian."""
+
     risk_score: int
     risk_level: str  # low | medium | high | critical
     matched_rules: list[MatchedRule] = field(default_factory=list)
@@ -93,8 +95,10 @@ class ScanResult:
             "owasp_refs": refs,
             "hints": hints,
             "action": (
-                "auto_block" if self.is_blocked
-                else "review_required" if self.needs_review
+                "auto_block"
+                if self.is_blocked
+                else "review_required"
+                if self.needs_review
                 else "allowed"
             ),
         }
@@ -148,11 +152,12 @@ def _normalize_text(text: str) -> str:
     # Step 3: Detect and collapse single-character spacing
     # "D R O P  T A B L E" → "DROP TABLE"
     import re as _re
-    if _re.search(r'(?:[A-Za-z] ){3,}[A-Za-z]', result):
+
+    if _re.search(r"(?:[A-Za-z] ){3,}[A-Za-z]", result):
         # Collapse runs of single-spaced characters: "D R O P" → "DROP"
         collapsed = _re.sub(
-            r'(?<![A-Za-z])([A-Za-z])((?:\s[A-Za-z]){2,})(?![A-Za-z])',
-            lambda m: m.group(0).replace(' ', ''),
+            r"(?<![A-Za-z])([A-Za-z])((?:\s[A-Za-z]){2,})(?![A-Za-z])",
+            lambda m: m.group(0).replace(" ", ""),
             result,
         )
         result = result + "\n" + collapsed
@@ -187,15 +192,17 @@ def _run_patterns(
             continue
         m = p.pattern.search(normalized)
         if m:
-            matched.append(MatchedRule(
-                rule_id=p.id,
-                rule_name=p.name,
-                category=p.category,
-                score_delta=p.base_score,
-                matched_text=m.group(0)[:200],
-                owasp_ref=p.owasp_ref,
-                remediation_hint=p.remediation_hint,
-            ))
+            matched.append(
+                MatchedRule(
+                    rule_id=p.id,
+                    rule_name=p.name,
+                    category=p.category,
+                    score_delta=p.base_score,
+                    matched_text=m.group(0)[:200],
+                    owasp_ref=p.owasp_ref,
+                    remediation_hint=p.remediation_hint,
+                )
+            )
             prev = category_scores.get(p.category, 0)
             category_scores[p.category] = min(prev + p.base_score, p.base_score * 2)
 
@@ -208,15 +215,17 @@ def _run_patterns(
                 m = pat.search(normalized)
                 if m:
                     delta = int(rule.get("score_delta", 20))
-                    matched.append(MatchedRule(
-                        rule_id=rule["id"],
-                        rule_name=rule["name"],
-                        category="custom",
-                        score_delta=delta,
-                        matched_text=m.group(0)[:200],
-                        owasp_ref=rule.get("owasp_ref", ""),
-                        remediation_hint=rule.get("remediation_hint", ""),
-                    ))
+                    matched.append(
+                        MatchedRule(
+                            rule_id=rule["id"],
+                            rule_name=rule["name"],
+                            category="custom",
+                            score_delta=delta,
+                            matched_text=m.group(0)[:200],
+                            owasp_ref=rule.get("owasp_ref", ""),
+                            remediation_hint=rule.get("remediation_hint", ""),
+                        )
+                    )
                     prev = category_scores.get("custom", 0)
                     category_scores["custom"] = min(prev + delta, delta * 2)
             except re.error:
@@ -225,19 +234,22 @@ def _run_patterns(
     # Layer 2: Similarity check (only for input patterns, not output)
     if patterns is ALL_INPUT_PATTERNS:
         from ai_guardian.similarity import check_similarity
+
         sim_matches = check_similarity(text)
         for sm in sim_matches:
             # Only add if regex didn't already catch this category
             if sm.category not in category_scores or category_scores[sm.category] == 0:
-                matched.append(MatchedRule(
-                    rule_id=f"sim_{sm.category}",
-                    rule_name=f"Similarity: {sm.canonical_phrase[:50]}",
-                    category=sm.category,
-                    score_delta=sm.base_score,
-                    matched_text=sm.matched_input,
-                    owasp_ref="OWASP LLM01: Prompt Injection",
-                    remediation_hint=f"This text is semantically similar to known attack: '{sm.canonical_phrase}' (similarity: {sm.similarity_score:.0%}). Rephrase to avoid resemblance to known attack patterns.",
-                ))
+                matched.append(
+                    MatchedRule(
+                        rule_id=f"sim_{sm.category}",
+                        rule_name=f"Similarity: {sm.canonical_phrase[:50]}",
+                        category=sm.category,
+                        score_delta=sm.base_score,
+                        matched_text=sm.matched_input,
+                        owasp_ref="OWASP LLM01: Prompt Injection",
+                        remediation_hint=f"This text is semantically similar to known attack: '{sm.canonical_phrase}' (similarity: {sm.similarity_score:.0%}). Rephrase to avoid resemblance to known attack patterns.",
+                    )
+                )
                 prev = category_scores.get(sm.category, 0)
                 category_scores[sm.category] = min(prev + sm.base_score, sm.base_score * 2)
 
@@ -336,15 +348,17 @@ def scan_messages(
                 escalation_bonus = 15
                 boosted_score = min(latest_score + escalation_bonus, 100)
                 if boosted_score > combined_result.risk_score:
-                    combined_result.matched_rules.append(MatchedRule(
-                        rule_id="multi_turn_escalation",
-                        rule_name="Multi-turn Escalation Pattern",
-                        category="prompt_injection",
-                        score_delta=escalation_bonus,
-                        matched_text=user_parts[-1][:200],
-                        owasp_ref="OWASP LLM01: Prompt Injection",
-                        remediation_hint="This conversation shows an escalation pattern: earlier messages were safe, then the latest message introduces suspicious content. This is a common multi-turn attack technique.",
-                    ))
+                    combined_result.matched_rules.append(
+                        MatchedRule(
+                            rule_id="multi_turn_escalation",
+                            rule_name="Multi-turn Escalation Pattern",
+                            category="prompt_injection",
+                            score_delta=escalation_bonus,
+                            matched_text=user_parts[-1][:200],
+                            owasp_ref="OWASP LLM01: Prompt Injection",
+                            remediation_hint="This conversation shows an escalation pattern: earlier messages were safe, then the latest message introduces suspicious content. This is a common multi-turn attack technique.",
+                        )
+                    )
                     combined_result = ScanResult(
                         risk_score=boosted_score,
                         risk_level=_score_to_level(boosted_score),
@@ -445,15 +459,17 @@ def sanitize(
         matches = list(p.pattern.finditer(result))
         if matches:
             for m in matches:
-                redactions.append(MatchedRule(
-                    rule_id=p.id,
-                    rule_name=p.name,
-                    category=p.category,
-                    score_delta=p.base_score,
-                    matched_text=m.group(0)[:200],
-                    owasp_ref=p.owasp_ref,
-                    remediation_hint=p.remediation_hint,
-                ))
+                redactions.append(
+                    MatchedRule(
+                        rule_id=p.id,
+                        rule_name=p.name,
+                        category=p.category,
+                        score_delta=p.base_score,
+                        matched_text=m.group(0)[:200],
+                        owasp_ref=p.owasp_ref,
+                        remediation_hint=p.remediation_hint,
+                    )
+                )
             result = p.pattern.sub(replacement, result)
 
     return result, redactions

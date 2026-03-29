@@ -1,4 +1,5 @@
 """Output filter: analyze LLM response for data leaks and harmful content."""
+
 from __future__ import annotations
 
 from ai_guardian.filters.patterns import OUTPUT_PATTERNS

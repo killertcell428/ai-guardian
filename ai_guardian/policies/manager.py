@@ -1,4 +1,5 @@
 """Policy manager: built-in and YAML-based policy loading."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -90,8 +91,7 @@ def _load_yaml_policy(path: Path) -> Policy:
         import yaml  # type: ignore[import]
     except ImportError as e:
         raise ImportError(
-            "PyYAML is required for YAML policy files. "
-            "Install it with: pip install pyyaml"
+            "PyYAML is required for YAML policy files. Install it with: pip install pyyaml"
         ) from e
 
     with path.open(encoding="utf-8") as f:

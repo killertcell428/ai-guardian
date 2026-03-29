@@ -20,6 +20,7 @@ from dataclasses import dataclass
 @dataclass
 class ComplianceItem:
     """A single regulatory requirement and its compliance status."""
+
     regulation: str
     requirement_id: str
     requirement: str
@@ -164,7 +165,6 @@ def _build_compliance_items() -> list[ComplianceItem]:
             ai_guardian_feature="監査ログ100%記録。全リクエスト・判定・レビュー結果・ポリシー変更を不変ログとして保存。",
             status="covered",
         ),
-
         # === AIセキュリティ技術ガイドライン（総務省） ===
         ComplianceItem(
             regulation="AIセキュリティ技術ガイドライン（総務省）",
@@ -214,7 +214,6 @@ def _build_compliance_items() -> list[ComplianceItem]:
             ai_guardian_feature="Policy Engineで操作ごとの権限を制御（allow/deny/review）。デフォルトポリシーでsudo/rm -rf/force pushをブロック。.env/.ssh/credentialsへのアクセスを制限。エージェントの権限を最小限に強制。",
             status="covered",
         ),
-
         # === AI推進法 ===
         ComplianceItem(
             regulation="AI推進法（2025年9月施行）",
@@ -240,7 +239,6 @@ def _build_compliance_items() -> list[ComplianceItem]:
             ai_guardian_feature="Human-in-the-Loop設計。「AIは検知し、人間が判断する」の原則。",
             status="covered",
         ),
-
         # === APPI / マイナンバー法 ===
         ComplianceItem(
             regulation="個人情報保護法 / マイナンバー法",
@@ -266,7 +264,6 @@ def _build_compliance_items() -> list[ComplianceItem]:
             ai_guardian_feature="監査ログにPII検知イベントを記録。検知パターン・リスクスコア・判定結果を保存。",
             status="covered",
         ),
-
         # === 不正競争防止法 ===
         ComplianceItem(
             regulation="不正競争防止法",
@@ -276,7 +273,6 @@ def _build_compliance_items() -> list[ComplianceItem]:
             ai_guardian_feature="営業秘密マーカー検知（「営業秘密」「NDA」「限定提供データ」等）。検知時に修復ヒント提供。",
             status="covered",
         ),
-
         # === 著作権法 ===
         ComplianceItem(
             regulation="著作権法",

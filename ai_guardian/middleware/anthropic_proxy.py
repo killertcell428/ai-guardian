@@ -17,6 +17,7 @@ Usage::
 
 Resolves: https://github.com/killertcell428/ai-guardian/issues/3
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any

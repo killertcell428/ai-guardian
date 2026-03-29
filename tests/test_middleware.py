@@ -1,4 +1,5 @@
 """Tests for middleware integrations (FastAPI only — no external deps required)."""
+
 import pytest
 
 from ai_guardian import Guard
@@ -41,11 +42,7 @@ class TestAIGuardianMiddleware:
         client = TestClient(self._make_app())
         resp = client.post(
             "/v1/chat/completions",
-            json={
-                "messages": [
-                    {"role": "user", "content": "DROP TABLE users; UNION SELECT *"}
-                ]
-            },
+            json={"messages": [{"role": "user", "content": "DROP TABLE users; UNION SELECT *"}]},
         )
         assert resp.status_code == 400
         data = resp.json()
@@ -84,7 +81,9 @@ class TestAIGuardianMiddleware:
         client = TestClient(app)
         # DROP TABLE (80) + UNION SELECT (70) → combined score exceeds default block threshold
         dangerous_body = {
-            "messages": [{"role": "user", "content": "DROP TABLE users; UNION SELECT * FROM passwords"}]
+            "messages": [
+                {"role": "user", "content": "DROP TABLE users; UNION SELECT * FROM passwords"}
+            ]
         }
         # /secure/ path → scanned → blocked
         resp = client.post("/secure/chat", json=dangerous_body)

@@ -3,6 +3,7 @@
 Uses unittest.mock to avoid requiring a real Anthropic API key or the
 `anthropic` package to be installed in the test environment.
 """
+
 from __future__ import annotations
 
 import sys
@@ -16,6 +17,7 @@ from ai_guardian import Guard
 # ---------------------------------------------------------------------------
 # Helpers — build a minimal anthropic stub so tests run without the real SDK
 # ---------------------------------------------------------------------------
+
 
 def _make_anthropic_stub() -> types.ModuleType:
     """Create a minimal fake `anthropic` module for testing."""
@@ -54,6 +56,7 @@ def _make_anthropic_stub() -> types.ModuleType:
 # Tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(autouse=True)
 def patch_anthropic(monkeypatch):
     """Inject our stub before each test, remove it after."""
@@ -80,8 +83,10 @@ def _make_client(guard: Guard | None = None, response_text: str = "Hello!"):
         class _M:
             def create(self, **kwargs):
                 import types
+
                 block = types.SimpleNamespace(type="text", text=text)
                 return types.SimpleNamespace(content=[block])
+
         return _M()
 
     g = guard or Guard()
@@ -90,6 +95,7 @@ def _make_client(guard: Guard | None = None, response_text: str = "Hello!"):
     client._check_output = True
 
     import ai_guardian.middleware.anthropic_proxy as _mod
+
     client.messages = _mod._SecureMessages(_make_stub_messages(response_text), g, True)
     return client
 

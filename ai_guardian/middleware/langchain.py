@@ -12,6 +12,7 @@ Usage::
     llm = ChatOpenAI(callbacks=[callback])
     llm.invoke("Hello!")  # automatically scanned
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -123,4 +124,5 @@ class AIGuardianCallback(BaseCallbackHandler):
         if self.raise_on_block:
             raise GuardianBlockedError(message, score, reasons)
         import warnings
+
         warnings.warn(message, stacklevel=3)

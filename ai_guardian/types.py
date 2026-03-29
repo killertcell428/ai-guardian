@@ -1,4 +1,5 @@
 """Public type definitions for ai-guardian."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

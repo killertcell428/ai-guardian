@@ -2,6 +2,7 @@
 
 Aggregates matched pattern scores into a single risk score and level.
 """
+
 from __future__ import annotations
 
 import re
@@ -37,6 +38,7 @@ def _check_token_exhaustion_heuristic(text: str) -> int:
         return 0
 
     from collections import Counter
+
     counts = Counter(w.lower() for w in words if len(w) >= 3)
     if not counts:
         return 0

@@ -1,4 +1,5 @@
 """Tests for ai_guardian scanner."""
+
 from ai_guardian import check_similarity, sanitize, scan, scan_messages, scan_output
 
 
@@ -129,7 +130,17 @@ class TestOutputScanning:
         assert r.is_safe
 
     def test_api_key_leak(self):
-        r = scan_output({"choices": [{"message": {"content": "Here is the key: sk-abcdefghijklmnopqrstuvwxyz12345678"}}]})
+        r = scan_output(
+            {
+                "choices": [
+                    {
+                        "message": {
+                            "content": "Here is the key: sk-abcdefghijklmnopqrstuvwxyz12345678"
+                        }
+                    }
+                ]
+            }
+        )
         assert r.is_blocked
 
     def test_ssn_leak(self):
@@ -143,40 +154,54 @@ class TestOutputScanning:
 
 class TestScanMessages:
     def test_openai_format(self):
-        r = scan_messages([
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "DROP TABLE users;"},
-        ])
+        r = scan_messages(
+            [
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "DROP TABLE users;"},
+            ]
+        )
         assert not r.is_safe
         assert r.risk_score >= 80
 
     def test_safe_messages(self):
-        r = scan_messages([
-            {"role": "user", "content": "Hello, how are you?"},
-        ])
+        r = scan_messages(
+            [
+                {"role": "user", "content": "Hello, how are you?"},
+            ]
+        )
         assert r.is_safe
 
 
 class TestCustomRules:
     def test_custom_rule(self):
-        r = scan("Deploy to production server", custom_rules=[{
-            "id": "custom_prod",
-            "name": "Production reference",
-            "pattern": r"production\s+server",
-            "score_delta": 50,
-            "enabled": True,
-        }])
+        r = scan(
+            "Deploy to production server",
+            custom_rules=[
+                {
+                    "id": "custom_prod",
+                    "name": "Production reference",
+                    "pattern": r"production\s+server",
+                    "score_delta": 50,
+                    "enabled": True,
+                }
+            ],
+        )
         assert not r.is_safe
         assert any(m.rule_id == "custom_prod" for m in r.matched_rules)
 
     def test_disabled_custom_rule(self):
-        r = scan("Deploy to production server", custom_rules=[{
-            "id": "custom_prod",
-            "name": "Production reference",
-            "pattern": r"production\s+server",
-            "score_delta": 50,
-            "enabled": False,
-        }])
+        r = scan(
+            "Deploy to production server",
+            custom_rules=[
+                {
+                    "id": "custom_prod",
+                    "name": "Production reference",
+                    "pattern": r"production\s+server",
+                    "score_delta": 50,
+                    "enabled": False,
+                }
+            ],
+        )
         assert r.is_safe
 
 

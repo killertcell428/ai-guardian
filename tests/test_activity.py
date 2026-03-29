@@ -1,4 +1,5 @@
 """Tests for Activity Stream — multi-tier logging, rotation, export."""
+
 import tempfile
 from pathlib import Path
 
@@ -35,16 +36,20 @@ class TestActivityEvent:
 
     def test_agi_fields(self):
         e = ActivityEvent(
-            action="agent:spawn", target="sub_agent_1",
-            autonomy_level=3, delegation_chain=["a", "b"],
-            estimated_cost=0.05, memory_scope="department:sales",
+            action="agent:spawn",
+            target="sub_agent_1",
+            autonomy_level=3,
+            delegation_chain=["a", "b"],
+            estimated_cost=0.05,
+            memory_scope="department:sales",
         )
         assert e.autonomy_level == 3
         assert e.estimated_cost == 0.05
 
     def test_auto_fix_fields(self):
         e = ActivityEvent(
-            action="shell:exec", target="rm -rf /",
+            action="shell:exec",
+            target="rm -rf /",
             suggested_fix="rm -rf /tmp/test_only",
             fix_applied=False,
         )
@@ -96,7 +101,8 @@ class TestActivityStreamGlobal:
             global_dir = Path(tmpdir) / "global"
             stream = ActivityStream(
                 log_dir=str(Path(tmpdir) / "local"),
-                enable_global=True, enable_alerts=False,
+                enable_global=True,
+                enable_alerts=False,
             )
             stream.global_dir = global_dir
             stream.global_dir.mkdir(parents=True, exist_ok=True)
@@ -119,7 +125,8 @@ class TestActivityStreamAlerts:
             alert_dir = Path(tmpdir) / "alerts"
             stream = ActivityStream(
                 log_dir=str(Path(tmpdir) / "local"),
-                enable_global=False, enable_alerts=True,
+                enable_global=False,
+                enable_alerts=True,
             )
             stream.alert_dir = alert_dir
             stream.alert_dir.mkdir(parents=True, exist_ok=True)
@@ -127,7 +134,11 @@ class TestActivityStreamAlerts:
             # Safe event — not in alerts
             stream.record(ActivityEvent(action="file:read", target="readme.md"))
             # Blocked event — in alerts
-            stream.record(ActivityEvent(action="shell:exec", target="rm -rf /", policy_decision="deny", risk_score=90))
+            stream.record(
+                ActivityEvent(
+                    action="shell:exec", target="rm -rf /", policy_decision="deny", risk_score=90
+                )
+            )
 
             alerts = stream.query(days=1, alerts_only=True)
             assert len(alerts) == 1
@@ -138,18 +149,23 @@ class TestActivityStreamAlerts:
             alert_dir = Path(tmpdir) / "alerts"
             stream = ActivityStream(
                 log_dir=str(Path(tmpdir) / "local"),
-                enable_global=False, enable_alerts=True,
+                enable_global=False,
+                enable_alerts=True,
             )
             stream.alert_dir = alert_dir
             stream.alert_dir.mkdir(parents=True, exist_ok=True)
 
-            stream.record(ActivityEvent(
-                action="shell:exec", target="rm -rf /",
-                policy_decision="deny", risk_score=90,
-                matched_rules=["dangerous_commands"],
-                remediation_hints=["Use targeted deletion instead"],
-                owasp_refs=["CWE-78"],
-            ))
+            stream.record(
+                ActivityEvent(
+                    action="shell:exec",
+                    target="rm -rf /",
+                    policy_decision="deny",
+                    risk_score=90,
+                    matched_rules=["dangerous_commands"],
+                    remediation_hints=["Use targeted deletion instead"],
+                    owasp_refs=["CWE-78"],
+                )
+            )
 
             knowledge = stream.get_alert_knowledge()
             assert len(knowledge) == 1
@@ -175,7 +191,9 @@ class TestActivityStreamExport:
         with tempfile.TemporaryDirectory() as tmpdir:
             stream = ActivityStream(log_dir=tmpdir, enable_global=False, enable_alerts=False)
             stream.record(ActivityEvent(action="shell:exec", target="ls", agent_type="claude_code"))
-            stream.record(ActivityEvent(action="shell:exec", target="rm -rf /", policy_decision="deny"))
+            stream.record(
+                ActivityEvent(action="shell:exec", target="rm -rf /", policy_decision="deny")
+            )
 
             out = str(Path(tmpdir) / "report.csv")
             summary_path = stream.export_excel_summary(out, days=1)
@@ -201,9 +219,25 @@ class TestActivityStreamSummary:
     def test_summary_with_projects_and_users(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             stream = ActivityStream(log_dir=tmpdir, enable_global=False, enable_alerts=False)
-            stream.record(ActivityEvent(action="shell:exec", target="ls", user_id="alice", project_name="proj-a"))
-            stream.record(ActivityEvent(action="file:read", target="f.py", user_id="bob", project_name="proj-b"))
-            stream.record(ActivityEvent(action="shell:exec", target="rm", user_id="alice", project_name="proj-a", policy_decision="deny"))
+            stream.record(
+                ActivityEvent(
+                    action="shell:exec", target="ls", user_id="alice", project_name="proj-a"
+                )
+            )
+            stream.record(
+                ActivityEvent(
+                    action="file:read", target="f.py", user_id="bob", project_name="proj-b"
+                )
+            )
+            stream.record(
+                ActivityEvent(
+                    action="shell:exec",
+                    target="rm",
+                    user_id="alice",
+                    project_name="proj-a",
+                    policy_decision="deny",
+                )
+            )
 
             summary = stream.summary(days=1)
             assert summary["total_events"] == 3

@@ -29,9 +29,9 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 # Default retention periods
-LOG_RETENTION_DAYS = 60       # Full logs kept for 60 days
-ALERT_RETENTION_DAYS = 0      # Alerts kept forever (0 = no expiry)
-COMPRESS_AFTER_DAYS = 7       # Compress logs older than 7 days
+LOG_RETENTION_DAYS = 60  # Full logs kept for 60 days
+ALERT_RETENTION_DAYS = 0  # Alerts kept forever (0 = no expiry)
+COMPRESS_AFTER_DAYS = 7  # Compress logs older than 7 days
 
 
 @dataclass
@@ -42,27 +42,28 @@ class ActivityEvent:
     performs. Designed to be agent-agnostic and extensible for AGI-era
     governance (memory, delegation, cost, autonomy levels).
     """
+
     # What happened
-    action: str                     # "file:read" | "file:write" | "shell:exec" |
-                                    # "llm:prompt" | "network:fetch" | "agent:spawn" |
-                                    # "mcp:tool_call" | "session:start" | "session:end"
-    target: str = ""                # filepath, command, URL, agent ID
+    action: str  # "file:read" | "file:write" | "shell:exec" |
+    # "llm:prompt" | "network:fetch" | "agent:spawn" |
+    # "mcp:tool_call" | "session:start" | "session:end"
+    target: str = ""  # filepath, command, URL, agent ID
 
     # Who did it
-    agent_type: str = "unknown"     # "claude_code" | "cursor" | "custom" | ...
-    user_id: str = ""               # OS user or API key owner
-    session_id: str = ""            # Agent session identifier
+    agent_type: str = "unknown"  # "claude_code" | "cursor" | "custom" | ...
+    user_id: str = ""  # OS user or API key owner
+    session_id: str = ""  # Agent session identifier
 
     # Context
-    event_type: str = "tool_call"   # "tool_call" | "policy_block" | "policy_review" |
-                                    # "session_start" | "session_end" | "scan_alert"
-    cwd: str = ""                   # Working directory
-    project_name: str = ""          # Project identifier (directory name)
+    event_type: str = "tool_call"  # "tool_call" | "policy_block" | "policy_review" |
+    # "session_start" | "session_end" | "scan_alert"
+    cwd: str = ""  # Working directory
+    project_name: str = ""  # Project identifier (directory name)
     details: dict = field(default_factory=dict)  # Agent/tool-specific details
 
     # Security assessment
-    risk_score: int = 0             # AI Guardian scan result (0-100)
-    risk_level: str = "low"         # "low" | "medium" | "high" | "critical"
+    risk_score: int = 0  # AI Guardian scan result (0-100)
+    risk_level: str = "low"  # "low" | "medium" | "high" | "critical"
     matched_rules: list[str] = field(default_factory=list)  # IDs of triggered rules
 
     # Remediation (for alert knowledge base)
@@ -71,27 +72,28 @@ class ActivityEvent:
 
     # Policy decision
     policy_decision: str = "allow"  # "allow" | "deny" | "review"
-    policy_rule_id: str = ""        # Which policy rule matched
+    policy_rule_id: str = ""  # Which policy rule matched
 
     # Metadata (auto-populated)
-    timestamp: str = ""             # ISO 8601, auto-set if empty
-    event_id: str = ""              # Unique ID, auto-set if empty
+    timestamp: str = ""  # ISO 8601, auto-set if empty
+    event_id: str = ""  # Unique ID, auto-set if empty
 
     # === AGI-era extension fields ===
-    autonomy_level: int = 0         # 0=unset, 1=human-all, 5=fully-autonomous
+    autonomy_level: int = 0  # 0=unset, 1=human-all, 5=fully-autonomous
     delegation_chain: list[str] = field(default_factory=list)
-    estimated_cost: float = 0.0     # Estimated API/compute cost in USD
-    memory_scope: str = ""          # "session" | "persistent" | "department:sales"
+    estimated_cost: float = 0.0  # Estimated API/compute cost in USD
+    memory_scope: str = ""  # "session" | "persistent" | "department:sales"
 
     # === Future: auto-fix fields ===
-    suggested_fix: str = ""         # AI-suggested safe alternative
-    fix_applied: bool = False       # Was the fix automatically applied?
+    suggested_fix: str = ""  # AI-suggested safe alternative
+    fix_applied: bool = False  # Was the fix automatically applied?
 
     def __post_init__(self):
         if not self.timestamp:
             self.timestamp = datetime.now(UTC).isoformat()
         if not self.event_id:
             import uuid
+
             self.event_id = uuid.uuid4().hex[:12]
         if not self.user_id:
             try:
@@ -261,10 +263,15 @@ class ActivityStream:
         events = self.query(days=days, use_global=use_global, limit=100000)
         if not events:
             return {
-                "period_days": days, "total_events": 0,
-                "by_action": {}, "by_agent": {}, "by_decision": {},
-                "by_user": {}, "by_project": {},
-                "risk_distribution": {}, "blocked_count": 0,
+                "period_days": days,
+                "total_events": 0,
+                "by_action": {},
+                "by_agent": {},
+                "by_decision": {},
+                "by_user": {},
+                "by_project": {},
+                "risk_distribution": {},
+                "blocked_count": 0,
                 "top_blocked_targets": [],
             }
 
@@ -321,11 +328,22 @@ class ActivityStream:
             return 0
 
         columns = [
-            "timestamp", "user_id", "agent_type", "project_name",
-            "action", "target", "event_type",
-            "risk_score", "risk_level", "policy_decision", "policy_rule_id",
-            "matched_rules", "owasp_refs", "remediation_hints",
-            "session_id", "cwd",
+            "timestamp",
+            "user_id",
+            "agent_type",
+            "project_name",
+            "action",
+            "target",
+            "event_type",
+            "risk_score",
+            "risk_level",
+            "policy_decision",
+            "policy_rule_id",
+            "matched_rules",
+            "owasp_refs",
+            "remediation_hints",
+            "session_id",
+            "cwd",
         ]
         # Write with BOM for Excel compatibility
         with open(output_path, "w", encoding="utf-8-sig", newline="") as f:
@@ -342,7 +360,9 @@ class ActivityStream:
                 writer.writerow(row)
         return len(events)
 
-    def export_excel_summary(self, output_path: str, days: int = 30, use_global: bool = False) -> str:
+    def export_excel_summary(
+        self, output_path: str, days: int = 30, use_global: bool = False
+    ) -> str:
         """Export summary + events to an Excel-compatible CSV bundle.
 
         Creates two files:
@@ -418,7 +438,9 @@ class ActivityStream:
         stats = {"compressed": 0, "deleted": 0, "errors": 0}
         today = datetime.now(UTC).date()
 
-        for base_dir in [self.local_dir, self.global_dir] if self.enable_global else [self.local_dir]:
+        for base_dir in (
+            [self.local_dir, self.global_dir] if self.enable_global else [self.local_dir]
+        ):
             for f in sorted(base_dir.glob("*.jsonl")):
                 try:
                     date_str = f.stem  # "2026-03-28"
@@ -452,19 +474,21 @@ class ActivityStream:
         alerts = self.query(days=365, alerts_only=True, limit=limit)
         knowledge: list[dict] = []
         for e in alerts:
-            knowledge.append({
-                "action": e.action,
-                "target": e.target[:200],
-                "risk_score": e.risk_score,
-                "matched_rules": e.matched_rules,
-                "owasp_refs": e.owasp_refs,
-                "remediation_hints": e.remediation_hints,
-                "policy_decision": e.policy_decision,
-                "policy_rule_id": e.policy_rule_id,
-                "suggested_fix": e.suggested_fix,
-                "fix_applied": e.fix_applied,
-                "timestamp": e.timestamp,
-            })
+            knowledge.append(
+                {
+                    "action": e.action,
+                    "target": e.target[:200],
+                    "risk_score": e.risk_score,
+                    "matched_rules": e.matched_rules,
+                    "owasp_refs": e.owasp_refs,
+                    "remediation_hints": e.remediation_hints,
+                    "policy_decision": e.policy_decision,
+                    "policy_rule_id": e.policy_rule_id,
+                    "suggested_fix": e.suggested_fix,
+                    "fix_applied": e.fix_applied,
+                    "timestamp": e.timestamp,
+                }
+            )
         return knowledge
 
 

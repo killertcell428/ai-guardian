@@ -14,6 +14,7 @@ Usage::
         messages=[{"role": "user", "content": "Hello!"}],
     )
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -25,8 +26,7 @@ try:
     import openai  # type: ignore[import]
 except ImportError as e:
     raise ImportError(
-        "openai is required for SecureOpenAI. "
-        "Install it with: pip install 'aig-guardian[openai]'"
+        "openai is required for SecureOpenAI. Install it with: pip install 'aig-guardian[openai]'"
     ) from e
 
 

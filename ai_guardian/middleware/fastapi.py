@@ -14,6 +14,7 @@ The middleware intercepts ``/chat/completions``-style endpoints,
 scans the request body, and returns a 400 JSON error if blocked.
 All other paths pass through unchanged.
 """
+
 from __future__ import annotations
 
 import json

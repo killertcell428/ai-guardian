@@ -241,9 +241,7 @@ def install_hooks(project_dir: str = ".") -> None:
             existing["hooks"][event] = []
         # Check if AI Guardian hook already exists
         existing_commands = [
-            h.get("command", "")
-            for m in existing["hooks"][event]
-            for h in m.get("hooks", [])
+            h.get("command", "") for m in existing["hooks"][event] for h in m.get("hooks", [])
         ]
         if not any("aig-guard" in cmd for cmd in existing_commands):
             existing["hooks"][event].extend(matchers)
@@ -260,6 +258,7 @@ def install_hooks(project_dir: str = ".") -> None:
             local_data = json.loads(local_settings_path.read_text(encoding="utf-8"))
             if local_data.get("disableAllHooks", False):
                 import warnings
+
                 warnings.warn(
                     "disableAllHooks=true in .claude/settings.local.json — "
                     "AI Guardian hooks will NOT run. "

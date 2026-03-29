@@ -21,6 +21,7 @@ from dataclasses import dataclass
 @dataclass
 class DetectionPattern:
     """A single detection rule with remediation metadata."""
+
     id: str
     name: str
     category: str
@@ -165,9 +166,7 @@ JAPANESE_INJECTION_PATTERNS: list[DetectionPattern] = [
         id="pi_jp_role_switch",
         name="Role Switch (JA)",
         category="prompt_injection",
-        pattern=_p(
-            r"(今から|これから)あなたは.{1,20}(として|になって|のふりをして|に切り替えて)"
-        ),
+        pattern=_p(r"(今から|これから)あなたは.{1,20}(として|になって|のふりをして|に切り替えて)"),
         base_score=35,
         description="Japanese: role switch injection.",
         owasp_ref="OWASP LLM01: Prompt Injection",
@@ -217,43 +216,61 @@ JAPANESE_INJECTION_PATTERNS: list[DetectionPattern] = [
 # === SQL Injection ===
 SQL_INJECTION_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
-        id="sqli_union_select", name="UNION SELECT", category="sql_injection",
-        pattern=_p(r"(union\s+(all\s+)?select)"), base_score=70,
+        id="sqli_union_select",
+        name="UNION SELECT",
+        category="sql_injection",
+        pattern=_p(r"(union\s+(all\s+)?select)"),
+        base_score=70,
         description="UNION-based SQL injection.",
         owasp_ref="CWE-89: SQL Injection",
         remediation_hint="UNION SELECT is a SQL injection technique to extract data from other tables. If you need to discuss SQL queries, use code blocks or pseudocode. For text-to-SQL apps, use parameterized queries and allowlists.",
     ),
     DetectionPattern(
-        id="sqli_drop_table", name="DROP TABLE", category="sql_injection",
-        pattern=_p(r"\b(drop\s+table|drop\s+database|truncate\s+table)\b"), base_score=80,
+        id="sqli_drop_table",
+        name="DROP TABLE",
+        category="sql_injection",
+        pattern=_p(r"\b(drop\s+table|drop\s+database|truncate\s+table)\b"),
+        base_score=80,
         description="Destructive DDL SQL injection.",
         owasp_ref="CWE-89: SQL Injection",
         remediation_hint="Destructive SQL commands can cause data loss. If discussing database management, rephrase without raw DDL. For text-to-SQL apps, restrict the AI to SELECT-only queries and use read-only database connections.",
     ),
     DetectionPattern(
-        id="sqli_boolean_blind", name="Boolean-based Blind SQLi", category="sql_injection",
-        pattern=_p(r"(\'\s*(or|and)\s*[\'\d].*=.*[\'\d]|\b(or|and)\s+\d+\s*=\s*\d+)"), base_score=65,
+        id="sqli_boolean_blind",
+        name="Boolean-based Blind SQLi",
+        category="sql_injection",
+        pattern=_p(r"(\'\s*(or|and)\s*[\'\d].*=.*[\'\d]|\b(or|and)\s+\d+\s*=\s*\d+)"),
+        base_score=65,
         description="Boolean-based blind SQL injection.",
         owasp_ref="CWE-89: SQL Injection",
         remediation_hint="Boolean injection probes database responses for true/false conditions. Ensure your text-to-SQL pipeline uses parameterized queries and validates generated SQL before execution.",
     ),
     DetectionPattern(
-        id="sqli_comment", name="SQL Comment Injection", category="sql_injection",
-        pattern=_p(r"(--|#|\/\*|\*\/)\s*(or|and|select|insert|update|delete|drop)"), base_score=55,
+        id="sqli_comment",
+        name="SQL Comment Injection",
+        category="sql_injection",
+        pattern=_p(r"(--|#|\/\*|\*\/)\s*(or|and|select|insert|update|delete|drop)"),
+        base_score=55,
         description="SQL comment-based injection.",
         owasp_ref="CWE-89: SQL Injection",
         remediation_hint="SQL comments (-- or /* */) can truncate queries to bypass conditions. If you're discussing SQL syntax, wrap it in markdown code blocks.",
     ),
     DetectionPattern(
-        id="sqli_stacked", name="Stacked Queries", category="sql_injection",
-        pattern=_p(r";\s*(select|insert|update|delete|drop|create|alter|exec)\b"), base_score=70,
+        id="sqli_stacked",
+        name="Stacked Queries",
+        category="sql_injection",
+        pattern=_p(r";\s*(select|insert|update|delete|drop|create|alter|exec)\b"),
+        base_score=70,
         description="Stacked query SQL injection.",
         owasp_ref="CWE-89: SQL Injection",
         remediation_hint="Stacked queries allow executing multiple SQL statements. Disable multi-statement execution in your database driver and use allowlists for permitted SQL operations.",
     ),
     DetectionPattern(
-        id="sqli_sleep_benchmark", name="Time-based Blind SQLi", category="sql_injection",
-        pattern=_p(r"\b(sleep\s*\(\d+\)|benchmark\s*\(\d+|waitfor\s+delay)\b"), base_score=75,
+        id="sqli_sleep_benchmark",
+        name="Time-based Blind SQLi",
+        category="sql_injection",
+        pattern=_p(r"\b(sleep\s*\(\d+\)|benchmark\s*\(\d+|waitfor\s+delay)\b"),
+        base_score=75,
         description="Time-based blind SQL injection.",
         owasp_ref="CWE-89: SQL Injection",
         remediation_hint="Time-based injection uses delays to infer database content. Set query timeouts and monitor for abnormally slow queries in your text-to-SQL pipeline.",
@@ -263,16 +280,26 @@ SQL_INJECTION_PATTERNS: list[DetectionPattern] = [
 # === Data Exfiltration ===
 DATA_EXFIL_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
-        id="exfil_pii_request", name="PII Extraction Request", category="data_exfiltration",
-        pattern=_p(r"(list|extract|export|dump|retrieve)\s+(all\s+)?(user(s|\s+data)?|customer(s|\s+data)?|employee(s|\s+records?)?|personal\s+data|private\s+information|credentials?)"),
-        base_score=50, description="Attempts to extract PII.",
+        id="exfil_pii_request",
+        name="PII Extraction Request",
+        category="data_exfiltration",
+        pattern=_p(
+            r"(list|extract|export|dump|retrieve)\s+(all\s+)?(user(s|\s+data)?|customer(s|\s+data)?|employee(s|\s+records?)?|personal\s+data|private\s+information|credentials?)"
+        ),
+        base_score=50,
+        description="Attempts to extract PII.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="This looks like a bulk data extraction request. If you need to work with user data, use aggregated/anonymized datasets instead. Never ask an AI to retrieve raw PII from connected systems.",
     ),
     DetectionPattern(
-        id="exfil_api_keys", name="API Key / Secret Extraction", category="data_exfiltration",
-        pattern=_p(r"(show|give|tell|print|reveal)\s+(me\s+)?(the\s+)?(api\s+key|secret\s+key|private\s+key|access\s+token|password|credentials?)"),
-        base_score=60, description="Attempts to extract API keys or secrets.",
+        id="exfil_api_keys",
+        name="API Key / Secret Extraction",
+        category="data_exfiltration",
+        pattern=_p(
+            r"(show|give|tell|print|reveal)\s+(me\s+)?(the\s+)?(api\s+key|secret\s+key|private\s+key|access\s+token|password|credentials?)"
+        ),
+        base_score=60,
+        description="Attempts to extract API keys or secrets.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="Never ask AI to reveal credentials. Use your organization's secret manager (AWS Secrets Manager, HashiCorp Vault, etc.) to access API keys securely.",
     ),
@@ -281,16 +308,24 @@ DATA_EXFIL_PATTERNS: list[DetectionPattern] = [
 # === Command Injection ===
 COMMAND_INJECTION_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
-        id="cmdi_shell", name="Shell Command Injection", category="command_injection",
-        pattern=_p(r"(\b(exec|system|shell_exec|popen|subprocess|os\.system|eval)\s*\(|\$\(.*\)|`[^`]+`|\|\s*(bash|sh|cmd|powershell)\b)"),
-        base_score=70, description="Shell command injection.",
+        id="cmdi_shell",
+        name="Shell Command Injection",
+        category="command_injection",
+        pattern=_p(
+            r"(\b(exec|system|shell_exec|popen|subprocess|os\.system|eval)\s*\(|\$\(.*\)|`[^`]+`|\|\s*(bash|sh|cmd|powershell)\b)"
+        ),
+        base_score=70,
+        description="Shell command injection.",
         owasp_ref="CWE-78: OS Command Injection",
         remediation_hint="Shell commands in AI prompts can lead to remote code execution if the AI has tool access. If discussing code, use markdown code blocks. Never connect AI directly to shell execution without sandboxing.",
     ),
     DetectionPattern(
-        id="cmdi_path_traversal", name="Path Traversal", category="command_injection",
+        id="cmdi_path_traversal",
+        name="Path Traversal",
+        category="command_injection",
         pattern=_p(r"(\.\.\/|\.\.\\|%2e%2e%2f|%252e%252e%252f)"),
-        base_score=60, description="Path traversal attempt.",
+        base_score=60,
+        description="Path traversal attempt.",
         owasp_ref="CWE-22: Path Traversal",
         remediation_hint="Path traversal (../) can access files outside intended directories. If you need to reference file paths, use absolute paths or restrict file access to a designated directory.",
     ),
@@ -299,58 +334,88 @@ COMMAND_INJECTION_PATTERNS: list[DetectionPattern] = [
 # === PII Detection (Input) ===
 PII_INPUT_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
-        id="pii_jp_phone", name="Japanese Phone Number", category="pii_input",
+        id="pii_jp_phone",
+        name="Japanese Phone Number",
+        category="pii_input",
         pattern=_p(r"(0\d{1,4}[-\s]?\d{1,4}[-\s]?\d{3,4}|0[789]0[-\s]?\d{4}[-\s]?\d{4})"),
-        base_score=40, description="Japanese phone number in input.",
+        base_score=40,
+        description="Japanese phone number in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="電話番号がLLMに送信されます。テストデータの場合は 090-0000-0000 のようなダミー番号に置き換えてください。AI Guardianの自動サニタイズ機能で自動墨消しも可能です。",
     ),
     DetectionPattern(
-        id="pii_jp_my_number", name="Japanese My Number", category="pii_input",
-        pattern=_p(r"(?<!\d)\d{4}[\s\-]?\d{4}[\s\-]?\d{4}(?!\d)"), base_score=70,
+        id="pii_jp_my_number",
+        name="Japanese My Number",
+        category="pii_input",
+        pattern=_p(r"(?<!\d)\d{4}[\s\-]?\d{4}[\s\-]?\d{4}(?!\d)"),
+        base_score=70,
         description="Japanese My Number (12 digits) in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="マイナンバーは法律で保護される特定個人情報です。絶対にLLMに送信しないでください。テスト目的の場合は 0000 0000 0000 のようなダミー値を使用してください。",
     ),
     DetectionPattern(
-        id="pii_jp_postal_code", name="Japanese Postal Code", category="pii_input",
-        pattern=_p(r"〒?\s?\d{3}[-ー]\d{4}"), base_score=25,
+        id="pii_jp_postal_code",
+        name="Japanese Postal Code",
+        category="pii_input",
+        pattern=_p(r"〒?\s?\d{3}[-ー]\d{4}"),
+        base_score=25,
         description="Japanese postal code in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="郵便番号単体のリスクは低いですが、住所と組み合わさると個人特定につながります。必要に応じて都道府県レベルの情報のみに留めてください。",
     ),
     DetectionPattern(
-        id="pii_jp_address", name="Japanese Address", category="pii_input",
-        pattern=_p(r"(東京都|北海道|(?:京都|大阪)府|.{2,3}県).{1,6}[市区町村郡].{1,10}[0-9０-９\-ー]+"),
-        base_score=40, description="Japanese address pattern in input.",
+        id="pii_jp_address",
+        name="Japanese Address",
+        category="pii_input",
+        pattern=_p(
+            r"(東京都|北海道|(?:京都|大阪)府|.{2,3}県).{1,6}[市区町村郡].{1,10}[0-9０-９\-ー]+"
+        ),
+        base_score=40,
+        description="Japanese address pattern in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="詳細な住所は個人特定情報です。地域に関する質問の場合は、市区町村レベルまでに留めてください。例: 「東京都千代田区の…」→「千代田区周辺の…」",
     ),
     DetectionPattern(
-        id="pii_jp_bank_account", name="Japanese Bank Account", category="pii_input",
-        pattern=_p(r"(銀行|信用金庫|信金|ゆうちょ).{0,10}(支店|本店).{0,10}(普通|当座|貯蓄).{0,5}\d{6,8}"),
-        base_score=65, description="Japanese bank account details in input.",
+        id="pii_jp_bank_account",
+        name="Japanese Bank Account",
+        category="pii_input",
+        pattern=_p(
+            r"(銀行|信用金庫|信金|ゆうちょ).{0,10}(支店|本店).{0,10}(普通|当座|貯蓄).{0,5}\d{6,8}"
+        ),
+        base_score=65,
+        description="Japanese bank account details in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="口座情報は金融犯罪に悪用されるリスクがあります。銀行関連の質問では、具体的な口座番号を含めず、一般的な質問形式にしてください。",
     ),
     DetectionPattern(
-        id="pii_credit_card_input", name="Credit Card in Input", category="pii_input",
+        id="pii_credit_card_input",
+        name="Credit Card in Input",
+        category="pii_input",
         pattern=_p(r"\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b"),
-        base_score=70, description="Credit card number in input.",
+        base_score=70,
+        description="Credit card number in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure / PCI-DSS",
         remediation_hint="Credit card numbers must never be sent to LLMs (PCI-DSS violation). Use tokenized references or masked numbers (e.g., ****-****-****-1234). Enable auto-sanitization to redact automatically.",
     ),
     DetectionPattern(
-        id="pii_ssn_input", name="SSN in Input", category="pii_input",
-        pattern=_p(r"\b\d{3}-\d{2}-\d{4}\b"), base_score=65,
+        id="pii_ssn_input",
+        name="SSN in Input",
+        category="pii_input",
+        pattern=_p(r"\b\d{3}-\d{2}-\d{4}\b"),
+        base_score=65,
         description="US Social Security Number in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="SSNs are highly sensitive PII. Never include real SSNs in AI prompts. For testing, use the IRS-designated test range: 987-65-4320 through 987-65-4329.",
     ),
     DetectionPattern(
-        id="pii_api_key_input", name="API Key in Input", category="pii_input",
-        pattern=_p(r"(sk-[a-zA-Z0-9]{20,}|AIza[0-9A-Za-z\-_]{35}|ghp_[0-9A-Za-z]{36}|xox[baprs]-[0-9a-zA-Z\-]+|AKIA[0-9A-Z]{16})"),
-        base_score=80, description="API key or secret in input.",
+        id="pii_api_key_input",
+        name="API Key in Input",
+        category="pii_input",
+        pattern=_p(
+            r"(sk-[a-zA-Z0-9]{20,}|AIza[0-9A-Za-z\-_]{35}|ghp_[0-9A-Za-z]{36}|xox[baprs]-[0-9a-zA-Z\-]+|AKIA[0-9A-Z]{16})"
+        ),
+        base_score=80,
+        description="API key or secret in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="API keys in prompts risk credential leakage. Rotate this key immediately if it was sent to an LLM. Use environment variables or secret managers instead of hardcoding keys.",
     ),
@@ -359,23 +424,34 @@ PII_INPUT_PATTERNS: list[DetectionPattern] = [
 # === Confidential Data ===
 CONFIDENTIAL_DATA_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
-        id="conf_internal_doc", name="Internal Document Markers", category="confidential",
-        pattern=_p(r"(社外秘|部外秘|極秘|confidential|internal\s+only|do\s+not\s+distribute|not\s+for\s+external)"),
-        base_score=50, description="Content marked as confidential.",
+        id="conf_internal_doc",
+        name="Internal Document Markers",
+        category="confidential",
+        pattern=_p(
+            r"(社外秘|部外秘|極秘|confidential|internal\s+only|do\s+not\s+distribute|not\s+for\s+external)"
+        ),
+        base_score=50,
+        description="Content marked as confidential.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="This content is marked as confidential. Remove confidentiality markers and sensitive content before sending to an LLM. Consider using an on-premise LLM for confidential data processing.",
     ),
     DetectionPattern(
-        id="conf_password_literal", name="Plaintext Password", category="confidential",
+        id="conf_password_literal",
+        name="Plaintext Password",
+        category="confidential",
         pattern=_p(r"(password|パスワード|pwd|passwd)\s*[:=]\s*\S{4,}"),
-        base_score=60, description="Plaintext password in input.",
+        base_score=60,
+        description="Plaintext password in input.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure / CWE-798",
         remediation_hint="Plaintext passwords must never be sent to LLMs. Change this password immediately. Use a password manager and reference credentials by name, not value. Example: 'the database password stored in Vault'.",
     ),
     DetectionPattern(
-        id="conf_connection_string", name="Database Connection String", category="confidential",
+        id="conf_connection_string",
+        name="Database Connection String",
+        category="confidential",
         pattern=_p(r"(postgresql|mysql|mongodb|redis|mssql)://\S+:\S+@\S+"),
-        base_score=75, description="Database connection string with credentials.",
+        base_score=75,
+        description="Database connection string with credentials.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure / CWE-798",
         remediation_hint="Connection strings contain database credentials. Rotate credentials immediately if leaked. Use environment variables (DATABASE_URL) and never include credentials in AI prompts.",
     ),
@@ -384,7 +460,9 @@ CONFIDENTIAL_DATA_PATTERNS: list[DetectionPattern] = [
 # === Trade Secret / Copyright (Japan-specific legal risks) ===
 LEGAL_RISK_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
-        id="legal_trade_secret", name="Trade Secret Markers (JP)", category="legal_risk",
+        id="legal_trade_secret",
+        name="Trade Secret Markers (JP)",
+        category="legal_risk",
         pattern=_p(
             r"(営業秘密|トレードシークレット|trade\s+secret|秘密管理|"
             r"秘密保持契約|NDA|機密保持|proprietary|限定提供データ)"
@@ -395,7 +473,9 @@ LEGAL_RISK_PATTERNS: list[DetectionPattern] = [
         remediation_hint="営業秘密に該当する情報をLLMに送信すると、不正競争防止法上の「秘密管理性」が失われるリスクがあります。秘密情報を除外してからLLMに送信してください。",
     ),
     DetectionPattern(
-        id="legal_copyright_source", name="Copyright Source Reference", category="legal_risk",
+        id="legal_copyright_source",
+        name="Copyright Source Reference",
+        category="legal_risk",
         pattern=_p(
             r"(著作権|copyright|©|全文を(コピー|転載|引用)|"
             r"(書籍|論文|記事)の.{0,6}(全文|内容).{0,4}(出力|生成|再現|コピー|書き出))"
@@ -542,51 +622,76 @@ PROMPT_LEAK_PATTERNS: list[DetectionPattern] = [
 # === Output Safety ===
 OUTPUT_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
-        id="out_pii_ssn", name="SSN in Output", category="pii_leak",
-        pattern=_p(r"\b\d{3}-\d{2}-\d{4}\b"), base_score=70,
+        id="out_pii_ssn",
+        name="SSN in Output",
+        category="pii_leak",
+        pattern=_p(r"\b\d{3}-\d{2}-\d{4}\b"),
+        base_score=70,
         description="SSN in LLM output.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="The LLM generated a Social Security Number in its output. This may indicate training data leakage. Review your model's training data for PII contamination.",
     ),
     DetectionPattern(
-        id="out_pii_credit_card", name="Credit Card in Output", category="pii_leak",
+        id="out_pii_credit_card",
+        name="Credit Card in Output",
+        category="pii_leak",
         pattern=_p(r"\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b"),
-        base_score=80, description="Credit card in LLM output.",
+        base_score=80,
+        description="Credit card in LLM output.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure / PCI-DSS",
         remediation_hint="The LLM generated a credit card number. This is a PCI-DSS violation. Auto-redaction has been applied. Investigate whether card data exists in the model's training corpus or connected data sources.",
     ),
     DetectionPattern(
-        id="out_pii_email_bulk", name="Bulk Email Dump", category="pii_leak",
+        id="out_pii_email_bulk",
+        name="Bulk Email Dump",
+        category="pii_leak",
         pattern=_p(r"([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}[\s,;]){3,}"),
-        base_score=55, description="Multiple email addresses in output.",
+        base_score=55,
+        description="Multiple email addresses in output.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="The LLM output contains multiple email addresses, suggesting a data dump. Restrict the AI's access to bulk PII data and use aggregated views instead.",
     ),
     DetectionPattern(
-        id="out_secret_leak", name="Secret/API Key in Output", category="secret_leak",
-        pattern=_p(r"(sk-[a-zA-Z0-9]{20,}|AIza[0-9A-Za-z\-_]{35}|ghp_[0-9A-Za-z]{36}|xox[baprs]-[0-9a-zA-Z\-]+)"),
-        base_score=90, description="API key or secret in output.",
+        id="out_secret_leak",
+        name="Secret/API Key in Output",
+        category="secret_leak",
+        pattern=_p(
+            r"(sk-[a-zA-Z0-9]{20,}|AIza[0-9A-Za-z\-_]{35}|ghp_[0-9A-Za-z]{36}|xox[baprs]-[0-9a-zA-Z\-]+)"
+        ),
+        base_score=90,
+        description="API key or secret in output.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="The LLM leaked an API key or secret token. Rotate this credential immediately. Ensure secrets are not included in system prompts, training data, or connected data stores.",
     ),
     DetectionPattern(
-        id="out_harmful_instructions", name="Harmful Instructions", category="harmful_content",
-        pattern=_p(r"(step[\s\-]+by[\s\-]+step\s+(instructions?|guide|how\s+to)\s+(to\s+)?(make|create|build|synthesize)\s+(bomb|explosive|weapon|malware|virus))"),
-        base_score=95, description="Harmful step-by-step instructions.",
+        id="out_harmful_instructions",
+        name="Harmful Instructions",
+        category="harmful_content",
+        pattern=_p(
+            r"(step[\s\-]+by[\s\-]+step\s+(instructions?|guide|how\s+to)\s+(to\s+)?(make|create|build|synthesize)\s+(bomb|explosive|weapon|malware|virus))"
+        ),
+        base_score=95,
+        description="Harmful step-by-step instructions.",
         owasp_ref="OWASP LLM05: Improper Output Handling",
         remediation_hint="The LLM generated harmful instructions. This output has been blocked. Review and strengthen your system prompt's safety guidelines. Consider implementing content classification at the model level.",
     ),
     DetectionPattern(
-        id="out_pii_jp_my_number", name="My Number in Output", category="pii_leak",
-        pattern=_p(r"\b\d{4}\s?\d{4}\s?\d{4}\b"), base_score=75,
+        id="out_pii_jp_my_number",
+        name="My Number in Output",
+        category="pii_leak",
+        pattern=_p(r"\b\d{4}\s?\d{4}\s?\d{4}\b"),
+        base_score=75,
         description="Japanese My Number in output.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="LLMの出力にマイナンバーが含まれています。マイナンバー法に基づく特定個人情報の漏洩にあたる可能性があります。データソースからマイナンバーを除外してください。",
     ),
     DetectionPattern(
-        id="out_pii_jp_phone", name="Japanese Phone in Output", category="pii_leak",
+        id="out_pii_jp_phone",
+        name="Japanese Phone in Output",
+        category="pii_leak",
         pattern=_p(r"(0\d{1,4}[-\s]?\d{1,4}[-\s]?\d{3,4}|0[789]0[-\s]?\d{4}[-\s]?\d{4})"),
-        base_score=45, description="Japanese phone number in output.",
+        base_score=45,
+        description="Japanese phone number in output.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="LLMの出力に電話番号が含まれています。学習データまたは接続データソースに個人の電話番号が含まれていないか確認してください。",
     ),

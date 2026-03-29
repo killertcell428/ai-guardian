@@ -1,4 +1,5 @@
 """Input filter: analyze incoming LLM request messages."""
+
 from __future__ import annotations
 
 from ai_guardian.filters.patterns import ALL_INPUT_PATTERNS

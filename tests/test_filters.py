@@ -62,9 +62,7 @@ class TestSQLInjection:
 # ---------------------------------------------------------------------------
 class TestPIIInput:
     def test_credit_card(self):
-        score, level, matched = filter_input(
-            "My card number is 4111111111111111"
-        )
+        score, level, matched = filter_input("My card number is 4111111111111111")
         assert any(r.rule_id == "pii_credit_card_input" for r in matched)
 
     def test_ssn(self):
@@ -119,22 +117,16 @@ class TestMessagesFilter:
 # ---------------------------------------------------------------------------
 class TestOutputFilter:
     def test_api_key_in_output(self):
-        score, level, matched = filter_output(
-            "Your API key is sk-abcdefghijklmnopqrstuvwxyz123456"
-        )
+        score, level, matched = filter_output("Your API key is sk-abcdefghijklmnopqrstuvwxyz123456")
         assert level == RiskLevel.CRITICAL
         assert any(r.rule_id == "out_secret_leak" for r in matched)
 
     def test_credit_card_in_output(self):
-        score, level, matched = filter_output(
-            "The card number on file is 4111111111111111."
-        )
+        score, level, matched = filter_output("The card number on file is 4111111111111111.")
         assert any(r.rule_id == "out_pii_credit_card" for r in matched)
 
     def test_clean_output(self):
-        score, level, matched = filter_output(
-            "The weather in Tokyo today is sunny and 22°C."
-        )
+        score, level, matched = filter_output("The weather in Tokyo today is sunny and 22°C.")
         assert level == RiskLevel.LOW
 
     def test_response_body(self):

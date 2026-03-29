@@ -33,8 +33,12 @@ def main(argv: list[str] | None = None) -> int:
     # aig init
     init_p = sub.add_parser("init", help="Initialize AI Guardian in current project")
     init_p.add_argument("--agent", choices=["claude-code"], help="Configure agent adapter")
-    init_p.add_argument("--policy", choices=["developer", "reviewer", "restricted", "enterprise"],
-                        default="developer", help="Policy template to use")
+    init_p.add_argument(
+        "--policy",
+        choices=["developer", "reviewer", "restricted", "enterprise"],
+        default="developer",
+        help="Policy template to use",
+    )
 
     # aig logs
     logs_p = sub.add_parser("logs", help="View activity stream")
@@ -44,10 +48,14 @@ def main(argv: list[str] | None = None) -> int:
     logs_p.add_argument("--days", type=int, default=7, help="Days to look back (default: 7)")
     logs_p.add_argument("--limit", type=int, default=20, help="Max events (default: 20)")
     logs_p.add_argument("--json", action="store_true", help="Output as JSON")
-    logs_p.add_argument("--global", dest="use_global", action="store_true", help="Query global logs (all projects)")
+    logs_p.add_argument(
+        "--global", dest="use_global", action="store_true", help="Query global logs (all projects)"
+    )
     logs_p.add_argument("--alerts", action="store_true", help="Show alerts only (blocked/reviewed)")
     logs_p.add_argument("--export-csv", metavar="PATH", help="Export to CSV file")
-    logs_p.add_argument("--export-excel", metavar="PATH", help="Export summary + events to Excel-compatible CSVs")
+    logs_p.add_argument(
+        "--export-excel", metavar="PATH", help="Export summary + events to Excel-compatible CSVs"
+    )
 
     # aig policy
     policy_p = sub.add_parser("policy", help="Policy management")
@@ -63,8 +71,12 @@ def main(argv: list[str] | None = None) -> int:
 
     # aig maintenance
     maint_p = sub.add_parser("maintenance", help="Log maintenance (rotate, compress)")
-    maint_p.add_argument("--retention-days", type=int, default=60, help="Keep full logs for N days (default: 60)")
-    maint_p.add_argument("--compress-after", type=int, default=7, help="Compress after N days (default: 7)")
+    maint_p.add_argument(
+        "--retention-days", type=int, default=60, help="Keep full logs for N days (default: 60)"
+    )
+    maint_p.add_argument(
+        "--compress-after", type=int, default=7, help="Compress after N days (default: 7)"
+    )
 
     # aig doctor
     sub.add_parser("doctor", help="Diagnose AI Guardian setup issues")
@@ -138,6 +150,7 @@ def cmd_init(args) -> int:
     # Configure Claude Code adapter if requested
     if args.agent == "claude-code":
         from ai_guardian.adapters.claude_code import install_hooks
+
         install_hooks(".")
         print("  Configured Claude Code hooks")
 
@@ -163,7 +176,9 @@ def cmd_logs(args) -> int:
 
     # Excel export
     if args.export_excel:
-        path = stream.export_excel_summary(args.export_excel, days=args.days, use_global=args.use_global)
+        path = stream.export_excel_summary(
+            args.export_excel, days=args.days, use_global=args.use_global
+        )
         print(f"Exported to {path} and {path.replace('_summary', '_events')}")
         return 0
 
@@ -198,7 +213,9 @@ def cmd_logs(args) -> int:
     for e in events:
         time_str = e.timestamp[11:19] if len(e.timestamp) > 19 else e.timestamp
         target = e.target[:30] if e.target else "-"
-        decision_icon = {"allow": "  OK", "deny": "BLOCK", "review": " REV"}.get(e.policy_decision, "  ?")
+        decision_icon = {"allow": "  OK", "deny": "BLOCK", "review": " REV"}.get(
+            e.policy_decision, "  ?"
+        )
         risk_color = e.risk_score
         print(f"{time_str:>20} {e.action:>15} {target:>30} {risk_color:>5} {decision_icon:>8}")
 
@@ -282,8 +299,11 @@ def cmd_status(args) -> int:
     # Compliance
     try:
         from ai_guardian.compliance import get_compliance_summary
+
         comp = get_compliance_summary()
-        print(f"\n  Compliance: {comp['coverage_rate']}% ({comp['covered']}/{comp['total_requirements']} covered)")
+        print(
+            f"\n  Compliance: {comp['coverage_rate']}% ({comp['covered']}/{comp['total_requirements']} covered)"
+        )
     except Exception:
         pass
 
@@ -378,6 +398,7 @@ def cmd_doctor(args) -> int:
     try:
         from ai_guardian.activity import ActivityEvent, ActivityStream
         from ai_guardian.policy import evaluate, load_policy
+
         ok("ai_guardian module imports OK")
     except ImportError as e:
         fail(f"ai_guardian import failed: {e}")
@@ -396,9 +417,7 @@ def cmd_doctor(args) -> int:
             settings = json.loads(settings_path.read_text(encoding="utf-8"))
             hooks = settings.get("hooks", {}).get("PreToolUse", [])
             has_aig = any(
-                "aig-guard" in h.get("command", "")
-                for m in hooks
-                for h in m.get("hooks", [])
+                "aig-guard" in h.get("command", "") for m in hooks for h in m.get("hooks", [])
             )
             if has_aig:
                 ok("PreToolUse hook configured in settings.json")
@@ -436,10 +455,7 @@ def cmd_doctor(args) -> int:
         line_count = sum(1 for _ in open(latest, encoding="utf-8"))
         ok(f"Recent logs found: {latest.name} ({line_count} events)")
     else:
-        warn(
-            "No log files found. If you've used Claude Code recently, "
-            "the hook may not be firing."
-        )
+        warn("No log files found. If you've used Claude Code recently, the hook may not be firing.")
 
     # 8. Check global log directory
     global_dir = Path.home() / ".ai-guardian" / "global"

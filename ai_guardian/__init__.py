@@ -18,6 +18,7 @@ Functional API (convenience wrappers around Guard)::
     if not result.is_safe:
         print(result.reason)
 """
+
 from ai_guardian.guard import Guard
 from ai_guardian.scanner import (
     ScanResult,
