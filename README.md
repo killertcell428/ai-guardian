@@ -1,4 +1,8 @@
-# ai-guardian
+<p align="center">
+  <img src="https://raw.githubusercontent.com/killertcell428/ai-guardian/main/.github/shield.svg" alt="AI Guardian" width="120" />
+</p>
+
+<h1 align="center">ai-guardian</h1>
 
 [![CI](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
