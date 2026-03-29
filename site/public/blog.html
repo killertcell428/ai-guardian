@@ -501,7 +501,7 @@
 <div class="filter-section">
   <div class="filter-tabs" id="filterTabs">
     <button class="filter-tab active" data-filter="all">
-      All <span class="tab-count" id="count-all">7</span>
+      All <span class="tab-count" id="count-all">6</span>
     </button>
     <button class="filter-tab" data-filter="technical">
       Technical <span class="tab-count" id="count-technical">0</span>
@@ -583,73 +583,63 @@
 const articles = [
   {
     id: 1,
-    title: "Introducing ai-guardian: Open-Source LLM Security in 3 Lines of Python",
+    title: "AIエージェント導入で「セキュリティは？」と聞かれたときに見せる技術対策",
     category: "technical",
-    platform: "devto",
+    platform: "qiita",
     date: "2026-03-29",
-    summary: "We're open-sourcing ai-guardian \u2014 a lightweight Python middleware that adds prompt injection detection, PII masking, and output validation to any LLM application with just 3 lines of code.",
-    url: "#",
+    summary: "AIエージェント導入時にセキュリティ担当から必ず聞かれる質問への技術的な回答。ai-guardianを使ったプロンプトインジェクション対策、PII検出、監査ログの実装方法を解説。",
+    url: "https://qiita.com/sharu389no/items/7c3904e7e40a8bec505d",
     icon: "\ud83d\udee1\ufe0f"
   },
   {
     id: 2,
-    title: "3\u884c\u3067\u59cb\u3081\u308bLLM\u30bb\u30ad\u30e5\u30ea\u30c6\u30a3",
+    title: "AIエージェント導入で「セキュリティどうするの？」と聞かれたときの技術的な答え方",
     category: "technical",
     platform: "zenn",
     date: "2026-03-29",
-    summary: "pip install ai-guardian \u306e\u4e00\u884c\u304b\u3089\u59cb\u307e\u308bLLM\u30a2\u30d7\u30ea\u306e\u30bb\u30ad\u30e5\u30ea\u30c6\u30a3\u5bfe\u7b56\u3002\u30d7\u30ed\u30f3\u30d7\u30c8\u30a4\u30f3\u30b8\u30a7\u30af\u30b7\u30e7\u30f3\u691c\u51fa\u3001PII\u30de\u30b9\u30ad\u30f3\u30b0\u3001\u51fa\u529b\u30d0\u30ea\u30c7\u30fc\u30b7\u30e7\u30f3\u3092\u6700\u5c0f\u30b3\u30b9\u30c8\u3067\u5c0e\u5165\u3059\u308b\u65b9\u6cd5\u3092\u89e3\u8aac\u3057\u307e\u3059\u3002",
-    url: "#",
+    summary: "企業がAIエージェントを導入する際のセキュリティ課題と、ai-guardianによる実践的な解決策。OWASP LLM Top 10に基づく脅威分析と対策を体系的に解説。",
+    url: "https://zenn.dev/sharu389no/articles/e07c926d87ac57",
     icon: "\ud83d\udd10"
   },
   {
     id: 3,
-    title: "\u306a\u305c\u8b70\u4e8b\u9332AI\u3060\u3051\u3067\u306f\u58f2\u308c\u306a\u3044\u306e\u304b",
+    title: "OSSのサービス展開を0からClaude Codeで全自動化してみた",
     category: "product",
-    platform: "note",
-    date: "2026-03-20",
-    summary: "\u8b70\u4e8b\u9332\u3092\u81ea\u52d5\u751f\u6210\u3059\u308bAI\u3092\u4f5c\u3063\u3066\u6c17\u3065\u3044\u305f\u3053\u3068\u3002\u6a5f\u80fd\u304c\u63c3\u3063\u3066\u3044\u308b\u306e\u306b\u8ab0\u3082\u4f7f\u308f\u306a\u3044\u7406\u7531\u306f\u3001\u300c\u4fe1\u983c\u300d\u306e\u554f\u984c\u3060\u3063\u305f\u3002",
-    url: "#",
-    icon: "\ud83d\udca1"
+    platform: "qiita",
+    date: "2026-03-28",
+    summary: "ai-guardianの開発・デプロイ・SNS投稿・記事執筆まで、Claude Codeで全自動化した体験記。OSSプロダクトのローンチを1人で完走するための実践的なワークフロー。",
+    url: "https://qiita.com/sharu389no/items/a328d98f2928a8d0972b",
+    icon: "\ud83d\ude80"
   },
   {
     id: 4,
-    title: "\u8b70\u4e8b\u9332AI\u3092\u4f5c\u3063\u305f\u3089\u3001\u30bb\u30ad\u30e5\u30ea\u30c6\u30a3\u304c\u672c\u5f53\u306e\u8ab2\u984c\u3060\u3068\u6c17\u3065\u3044\u305f\u8a71",
+    title: "OSSのサービス展開を0からClaude Codeで全自動化した話",
     category: "product",
-    platform: "note",
-    date: "2026-03-22",
-    summary: "\u4f1a\u8b70\u306e\u5185\u5bb9\u3092LLM\u306b\u6e21\u3059\u3068\u304d\u3001\u305d\u3053\u306b\u306f\u500b\u4eba\u60c5\u5831\u30fb\u6a5f\u5bc6\u60c5\u5831\u30fb\u7af6\u5408\u60c5\u5831\u304c\u6df7\u5728\u3057\u3066\u3044\u308b\u3002\u30a8\u30f3\u30bf\u30fc\u30d7\u30e9\u30a4\u30baAI\u5c0e\u5165\u306e\u672c\u8cea\u7684\u306a\u30dc\u30c8\u30eb\u30cd\u30c3\u30af\u306b\u6c17\u3065\u3044\u305f\u7d4c\u7def\u3002",
-    url: "#",
-    icon: "\ud83d\udd0d"
+    platform: "zenn",
+    date: "2026-03-28",
+    summary: "開発・デプロイ・SNS投稿・記事執筆まで、Claude Codeで全自動化。OSSプロダクトのローンチパイプラインを構築した経緯と学びを共有します。",
+    url: "https://zenn.dev/sharu389no/articles/ed98efe89e7f1e",
+    icon: "\ud83e\udd16"
   },
   {
     id: 5,
-    title: "ai-guardian\u3092\u7d44\u307f\u8fbc\u3093\u3060\u30bb\u30ad\u30e5\u30a2\u4f1a\u8b70AI\u306e\u8a2d\u8a08\u3068\u5b9f\u88c5",
+    title: "60日で30件のCVE — MCPサーバー導入前に知っておくべきセキュリティリスクと実践的対策",
     category: "technical",
-    platform: "zenn",
-    date: "2026-03-25",
-    summary: "\u4f1a\u8b70\u97f3\u58f0\u306e\u6587\u5b57\u8d77\u3053\u3057\u2192\u8981\u7d04\u2192\u30bf\u30b9\u30af\u62bd\u51fa\u306e\u30d1\u30a4\u30d7\u30e9\u30a4\u30f3\u306bai-guardian\u3092\u7d71\u5408\u3059\u308b\u5b9f\u88c5\u4f8b\u3002FastAPI\u3068\u306e\u7d44\u307f\u5408\u308f\u305b\u3001PII\u30de\u30b9\u30ad\u30f3\u30b0\u306e\u8a2d\u5b9a\u65b9\u6cd5\u307e\u3067\u8a73\u89e3\u3002",
-    url: "#",
-    icon: "\u2699\ufe0f"
+    platform: "qiita",
+    date: "2026-03-27",
+    summary: "MCPサーバーに60日で30件のCVEが報告された現実。導入前に知っておくべきセキュリティリスクと、ai-guardianを活用した実践的な防御策を解説。",
+    url: "https://qiita.com/sharu389no/items/b60aba6e167999975743",
+    icon: "\u26a0\ufe0f"
   },
   {
     id: 6,
-    title: "\u5927\u4f01\u696d\u306eAI\u5c0e\u5165\u3092\u963b\u3080\u306e\u306f\u6280\u8853\u3067\u306f\u306a\u304f\"\u4fe1\u983c\"\u3060\u3063\u305f",
+    title: "How to Get Your First 1,000 GitHub Stars: The Complete Open-Source Growth Guide",
     category: "product",
-    platform: "note",
-    date: "2026-03-27",
-    summary: "\u6570\u5341\u793e\u306e\u30d2\u30a2\u30ea\u30f3\u30b0\u3067\u898b\u3048\u3066\u304d\u305f\u30d1\u30bf\u30fc\u30f3\uff1a\u6b8b\u308b\u8ab2\u984c\u306f\u300c\u3053\u306eAI\u306b\u793e\u5916\u79d8\u3092\u6e21\u3057\u3066\u5927\u4e08\u592b\u304b\u300d\u3068\u3044\u3046\u4fe1\u983c\u306e\u554f\u984c\u3002ai-guardian\u304c\u89e3\u3053\u3046\u3068\u3057\u3066\u3044\u308b\u306e\u306f\u307e\u3055\u306b\u3053\u3053\u3060\u3002",
-    url: "#",
-    icon: "\ud83c\udfe2"
-  },
-  {
-    id: 7,
-    title: "Python\u3067\u30bb\u30ad\u30e5\u30a2\u306aLLM\u30a2\u30d7\u30ea\u3092\u4f5c\u308b",
-    category: "tutorial",
-    platform: "qiita",
-    date: "2026-03-28",
-    summary: "OpenAI API\u3092\u4f7f\u3063\u305fLLM\u30a2\u30d7\u30ea\u958b\u767a\u3067\u898b\u843d\u3068\u3055\u308c\u304c\u3061\u306a\u30bb\u30ad\u30e5\u30ea\u30c6\u30a3\u5bfe\u7b56\u3092\u4f53\u7cfb\u7684\u306b\u307e\u3068\u3081\u307e\u3057\u305f\u3002\u30d7\u30ed\u30f3\u30d7\u30c8\u30a4\u30f3\u30b8\u30a7\u30af\u30b7\u30e7\u30f3\u30fbPII\u6f0f\u6d29\u30fb\u30ed\u30b0\u8a2d\u8a08\u306a\u3069\u3001\u5b9f\u88c5\u4f8b\u3068\u3068\u3082\u306b\u89e3\u8aac\u3002",
-    url: "#",
-    icon: "\ud83d\udc0d"
+    platform: "devto",
+    date: "2026-03-29",
+    summary: "A practical guide to growing your open-source project from 0 to 1,000 GitHub stars. Covering launch strategy, community building, content marketing, and metrics tracking.",
+    url: "https://dev.to/iris1031/how-to-get-your-first-1000-github-stars-the-complete-open-source-growth-guide-4367",
+    icon: "\u2b50"
   }
 ];
 
