@@ -79,6 +79,21 @@ print(result.reasons)     # ['Ignore Previous Instructions', 'System Prompt Extr
 
 ---
 
+## なぜ今 AI Guardian が必要か
+
+| 📊 数字で見る AI セキュリティの現状 |
+|---|
+| **80%** の Fortune 500 企業が AI エージェントを導入済み（Gartner 2026） |
+| **40%** の AI プロジェクトがガバナンス不足で失敗すると予測（Gartner 2027） |
+| **60日で 30件** の MCP サーバー CVE が報告（2026年1〜2月） |
+| **litellm** に 9,500万DL/月のパッケージへのマルウェア混入（2026-03-24） |
+
+> 「Claude Code や Cursor のような AI エージェントが普及した今、
+> **何をしているかわからない** AI を企業が使い続けるのはリスクそのものです。
+> AI Guardian は、エージェント導入時にセットで入るガバナンス基盤です。」
+
+---
+
 ## インストール
 
 ```bash
@@ -299,6 +314,18 @@ ruff check ai_guardian/ tests/
 | [Human-in-the-Loop](docs/human-in-the-loop.md) | セルフホストレビューダッシュボード |
 | [API リファレンス](docs/api-reference.md) | クラス・メソッドの全ドキュメント |
 | [サンプルコード](examples/README.md) | 実行可能なコード例 |
+
+---
+
+## 採用事例・導入検討中の方へ
+
+導入の相談・PoC サポートは [GitHub Discussions](https://github.com/killertcell428/ai-guardian/discussions) または
+[Issues](https://github.com/killertcell428/ai-guardian/issues) からお気軽にどうぞ。
+
+**企業導入の際によく使われる機能:**
+- `aig report` コマンド → コンプライアンスレポート（Excel）を自動生成
+- `aig status` → 現在のリスクスマリーを表示
+- FastAPI ミドルウェア → 既存の API サーバーに 3 行で統合
 
 ---
 

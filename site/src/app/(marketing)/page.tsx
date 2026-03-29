@@ -1,4 +1,5 @@
 import HeroSection from "@/components/HeroSection";
+import WaitlistSection from "@/components/WaitlistSection";
 import SocialProofBar from "@/components/SocialProofBar";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import SocialProofSection from "@/components/SocialProofSection";
@@ -13,6 +14,7 @@ export default function LandingPage() {
   return (
     <>
       <HeroSection />
+      <WaitlistSection lang="en" />
       <SocialProofBar />
       <HowItWorksSection />
       <SocialProofSection />

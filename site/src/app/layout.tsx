@@ -4,34 +4,44 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
   title: {
-    default: "AI Guardian — Protect Your LLM from Threats",
+    default: "AI Guardian — Open-source LLM Security Library | Protect Against Prompt Injection",
     template: "%s | AI Guardian",
   },
   description:
-    "AI Guardian is an OpenAI-compatible security proxy that blocks prompt injection, SQL injection, and data leaks — with human-in-the-loop review.",
-  keywords: ["AI security", "prompt injection", "LLM proxy", "AI firewall", "human in the loop"],
+    "Open-source Python library to protect LLM apps from prompt injection, PII leaks, jailbreaks & SQL injection. OWASP LLM Top 10 coverage, zero dependencies. pip install aig-guardian",
+  keywords: [
+    "LLM security",
+    "prompt injection",
+    "AI safety",
+    "Python",
+    "aig-guardian",
+    "guardrails",
+    "OWASP LLM",
+  ],
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
   },
   openGraph: {
-    title: "AI Guardian — Protect Your LLM from Threats",
+    title: "AI Guardian — Open-source LLM Security Library | Protect Against Prompt Injection",
     description:
-      "Drop-in OpenAI-compatible security proxy. Block threats before they reach your LLM.",
+      "Open-source Python library to protect LLM apps from prompt injection, PII leaks, jailbreaks & SQL injection. OWASP LLM Top 10 coverage, zero dependencies. pip install aig-guardian",
+    url: "https://ai-guardian.dev",
     type: "website",
     images: [
       {
         url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "AI Guardian — Protect Your LLM from Threats",
+        alt: "AI Guardian — Open-source LLM Security Library",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Guardian — Protect Your LLM from Threats",
-    description: "Drop-in OpenAI-compatible security proxy. Block threats before they reach your LLM.",
+    title: "AI Guardian — Open-source LLM Security Library | Protect Against Prompt Injection",
+    description:
+      "Open-source Python library to protect LLM apps from prompt injection, PII leaks, jailbreaks & SQL injection. OWASP LLM Top 10 coverage, zero dependencies.",
     images: ["/og-image.svg"],
   },
 };
