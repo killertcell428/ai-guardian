@@ -411,4 +411,5 @@ export const t = {
     breadcrumbDocs: { en: "Documentation", ja: "ドキュメント" },
     onThisPage: { en: "On this page", ja: "このページの内容" },
   },
+  
 } as const;
