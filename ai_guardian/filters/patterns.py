@@ -397,6 +397,97 @@ CONFIDENTIAL_DATA_PATTERNS: list[DetectionPattern] = [
 ]
 
 # ---------------------------------------------------------------------------
+# Token Budget Exhaustion / Context Window Overflow (Issue #4)
+# Detects padding attacks that try to overflow the context window and push
+# the system prompt out of the AI's attention, or bury malicious instructions
+# under an avalanche of junk tokens.
+# Maps to OWASP LLM10: Unbounded Consumption.
+# ---------------------------------------------------------------------------
+TOKEN_EXHAUSTION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="te_repetition_flood_en",
+        name="Repetition Flooding (English)",
+        category="token_exhaustion",
+        pattern=_p(
+            r"((?:ignore|forget|disregard|override)[\s\S]{0,20}){5,}"
+        ),
+        base_score=60,
+        description="Repeated instruction-override phrases — repetition flooding attack.",
+        owasp_ref="OWASP LLM10: Unbounded Consumption",
+        remediation_hint=(
+            "Repetition flooding repeats instruction-override phrases many times to exploit "
+            "attention mechanisms. Truncate inputs above your context limit and validate that "
+            "no single phrase is repeated an abnormal number of times."
+        ),
+    ),
+    DetectionPattern(
+        id="te_repetition_flood_ja",
+        name="Repetition Flooding (Japanese)",
+        category="token_exhaustion",
+        pattern=_p(
+            r"((?:無視|忘れ|忘却|上書き|リセット|初期化)[\s\S]{0,20}){5,}"
+        ),
+        base_score=60,
+        description="Repeated Japanese instruction-override phrases — flooding attack.",
+        owasp_ref="OWASP LLM10: Unbounded Consumption",
+        remediation_hint=(
+            "日本語の繰り返しフラッディング攻撃です。入力をコンテキスト制限以下に切り詰め、"
+            "単一フレーズの異常な繰り返しを検証してください。"
+        ),
+    ),
+    DetectionPattern(
+        id="te_ignore_prefix_buried",
+        name="Instruction Buried Under Padding",
+        category="token_exhaustion",
+        pattern=_p(
+            r"(?:[^\w\n]{20,}|\w{1,3}\s){50,}.{0,200}"
+            r"(ignore|forget|disregard|bypass|override|jailbreak|reveal|system\s+prompt)"
+        ),
+        base_score=55,
+        description="Malicious instruction buried under long padding sequence.",
+        owasp_ref="OWASP LLM10: Unbounded Consumption",
+        remediation_hint=(
+            "A malicious instruction appears to be buried after a long padding sequence. "
+            "This is a padding attack designed to push the instruction past attention filters. "
+            "Truncate inputs from the beginning — attackers rely on padding being skipped."
+        ),
+    ),
+    DetectionPattern(
+        id="te_unicode_noise",
+        name="Unicode Noise / Zero-Width Character Attack",
+        category="token_exhaustion",
+        pattern=_p(
+            r"[\u200b\u200c\u200d\u200e\u200f\ufeff\u00ad\u034f\u115f\u1160\u2060"
+            r"\u2061\u2062\u2063\u2064\u206a-\u206f]{3,}"
+        ),
+        base_score=45,
+        description="Zero-width or invisible Unicode characters used to hide content.",
+        owasp_ref="OWASP LLM10: Unbounded Consumption",
+        remediation_hint=(
+            "Zero-width and invisible Unicode characters can be used to hide malicious "
+            "instructions from human reviewers while remaining visible to LLMs. "
+            "Normalize and strip invisible characters before processing user input."
+        ),
+    ),
+    DetectionPattern(
+        id="te_null_byte_stuffing",
+        name="Null Byte / Control Character Stuffing",
+        category="token_exhaustion",
+        pattern=_p(
+            r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]{3,}"
+        ),
+        base_score=50,
+        description="Control characters or null bytes used to obfuscate input.",
+        owasp_ref="OWASP LLM10: Unbounded Consumption",
+        remediation_hint=(
+            "Null bytes and control characters should never appear in LLM inputs. "
+            "Strip all non-printable characters (except \\t, \\n, \\r) from user input "
+            "before sending to the LLM."
+        ),
+    ),
+]
+
+# ---------------------------------------------------------------------------
 # Prompt Leaking / Verbatim Repetition Attacks (Issue #1)
 # Catches indirect and verbatim-repetition attacks that bypass the literal
 # "show me your system prompt" check already in PROMPT_INJECTION_PATTERNS.
@@ -541,6 +632,7 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + COMMAND_INJECTION_PATTERNS
     + PII_INPUT_PATTERNS
     + CONFIDENTIAL_DATA_PATTERNS
+    + TOKEN_EXHAUSTION_PATTERNS
     + PROMPT_LEAK_PATTERNS
 )
 

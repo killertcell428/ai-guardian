@@ -9,6 +9,46 @@ import re
 from ai_guardian.filters.patterns import DetectionPattern
 from ai_guardian.types import MatchedRule, RiskLevel
 
+# ---------------------------------------------------------------------------
+# Length-based heuristics for token exhaustion / context flooding
+# ---------------------------------------------------------------------------
+#: Inputs longer than this are checked for repetition flooding
+_TOKEN_EXHAUSTION_LENGTH_THRESHOLD = 2000
+
+#: If a repeated token-sequence covers this fraction of the input, add score
+_REPETITION_RATIO_THRESHOLD = 0.35
+
+#: Score added when length + repetition heuristic fires
+_TOKEN_EXHAUSTION_HEURISTIC_SCORE = 45
+
+
+def _check_token_exhaustion_heuristic(text: str) -> int:
+    """Length-based heuristic for context flooding attacks.
+
+    Returns an additive score (0 or _TOKEN_EXHAUSTION_HEURISTIC_SCORE) if the
+    input is very long AND contains high repetition of a short phrase.
+    """
+    if len(text) < _TOKEN_EXHAUSTION_LENGTH_THRESHOLD:
+        return 0
+
+    # Count repetitions of any 3-10 character token
+    words = text.split()
+    if not words:
+        return 0
+
+    from collections import Counter
+    counts = Counter(w.lower() for w in words if len(w) >= 3)
+    if not counts:
+        return 0
+
+    most_common_word, most_common_count = counts.most_common(1)[0]
+    repetition_ratio = most_common_count / len(words)
+
+    if repetition_ratio >= _REPETITION_RATIO_THRESHOLD:
+        return _TOKEN_EXHAUSTION_HEURISTIC_SCORE
+
+    return 0
+
 
 def _score_to_level(score: int) -> RiskLevel:
     if score <= 30:
@@ -104,6 +144,31 @@ def run_patterns(
                     category_scores["custom"] = min(prev + score_delta, score_delta * 2)
             except re.error:
                 continue
+
+    # Apply length-based token exhaustion heuristic
+    heuristic_score = _check_token_exhaustion_heuristic(text)
+    if heuristic_score > 0:
+        prev = category_scores.get("token_exhaustion", 0)
+        category_scores["token_exhaustion"] = min(
+            prev + heuristic_score,
+            heuristic_score * 2,
+        )
+        if not any(r.category == "token_exhaustion" for r in matched):
+            matched.append(
+                MatchedRule(
+                    rule_id="te_length_heuristic",
+                    rule_name="Input Length / Repetition Heuristic",
+                    category="token_exhaustion",
+                    score_delta=heuristic_score,
+                    matched_text=f"[long input: {len(text)} chars, high repetition]",
+                    owasp_ref="OWASP LLM10: Unbounded Consumption",
+                    remediation_hint=(
+                        "This input is unusually long and contains highly repetitive content. "
+                        "This may be a context flooding attack. Enforce input length limits "
+                        "and validate that inputs are not padded with repeated tokens."
+                    ),
+                )
+            )
 
     total_score = min(sum(category_scores.values()), 100)
     level = _score_to_level(total_score)
