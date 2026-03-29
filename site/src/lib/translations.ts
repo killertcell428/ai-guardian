@@ -51,6 +51,23 @@ export const t = {
     flowGuardianSub: { en: "Security Proxy · <5ms", ja: "セキュリティプロキシ · <5ms" },
     flowSafeOnly: { en: "Safe Only →", ja: "安全なもののみ →" },
     flowLLM: { en: "Your LLM", ja: "あなたのLLM" },
+    flowLLMSub: { en: "OpenAI / Anthropic / Any", ja: "OpenAI / Anthropic / 任意" },
+    routingLabel: { en: "Intelligent Routing", ja: "インテリジェントルーティング" },
+    routePass: { en: "Pass", ja: "通過" },
+    routeBlock: { en: "Block", ja: "ブロック" },
+    routeReview: { en: "Review", ja: "レビュー" },
+  },
+
+  /* ── How It Works ── */
+  howItWorks: {
+    label: { en: "How It Works", ja: "仕組み" },
+    heading: {
+      en: "Three steps to secure your AI",
+      ja: "AIを守る3つのステップ",
+    },
+    sub: {
+      en: "Drop-in proxy that scans every request — no code changes needed.",
+      ja: "すべてのリクエストをスキャンするドロップインプロキシ。コード変更不要。",
     },
     step1Title: {
       en: "Change one line: your base URL",
@@ -411,5 +428,20 @@ export const t = {
     breadcrumbDocs: { en: "Documentation", ja: "ドキュメント" },
     onThisPage: { en: "On this page", ja: "このページの内容" },
   },
-  
+
+  /* ── Stats / Social Proof ── */
+  stats: {
+    rules: { en: "Detection Rules", ja: "検出ルール" },
+    latency: { en: "Latency (safe verdict)", ja: "レイテンシ（安全判定時）" },
+    owasp: { en: "Coverage", ja: "カバレッジ" },
+    uptime: { en: "Uptime SLA", ja: "稼働率SLA" },
+    soc2: { en: "SOC2-ready Audit Logs", ja: "SOC2対応監査ログ" },
+    japanReady: { en: "Japan AI Governance Ready", ja: "日本AIガバナンス対応" },
+  },
+
+  /* ── Code Integration / Chat ── */
+  chat: {
+    completions: { en: "chat/completions", ja: "chat/completions" },
+  },
+
 } as const;
