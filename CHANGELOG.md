@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **LangGraph `GuardNode`** (`ai_guardian/middleware/langgraph.py`) — drop-in node for `StateGraph` that scans user messages before they reach the LLM. Supports:
+  - `raise_on_block=True` (default) — raises `GuardianBlockedError` on blocked input
+  - `raise_on_block=False` — sets `state["guard_blocked"] = True` for conditional routing
+  - `scan_all_messages=True` — scans full conversation history instead of last message only
+  - `policy=` parameter for custom YAML policies or built-in `"strict"` / `"permissive"` profiles
+- **23 tests** for `GuardNode` in `tests/test_langgraph.py`
+- `examples/langgraph_integration.py` — three usage patterns with inline runnable code
+
 ---
 
 ## [0.6.1] - 2026-03-30

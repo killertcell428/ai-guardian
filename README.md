@@ -32,9 +32,9 @@ ai-guardian は「**3行で導入、ゼロ依存、日本語対応**」を設計
 | **3行で導入** | `pip install` して `Guard()` を呼ぶだけ。既存コードの変更不要 |
 | **53 検出パターン** | プロンプトインジェクション、ジェイルブレイク、PII、SQLi、データ持ち出し等 |
 | **日本語ネイティブ対応** | マイナンバー、住所、電話番号、日本語攻撃パターンを検出 |
-| **ゼロ依存** | Python 標準ライブラリのみ。FastAPI/LangChain/OpenAI/Anthropic は任意のオプション |
+| **ゼロ依存** | Python 標準ライブラリのみ。FastAPI/LangChain/LangGraph/OpenAI/Anthropic は任意のオプション |
 | **OWASP 準拠** | 全ルールに OWASP LLM Top 10 参照と改善ヒントを付与 |
-| **ドロップイン統合** | FastAPI/LangChain/OpenAI/Anthropic 対応。`aig scan`、`aig benchmark` CLI も |
+| **ドロップイン統合** | FastAPI/LangChain/LangGraph/OpenAI/Anthropic 対応。`aig scan`、`aig benchmark` CLI も |
 
 ### 動作イメージ
 
@@ -265,6 +265,34 @@ message = client.messages.create(
     messages=[{"role": "user", "content": "こんにちは！"}],
 )
 ```
+
+### LangGraph ノード
+
+```python
+from langgraph.graph import StateGraph, END
+from ai_guardian.middleware.langgraph import GuardNode, GuardState, GuardianBlockedError
+
+def llm_node(state):
+    # ここに実際の LLM 呼び出し
+    return {"messages": state["messages"] + [{"role": "assistant", "content": "Hello!"}]}
+
+builder = StateGraph(GuardState)
+builder.add_node("guard", GuardNode())   # ← LLM ノードの前に追加するだけ
+builder.add_node("llm", llm_node)
+
+builder.set_entry_point("guard")
+builder.add_edge("guard", "llm")
+builder.add_edge("llm", END)
+
+graph = builder.compile()
+
+try:
+    result = graph.invoke({"messages": [{"role": "user", "content": user_input}]})
+except GuardianBlockedError as e:
+    print(f"Blocked (score={e.risk_score}): {e.reasons}")
+```
+
+条件付きルーティング（例外なしで blocked フラグで分岐）も可能です。詳細は [`examples/langgraph_integration.py`](examples/langgraph_integration.py) を参照。
 
 ### Policy Template Hub
 
