@@ -84,7 +84,12 @@ def main(argv: list[str] | None = None) -> int:
     # aig scan (quick scan from CLI)
     scan_p = sub.add_parser("scan", help="Scan text for threats")
     scan_p.add_argument("text", nargs="?", help="Text to scan (or read from stdin)")
-    scan_p.add_argument("--json", dest="json_output", action="store_true", help="Output results as JSON (machine-readable)")
+    scan_p.add_argument(
+        "--json",
+        dest="json_output",
+        action="store_true",
+        help="Output results as JSON (machine-readable)",
+    )
 
     args = parser.parse_args(argv)
 
@@ -504,7 +509,9 @@ def cmd_scan(args) -> int:
         # Machine-readable JSON output (used by VS Code extension and CI tooling)
         output = {
             "risk_score": result.risk_score,
-            "risk_level": result.risk_level.upper() if hasattr(result.risk_level, "upper") else str(result.risk_level).split(".")[-1],
+            "risk_level": result.risk_level.upper()
+            if hasattr(result.risk_level, "upper")
+            else str(result.risk_level).split(".")[-1],
             "blocked": result.is_blocked,
             "is_safe": result.is_safe,
             "reasons": [result.reason] if result.reason else [],
@@ -527,7 +534,9 @@ def cmd_scan(args) -> int:
     if result.is_safe:
         print(f"SAFE (score={result.risk_score})")
     else:
-        print(f"{result.risk_level.upper() if hasattr(result.risk_level, 'upper') else str(result.risk_level).split('.')[-1]} (score={result.risk_score})")
+        print(
+            f"{result.risk_level.upper() if hasattr(result.risk_level, 'upper') else str(result.risk_level).split('.')[-1]} (score={result.risk_score})"
+        )
         for rule in result.matched_rules:
             print(f"  {rule.rule_name}: {rule.owasp_ref}")
             if rule.remediation_hint:
