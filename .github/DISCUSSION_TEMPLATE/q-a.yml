@@ -4,8 +4,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Ask anything about ai-guardian. Check the [documentation](https://github.com/your-org/ai-guardian#readme)
-        and [existing discussions](https://github.com/your-org/ai-guardian/discussions?discussions_q=category%3AQ%26A)
+        Ask anything about ai-guardian. Check the [documentation](https://github.com/killertcell428/ai-guardian#readme)
+        and [existing discussions](https://github.com/killertcell428/ai-guardian/discussions?discussions_q=category%3AQ%26A)
         first — your question may already be answered.
 
   - type: textarea

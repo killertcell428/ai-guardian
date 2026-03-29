@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ai-guardian"
-version = "0.1.0"
+version = "0.4.0"
 description = "Protect your LLM application from prompt injection, PII leaks, and jailbreaks"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -70,11 +70,14 @@ dev = [
     "mypy>=1.10.0",
 ]
 
+[project.scripts]
+aig = "ai_guardian.cli:main"
+
 [project.urls]
-Homepage = "https://github.com/your-org/ai-guardian"
-Documentation = "https://github.com/your-org/ai-guardian#readme"
-Issues = "https://github.com/your-org/ai-guardian/issues"
-Changelog = "https://github.com/your-org/ai-guardian/releases"
+Homepage = "https://github.com/killertcell428/ai-guardian"
+Documentation = "https://github.com/killertcell428/ai-guardian#readme"
+Issues = "https://github.com/killertcell428/ai-guardian/issues"
+Changelog = "https://github.com/killertcell428/ai-guardian/releases"
 
 [tool.hatch.build.targets.wheel]
 packages = ["ai_guardian"]

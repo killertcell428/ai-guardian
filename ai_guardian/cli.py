@@ -1,14 +1,20 @@
-"""AI Guardian CLI -command-line interface for agent governance.
+"""AI Guardian CLI - command-line interface for agent governance.
 
 Usage:
     aig init                     # Initialize AI Guardian in current project
     aig init --agent claude-code # Also configure Claude Code hooks
+    aig doctor                   # Diagnose setup issues
+    aig status                   # Show governance status summary
     aig logs                     # View recent activity
     aig logs --action shell:exec # Filter by action type
     aig logs --risk-above 50     # Filter by risk score
+    aig logs --alerts            # Show blocked/reviewed events only
+    aig logs --export-csv out.csv  # Export to CSV
     aig policy check             # Validate policy file
-    aig status                   # Show governance status summary
+    aig policy show              # Show all rules
+    aig scan "rm -rf /"          # Scan text for threats
     aig report --days 30         # Generate compliance report
+    aig maintenance              # Rotate and compress old logs
 """
 
 import argparse
@@ -60,6 +66,9 @@ def main(argv: list[str] | None = None) -> int:
     maint_p.add_argument("--retention-days", type=int, default=60, help="Keep full logs for N days (default: 60)")
     maint_p.add_argument("--compress-after", type=int, default=7, help="Compress after N days (default: 7)")
 
+    # aig doctor
+    sub.add_parser("doctor", help="Diagnose AI Guardian setup issues")
+
     # aig scan (quick scan from CLI)
     scan_p = sub.add_parser("scan", help="Scan text for threats")
     scan_p.add_argument("text", nargs="?", help="Text to scan (or read from stdin)")
@@ -78,11 +87,31 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_report(args)
     elif args.command == "maintenance":
         return cmd_maintenance(args)
+    elif args.command == "doctor":
+        return cmd_doctor(args)
     elif args.command == "scan":
         return cmd_scan(args)
     else:
         parser.print_help()
         return 0
+
+
+def _warn_if_hooks_disabled(project_dir: str = ".") -> None:
+    """Check if Claude Code hooks are disabled and warn the user."""
+    local_settings = Path(project_dir) / ".claude" / "settings.local.json"
+    if not local_settings.exists():
+        return
+    try:
+        raw = local_settings.read_bytes()
+        text = raw.decode("utf-8-sig") if raw[:3] == b"\xef\xbb\xbf" else raw.decode("utf-8")
+        data = json.loads(text)
+        if data.get("disableAllHooks", False):
+            print()
+            print("  WARNING: disableAllHooks=true in .claude/settings.local.json")
+            print("  All Claude Code hooks are disabled -- AI Guardian will NOT run.")
+            print("  Fix: set disableAllHooks to false, or remove the key.")
+    except (json.JSONDecodeError, UnicodeDecodeError, Exception):
+        pass
 
 
 def cmd_init(args) -> int:
@@ -112,10 +141,14 @@ def cmd_init(args) -> int:
         install_hooks(".")
         print("  Configured Claude Code hooks")
 
+    # Warn if hooks are disabled
+    _warn_if_hooks_disabled(project_dir=".")
+
     print()
     print("  Done! AI Guardian is ready.")
     print()
     print("  Next steps:")
+    print("    aig doctor       -Check setup health")
     print("    aig status       -Check governance status")
     print("    aig logs         -View activity stream")
     print("    aig policy show  -View active policy")
@@ -301,6 +334,143 @@ def cmd_maintenance(args) -> int:
         print(f"  Errors: {stats['errors']}")
     print(f"\n  Note: Alert logs (~/.ai-guardian/alerts/) are never deleted.")
     return 0
+
+
+def cmd_doctor(args) -> int:
+    """Diagnose AI Guardian setup issues."""
+    print("AI Guardian Doctor")
+    print("=" * 50)
+
+    passed = 0
+    warned = 0
+    failed = 0
+
+    def ok(msg: str):
+        nonlocal passed
+        print(f"  [OK]   {msg}")
+        passed += 1
+
+    def warn(msg: str):
+        nonlocal warned
+        print(f"  [WARN] {msg}")
+        warned += 1
+
+    def fail(msg: str):
+        nonlocal failed
+        print(f"  [FAIL] {msg}")
+        failed += 1
+
+    # 1. Policy file
+    policy_path = Path("ai-guardian-policy.yaml")
+    if policy_path.exists():
+        ok(f"Policy file found: {policy_path}")
+    else:
+        fail("Policy file not found. Run 'aig init'")
+
+    # 2. .ai-guardian/logs/ directory
+    log_dir = Path(".ai-guardian/logs")
+    if log_dir.is_dir():
+        ok(f"Log directory exists: {log_dir}")
+    else:
+        fail("Log directory missing: .ai-guardian/logs/")
+
+    # 3. ai_guardian module importable
+    try:
+        from ai_guardian.activity import ActivityStream, ActivityEvent
+        from ai_guardian.policy import load_policy, evaluate
+        ok("ai_guardian module imports OK")
+    except ImportError as e:
+        fail(f"ai_guardian import failed: {e}")
+
+    # 4. Claude Code hook script
+    hook_script = Path(".claude/hooks/aig-guard.py")
+    if hook_script.exists():
+        ok(f"Hook script found: {hook_script}")
+    else:
+        warn("Hook script not found. Run 'aig init --agent claude-code'")
+
+    # 5. Claude Code settings.json has hook configured
+    settings_path = Path(".claude/settings.json")
+    if settings_path.exists():
+        try:
+            settings = json.loads(settings_path.read_text(encoding="utf-8"))
+            hooks = settings.get("hooks", {}).get("PreToolUse", [])
+            has_aig = any(
+                "aig-guard" in h.get("command", "")
+                for m in hooks
+                for h in m.get("hooks", [])
+            )
+            if has_aig:
+                ok("PreToolUse hook configured in settings.json")
+            else:
+                fail("PreToolUse hook for AI Guardian not found in settings.json")
+        except (json.JSONDecodeError, Exception) as e:
+            fail(f"Cannot parse .claude/settings.json: {e}")
+    else:
+        warn(".claude/settings.json not found")
+
+    # 6. Check disableAllHooks in settings.local.json
+    local_settings_path = Path(".claude/settings.local.json")
+    if local_settings_path.exists():
+        try:
+            raw = local_settings_path.read_bytes()
+            text = raw.decode("utf-8-sig") if raw[:3] == b"\xef\xbb\xbf" else raw.decode("utf-8")
+            local_settings = json.loads(text)
+            if local_settings.get("disableAllHooks", False):
+                fail(
+                    "disableAllHooks=true in settings.local.json -- "
+                    "ALL hooks are disabled! "
+                    "Set to false or remove the key to enable AI Guardian."
+                )
+            else:
+                ok("Hooks are enabled (disableAllHooks is not set)")
+        except (json.JSONDecodeError, UnicodeDecodeError, Exception) as e:
+            warn(f"Cannot parse settings.local.json: {e}")
+    else:
+        ok("No settings.local.json overrides")
+
+    # 7. Check for recent log activity
+    log_files = sorted(log_dir.glob("*.jsonl")) if log_dir.is_dir() else []
+    if log_files:
+        latest = log_files[-1]
+        line_count = sum(1 for _ in open(latest, encoding="utf-8"))
+        ok(f"Recent logs found: {latest.name} ({line_count} events)")
+    else:
+        warn(
+            "No log files found. If you've used Claude Code recently, "
+            "the hook may not be firing."
+        )
+
+    # 8. Check global log directory
+    global_dir = Path.home() / ".ai-guardian" / "global"
+    if global_dir.is_dir():
+        global_files = sorted(global_dir.glob("*.jsonl"))
+        if global_files:
+            ok(f"Global logs: {len(global_files)} file(s)")
+        else:
+            warn("Global log directory exists but has no log files")
+    else:
+        warn("Global log directory not found (~/.ai-guardian/global/)")
+
+    # Summary
+    print()
+    total = passed + warned + failed
+    print(f"Results: {passed}/{total} passed", end="")
+    if warned:
+        print(f", {warned} warnings", end="")
+    if failed:
+        print(f", {failed} FAILED", end="")
+    print()
+
+    if failed:
+        print("\nFix the FAIL items above, then run 'aig doctor' again.")
+        return 1
+    elif warned:
+        print("\nNo critical issues. Review warnings above.")
+        return 0
+    else:
+        print("\nAll checks passed. AI Guardian is healthy.")
+        return 0
 
 
 def cmd_scan(args) -> int:

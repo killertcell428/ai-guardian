@@ -20,7 +20,7 @@ We release security patches for the latest minor version only.
 
 ### Option 2 — Email
 
-Send a report to **security@your-org.example** with:
+Send a report to **security@killertcell428.dev** with:
 
 - A description of the vulnerability
 - Steps to reproduce

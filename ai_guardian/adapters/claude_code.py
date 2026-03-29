@@ -252,3 +252,19 @@ def install_hooks(project_dir: str = ".") -> None:
         json.dumps(existing, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
+
+    # Warn if hooks are disabled in settings.local.json
+    local_settings_path = project / ".claude" / "settings.local.json"
+    if local_settings_path.exists():
+        try:
+            local_data = json.loads(local_settings_path.read_text(encoding="utf-8"))
+            if local_data.get("disableAllHooks", False):
+                import warnings
+                warnings.warn(
+                    "disableAllHooks=true in .claude/settings.local.json — "
+                    "AI Guardian hooks will NOT run. "
+                    "Set disableAllHooks to false to enable.",
+                    stacklevel=2,
+                )
+        except (json.JSONDecodeError, Exception):
+            pass

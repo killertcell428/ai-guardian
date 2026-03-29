@@ -127,7 +127,7 @@ jobs:
             echo '```'
             if [ -n "$PREV_TAG" ]; then
               echo ""
-              echo "**Full Changelog**: https://github.com/your-org/ai-guardian/compare/${PREV_TAG}...${VERSION}"
+              echo "**Full Changelog**: https://github.com/killertcell428/ai-guardian/compare/${PREV_TAG}...${VERSION}"
             fi
             echo "CHANGELOG_EOF"
           } >> "$GITHUB_OUTPUT"
