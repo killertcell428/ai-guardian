@@ -706,7 +706,7 @@ JAILBREAK_ROLEPLAY_PATTERNS: list[DetectionPattern] = [
         category="jailbreak",
         pattern=_p(
             r"(without|with\s+no|ignore\s+(all\s+)?|bypass\s+(all\s+)?|disable\s+(all\s+)?)"
-            r"(your\s+)?(safety\s+filter|content\s+(policy|filter)|ethical?\s+guideline|"
+            r"\s*(your\s+)?(safety\s+filter|content\s+(policy|filter)|ethical?\s+guideline|"
             r"moral\s+restriction|ai\s+(restriction|guideline|rule)|restriction|censorship|filter)"
         ),
         base_score=55,
@@ -736,7 +736,7 @@ JAILBREAK_ROLEPLAY_PATTERNS: list[DetectionPattern] = [
         name="Grandma / Deceased Relative Exploit",
         category="jailbreak",
         pattern=_p(
-            r"(pretend|imagine|roleplay|act)\s+(you\s+are|to\s+be)?\s*"
+            r"(pretend|imagine|roleplay|act)\s+(?:you\s+are|to\s+be|as)?\s*"
             r"(my\s+)?(grand(ma|mother|pa|father|parent)|deceased|dead|late)\s+"
             r"(relative|uncle|aunt|friend|mother|father|granny|grandma|grandpa)?"
         ),
