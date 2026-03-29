@@ -1,0 +1,89 @@
+# Reddit Drafts – AI Guardian (aig-guardian)
+
+---
+
+## Post 1: r/Python
+
+**Title:** I built an open-source Python library to protect LLM apps from prompt injection – Show r/Python
+
+**Body:**
+
+Hey r/Python! I just released `aig-guardian`, a zero-dependency Python library for protecting LLM-powered apps from prompt injection, PII leaks, and jailbreak attempts.
+
+Getting started takes literally 3 lines:
+
+```python
+from aig_guardian import Guardian
+
+guardian = Guardian()
+result = guardian.scan(user_input)
+
+if result.is_flagged:
+    print(result.reason)   # tells you *why*, not just that it failed
+```
+
+Key points for Pythonistas:
+
+- **Zero external dependencies** – pure stdlib, no bloat
+- **pip install aig-guardian** and you're done
+- Covers 48 attack patterns including indirect injection and multi-turn attacks
+- Each flag comes with a human-readable reason and a remediation hint so you know what to fix, not just what broke
+- Works with any LLM backend: OpenAI, Anthropic, local models – doesn't matter
+
+I built this because every guardrail library I tried either required a cloud call or just returned `True/False` with no explanation. Feedback and PRs very welcome!
+
+- GitHub: https://github.com/killertcell428/ai-guardian
+- PyPI: `pip install aig-guardian`
+
+---
+
+## Post 2: r/netsec
+
+**Title:** AI Guardian: Open-source LLM security scanner with OWASP LLM Top 10 coverage and remediation hints
+
+**Body:**
+
+Sharing a project I've been working on: **AI Guardian** (`aig-guardian`), an open-source security library for LLM applications.
+
+**Coverage:**
+
+- 48 detection patterns spanning OWASP LLM Top 10 categories (LLM01 through LLM10)
+- CWE classification on every finding so results map directly into your existing vuln tracking workflow
+- Detects prompt injection, indirect injection via retrieved context, PII exfiltration attempts, jailbreak scaffolding, and role-confusion attacks
+
+**What makes it different from a simple regex filter:**
+
+- Semantic similarity layer catches paraphrased variants that evade keyword lists
+- Multi-turn context tracking flags attacks that span multiple conversation turns
+- Remediation hints tell you not just what was flagged but how to harden the prompt or pipeline
+
+**What I need from this community:**
+
+I'm actively collecting bypass samples and edge cases. If you're doing LLM red-teaming and hit a pattern that slips through, please open an issue or drop it in the repo discussions. The detection corpus grows with community input.
+
+- GitHub: https://github.com/killertcell428/ai-guardian
+- PyPI: `pip install aig-guardian`
+
+---
+
+## Post 3: r/MachineLearning
+
+**Title:** Show r/ML: Open-source guardrails library for LLM apps – focuses on WHY something was flagged, not just blocking
+
+**Body:**
+
+Hi r/ML – sharing **AI Guardian**, an open-source guardrails library I built with a focus on explainability rather than just binary pass/fail blocking.
+
+**Technical architecture highlights:**
+
+- **Semantic similarity layer** – embeddings-based matching catches paraphrased injection attempts that pure regex or keyword approaches miss; configurable cosine similarity threshold per threat class
+- **RAG context scanning** – scans retrieved documents before they are injected into the prompt, flagging indirect injection payloads embedded in external content
+- **Multi-turn attack detection** – maintains a lightweight conversation state to detect attacks that distribute malicious intent across multiple turns (a common bypass for stateless scanners)
+- **Structured output per finding** – every flagged item returns threat class, CWE ID, confidence score, matched evidence span, and a remediation hint, making it composable with logging and eval pipelines
+
+The reasoning behind prioritizing explainability: when a guardrail silently blocks a request in production, engineers have no signal to improve prompts or pipeline design. Surfacing *why* a pattern was flagged closes that feedback loop.
+
+Happy to discuss the detection design or threat modeling approach in the comments.
+
+- GitHub: https://github.com/killertcell428/ai-guardian
+- PyPI: `pip install aig-guardian`
