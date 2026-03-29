@@ -25,7 +25,7 @@ export default function Navbar() {
           <Link href="/docs" className="hover:text-guardian-600 transition-colors">{tx(t.nav.docs, lang)}</Link>
           <Link href="/blog.html" className="hover:text-guardian-600 transition-colors">{lang === "ja" ? "ブログ" : "Blog"}</Link>
           <a
-            href="https://github.com"
+            href="https://github.com/killertcell428/ai-guardian"
             target="_blank"
             rel="noreferrer"
             className="hover:text-guardian-600 transition-colors flex items-center gap-1"
@@ -78,7 +78,7 @@ export default function Navbar() {
           <Link href="/pricing" className="block text-sm font-medium text-gray-700 py-2">{tx(t.nav.pricing, lang)}</Link>
           <Link href="/docs" className="block text-sm font-medium text-gray-700 py-2">{tx(t.nav.docs, lang)}</Link>
           <Link href="/blog.html" className="block text-sm font-medium text-gray-700 py-2">{lang === "ja" ? "ブログ" : "Blog"}</Link>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="block text-sm font-medium text-gray-700 py-2">GitHub</a>
+          <a href="https://github.com/killertcell428/ai-guardian" target="_blank" rel="noreferrer" className="block text-sm font-medium text-gray-700 py-2">GitHub</a>
           {/* Mobile lang toggle */}
           <div className="flex items-center gap-2 py-2">
             <span className="text-xs text-gray-500">{lang === "ja" ? "言語：" : "Language:"}</span>

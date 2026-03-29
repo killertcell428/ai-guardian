@@ -108,7 +108,7 @@ export default function DocsPage() {
         {ja
           ? "バグや機能リクエストは"
           : "For bugs and feature requests, open an issue on"}{" "}
-        <a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://github.com/killertcell428/ai-guardian" target="_blank" rel="noreferrer">GitHub</a>
         {ja ? "にIssueを立ててください。Enterpriseサポートはメールでお問い合わせください：" : ". For enterprise support, email"}{" "}
         <a href="mailto:ueda.bioinfo.base01@gmail.com">ueda.bioinfo.base01@gmail.com</a>.
       </p>
