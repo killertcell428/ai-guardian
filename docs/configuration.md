@@ -53,7 +53,7 @@ guard = Guard(auto_block_threshold=70, auto_allow_threshold=25)
 
 ## YAML ポリシーファイル
 
-`pip install 'ai-guardian[yaml]'` が必要です。
+`pip install 'aig-guardian[yaml]'` が必要です。
 
 ```yaml
 # policy.yaml

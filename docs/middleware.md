@@ -2,7 +2,7 @@
 
 ## FastAPI / Starlette ミドルウェア
 
-**インストール:** `pip install 'ai-guardian[fastapi]'`
+**インストール:** `pip install 'aig-guardian[fastapi]'`
 
 ### 基本セットアップ
 
@@ -66,7 +66,7 @@ async def chat(request: Request):
 
 ## LangChain コールバック
 
-**インストール:** `pip install 'ai-guardian[langchain]'`
+**インストール:** `pip install 'aig-guardian[langchain]'`
 
 ### 基本セットアップ
 
@@ -120,7 +120,7 @@ except GuardianBlockedError as e:
 
 ## OpenAI プロキシラッパー
 
-**インストール:** `pip install 'ai-guardian[openai]'`
+**インストール:** `pip install 'aig-guardian[openai]'`
 
 ### 基本セットアップ
 

@@ -12,19 +12,19 @@
 pip install aig-guardian
 
 # FastAPI ミドルウェア付き
-pip install 'ai-guardian[fastapi]'
+pip install 'aig-guardian[fastapi]'
 
 # LangChain コールバック付き
-pip install 'ai-guardian[langchain]'
+pip install 'aig-guardian[langchain]'
 
 # OpenAI プロキシラッパー付き
-pip install 'ai-guardian[openai]'
+pip install 'aig-guardian[openai]'
 
 # YAML ポリシー対応
-pip install 'ai-guardian[yaml]'
+pip install 'aig-guardian[yaml]'
 
 # 全部入り
-pip install 'ai-guardian[all]'
+pip install 'aig-guardian[all]'
 ```
 
 ## 最初のチェック

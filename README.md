@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/killertcell428/ai-guardian/main/.github/shield.svg" alt="AI Guardian" width="120" />
 </p>
 
-<h1 align="center">ai-guardian</h1>
+<h1 align="center">aig-guardian</h1>
 
 [![CI](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/aig-guardian.svg)](https://pypi.org/project/aig-guardian/)
@@ -86,19 +86,19 @@ print(result.reasons)     # ['Ignore Previous Instructions', 'System Prompt Extr
 pip install aig-guardian
 
 # FastAPI ミドルウェア付き
-pip install 'ai-guardian[fastapi]'
+pip install 'aig-guardian[fastapi]'
 
 # LangChain コールバック付き
-pip install 'ai-guardian[langchain]'
+pip install 'aig-guardian[langchain]'
 
 # OpenAI プロキシラッパー付き
-pip install 'ai-guardian[openai]'
+pip install 'aig-guardian[openai]'
 
 # 全部入り
-pip install 'ai-guardian[all]'
+pip install 'aig-guardian[all]'
 ```
 
-> **パッケージについて：** `ai-guardian`（本パッケージ）が Guard クラス API・ミドルウェア・全機能を含む正式リリースです。旧パッケージ `aig-guardian`（v0.3.x）は関数型 `scan()` API を提供し、Claude Code フック互換のため内部的に維持しています。
+> **パッケージ名について：** PyPI パッケージ名は `aig-guardian` です（`ai-guardian` は別プロジェクトが使用中のため）。インポート名は変わりません：`from ai_guardian import Guard`
 
 ---
 

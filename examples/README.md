@@ -7,7 +7,7 @@ Runnable code samples for ai-guardian.
 ```bash
 pip install aig-guardian
 # or for all examples:
-pip install 'ai-guardian[all]'
+pip install 'aig-guardian[all]'
 ```
 
 ## Files
@@ -27,21 +27,21 @@ pip install 'ai-guardian[all]'
 python examples/basic_usage.py
 
 # FastAPI server
-pip install 'ai-guardian[fastapi]' uvicorn
+pip install 'aig-guardian[fastapi]' uvicorn
 uvicorn examples.fastapi_integration:app --reload
 # then: curl -X POST http://localhost:8000/chat -H "Content-Type: application/json" \
 #         -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
 
 # LangChain (live LLM calls optional)
-pip install 'ai-guardian[langchain]' langchain-openai
+pip install 'aig-guardian[langchain]' langchain-openai
 OPENAI_API_KEY=sk-... python examples/langchain_integration.py
 
 # OpenAI proxy (live API calls optional — guard fires offline)
-pip install 'ai-guardian[openai]'
+pip install 'aig-guardian[openai]'
 OPENAI_API_KEY=sk-... python examples/openai_proxy.py
 
 # Custom policy
-pip install 'ai-guardian[yaml]'
+pip install 'aig-guardian[yaml]'
 python examples/custom_policy.py
 ```
 
