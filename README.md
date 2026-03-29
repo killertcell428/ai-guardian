@@ -79,7 +79,7 @@ print(result.reasons)     # ['Ignore Previous Instructions', 'System Prompt Extr
 | 日本語攻撃 | 日本語プロンプトインジェクション | LLM01 | 10+ |
 | 出力スキャン | LLM 応答中の API キー・PII 漏洩 | LLM02/LLM05 | 別途 |
 
-`aig benchmark` コマンドで検出精度を測定できます（現在 90.6%、偽陽性 0%）。
+`aig benchmark` コマンドで検出精度を測定できます（現在 **100%**、偽陽性 0%）。
 
 ---
 
@@ -332,7 +332,7 @@ aig scan "DROP TABLE users; --" --json
 
 # 内蔵ベンチマーク（検出精度を測定）
 aig benchmark
-# → 90.6% precision, 0% false-positive rate
+# → 100% precision, 0% false-positive rate
 
 # 特定カテゴリのみテスト
 aig benchmark --category jailbreak

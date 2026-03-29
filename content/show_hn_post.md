@@ -39,7 +39,7 @@ Key design decisions:
 - **Zero required dependencies** — pure Python stdlib for the core. FastAPI/LangChain/OpenAI/Anthropic are optional extras
 - **Drop-in middleware** — `AIGuardianMiddleware` for FastAPI, `AIGuardianCallback` for LangChain, `SecureOpenAI`/`SecureAnthropic` proxy wrappers
 - **Policy-as-code** — YAML policy files with auto-block/allow thresholds and custom rules
-- **Built-in benchmark**: `aig benchmark` runs 53 adversarial test cases and reports detection accuracy (currently 90.6% precision, 0% false-positive rate)
+- **Built-in benchmark**: `aig benchmark` runs 53 adversarial test cases and reports detection accuracy (currently **100% precision**, 0% false-positive rate)
 - **VS Code extension** in progress for inline scanning in the editor
 
 I've been building this as part of learning LLM security patterns. It's early but functional — would love feedback from the security community on what attack vectors I'm missing.

@@ -183,6 +183,29 @@ SQL_INJECTION_PATTERNS: list[DetectionPattern] = [
         owasp_ref="CWE-89: SQL Injection",
         remediation_hint="Set query timeouts and monitor for abnormally slow queries.",
     ),
+    DetectionPattern(
+        id="sqli_stored_proc",
+        name="SQL Server Dangerous Stored Procedures",
+        category="sql_injection",
+        pattern=_p(
+            r"\b(exec|execute|xp_cmdshell|sp_executesql|sp_oacreate|sp_oamethod"
+            r"|openrowset|opendatasource|bulk\s+insert)\s*[\(\s]"
+        ),
+        base_score=80,
+        description="SQL Server stored procedure or bulk operation injection.",
+        owasp_ref="CWE-89: SQL Injection",
+        remediation_hint="xp_cmdshell and similar stored procedures allow OS command execution. Disable them in production SQL Server instances and never allow AI to execute arbitrary stored procedures.",
+    ),
+    DetectionPattern(
+        id="sqli_quote_comment",
+        name="Quote + SQL Comment Injection",
+        category="sql_injection",
+        pattern=_p(r"['\";]\s*(--|#|/\*)\s*$"),
+        base_score=65,
+        description="Trailing SQL comment after quote — classic injection to bypass authentication.",
+        owasp_ref="CWE-89: SQL Injection",
+        remediation_hint="Inputs ending in '-- or '; -- are classic SQLi patterns. Use parameterized queries — never concatenate user input into SQL strings.",
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -390,6 +413,22 @@ PII_INPUT_PATTERNS: list[DetectionPattern] = [
         description="API key or secret token detected in input — must not be sent to LLM.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="API keys in prompts risk credential leakage. Rotate this key immediately. Use environment variables or secret managers.",
+    ),
+    DetectionPattern(
+        id="pii_drivers_license",
+        name="Driver's License Number",
+        category="pii_input",
+        pattern=_p(
+            r"(driver'?s?\s+licen[cs]e(\s*(number|num|#|no\.?))?[\s:=]+\w{4,20}"
+            r"|[Dd][Ll][-\s]?\d{6,10})"
+        ),
+        base_score=60,
+        description="Driver's license number detected in input.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint=(
+            "Driver's license numbers are government-issued PII. Never include real "
+            "license numbers in AI prompts. Use anonymized identifiers or redact before sending."
+        ),
     ),
 ]
 
@@ -639,6 +678,7 @@ PROMPT_LEAK_PATTERNS: list[DetectionPattern] = [
         category="prompt_leak",
         pattern=_p(
             r"(output|print|show|display|write|give\s+me)\s+(your\s+)?"
+            r"(full\s+|complete\s+|entire\s+|exact\s+)?"
             r"(instructions?|directives?|guidelines?|rules?|constraints?|prompt)\s+"
             r"(verbatim|word\s+for\s+word|exactly\s+as|as[\s\-]is|literally)"
         ),
@@ -668,6 +708,25 @@ PROMPT_LEAK_PATTERNS: list[DetectionPattern] = [
             "This two-step attack first tries to clear the AI's instructions, then asks for "
             "the original prompt. Both steps should be blocked. Ensure your system prompt "
             "is referenced in AI responses as 'configuration I cannot share'."
+        ),
+    ),
+    DetectionPattern(
+        id="pl_repeat_back_verbatim",
+        name="Repeat Back Instructions Verbatim",
+        category="prompt_leak",
+        pattern=_p(
+            r"(repeat|recite|say|tell\s+me)\s+(back\s+)?"
+            r"(the\s+)?(instructions?|prompt|directives?|rules?|guidelines?)\s+"
+            r"(you\s+)?(were\s+)?(given|provided|told|instructed|set|configured)"
+            r"(\s+verbatim|\s+word\s+for\s+word|\s+exactly)?"
+        ),
+        base_score=55,
+        description="Request to repeat back instructions as received.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "'Repeat back the instructions you were given' is a system prompt extraction "
+            "technique. The system prompt is confidential configuration — treat it as a "
+            "secret and never repeat it verbatim to users."
         ),
     ),
     # Japanese variants
