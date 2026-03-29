@@ -47,4 +47,4 @@ __all__ = [
     # Similarity / semantic layer
     "check_similarity",
 ]
-__version__ = "0.5.0"
+__version__ = "0.6.0"
