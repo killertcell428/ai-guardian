@@ -407,6 +407,138 @@ LEGAL_RISK_PATTERNS: list[DetectionPattern] = [
     ),
 ]
 
+# === Prompt Leaking / Verbatim Repetition Attacks ===
+# These complement pi_system_prompt_leak by catching indirect and verbatim-
+# repetition attacks that bypass the more literal "show me your system prompt" check.
+# Maps to OWASP LLM06: Sensitive Information Disclosure (also LLM07).
+PROMPT_LEAK_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="pl_verbatim_repeat",
+        name="Verbatim Repetition Attack",
+        category="prompt_leak",
+        pattern=_p(
+            r"(repeat|output|print|copy|echo|reproduce|restate|write\s+out|write\s+down)"
+            r"\s+(everything|all|the\s+text|the\s+content|verbatim|word\s+for\s+word)"
+            r"(\s+(above|before|prior|preceding|from\s+the\s+beginning|starting\s+with))?"
+        ),
+        base_score=50,
+        description="Attempt to extract context via verbatim repetition.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "Verbatim repetition attacks try to extract the full conversation context "
+            "including the system prompt. If you need a summary or quote of prior content, "
+            "rephrase without using 'verbatim' or 'repeat everything above'."
+        ),
+    ),
+    DetectionPattern(
+        id="pl_starting_with",
+        name="'Starting With' Extraction Attack",
+        category="prompt_leak",
+        pattern=_p(
+            r"(repeat|output|print|copy|echo|start|begin)\s+(everything|all|the\s+(text|above))"
+            r"\s+starting\s+(from\s+)?(with\s+)?['\"]?you\s+are"
+        ),
+        base_score=60,
+        description="Classic 'repeat everything starting with You are' attack.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "This is a known system-prompt extraction technique. The attacker is trying "
+            "to reconstruct your system prompt by asking the AI to repeat the conversation "
+            "from its beginning. Review your system prompt for sensitive instructions."
+        ),
+    ),
+    DetectionPattern(
+        id="pl_what_were_you_told",
+        name="Indirect System Prompt Inquiry",
+        category="prompt_leak",
+        pattern=_p(
+            r"(what\s+(were|are|was)\s+you\s+(told|instructed|configured|programmed|set\s+up)"
+            r"|what\s+(are\s+)?your\s+(original|initial|base|real|actual|true)\s+"
+            r"(instructions?|prompt|rules?|guidelines?|directives?)"
+            r"|what\s+did\s+(they|someone)\s+(tell|instruct|ask)\s+you)"
+        ),
+        base_score=45,
+        description="Indirect inquiry about system prompt contents.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "This phrasing attempts to indirectly extract your system prompt by asking "
+            "what the AI was 'told' or 'configured' to do. System prompt contents should "
+            "be treated as confidential configuration — avoid acknowledging them directly."
+        ),
+    ),
+    DetectionPattern(
+        id="pl_output_instructions_verbatim",
+        name="Output Instructions Verbatim",
+        category="prompt_leak",
+        pattern=_p(
+            r"(output|print|show|display|write|give\s+me)\s+(your\s+)?"
+            r"(instructions?|directives?|guidelines?|rules?|constraints?|prompt)\s+"
+            r"(verbatim|word\s+for\s+word|exactly\s+as|as[\s\-]is|literally)"
+        ),
+        base_score=55,
+        description="Request to output instructions verbatim.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "Requesting instructions 'verbatim' is a direct system prompt extraction attempt. "
+            "The system prompt contains your application's security configuration and business "
+            "logic. Never expose it directly to end users."
+        ),
+    ),
+    DetectionPattern(
+        id="pl_forget_and_ask",
+        name="Forget + Prompt Inquiry Combo",
+        category="prompt_leak",
+        pattern=_p(
+            r"(forget|ignore|disregard|clear|erase)\s+(your\s+)?(previous|prior|all|the)?\s*"
+            r"(instructions?|prompt|guidelines?|rules?)[.\s]+"
+            r"(what\s+(is|was|are|were)|tell\s+me|show\s+me)\s+(your\s+)?"
+            r"(original|initial|real|actual|base|true|first)\s+(prompt|instructions?)"
+        ),
+        base_score=65,
+        description="Forget instructions then ask for the original prompt.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "This two-step attack first tries to clear the AI's instructions, then asks for "
+            "the original prompt. Both steps should be blocked. Ensure your system prompt "
+            "is referenced in AI responses as 'configuration I cannot share'."
+        ),
+    ),
+    # Japanese variants
+    DetectionPattern(
+        id="pl_ja_verbatim",
+        name="Verbatim Repetition Attack (Japanese)",
+        category="prompt_leak",
+        pattern=_p(
+            r"(繰り返して|そのまま(出力|書いて|言って)|一言一句|逐語的に|"
+            r"(上|前)の(テキスト|内容|文章)(を)?(そのまま|全部|すべて)(出力|繰り返))"
+        ),
+        base_score=50,
+        description="日本語による逐語的繰り返し攻撃。",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "「そのまま繰り返して」はシステムプロンプト抽出の一般的な手法です。"
+            "システムプロンプトの内容は機密設定として扱い、ユーザーに直接開示しないでください。"
+        ),
+    ),
+    DetectionPattern(
+        id="pl_ja_what_told",
+        name="Indirect System Prompt Inquiry (Japanese)",
+        category="prompt_leak",
+        pattern=_p(
+            r"(何を(指示|命令|設定|教え)(られ|て)(いる|た)|"
+            r"(最初|元々|本来)(の)?(指示|プロンプト|ルール|設定)(を)?(教えて|見せて|出力して)|"
+            r"あなたの(本当の|元の|最初の)(指示|プロンプト|ルール))"
+        ),
+        base_score=45,
+        description="システムプロンプト内容の間接的な問い合わせ（日本語）。",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint=(
+            "「何を指示されていますか」という質問はシステムプロンプトの内容を間接的に"
+            "引き出そうとする試みです。システムプロンプトの詳細はユーザーに開示しないでください。"
+        ),
+    ),
+]
+
 # === Output Safety ===
 OUTPUT_PATTERNS: list[DetectionPattern] = [
     DetectionPattern(
@@ -470,4 +602,5 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + PII_INPUT_PATTERNS
     + CONFIDENTIAL_DATA_PATTERNS
     + LEGAL_RISK_PATTERNS
+    + PROMPT_LEAK_PATTERNS
 )
