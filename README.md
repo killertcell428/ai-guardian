@@ -5,10 +5,10 @@
 <h1 align="center">ai-guardian</h1>
 
 [![CI](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/killertcell428/ai-guardian/actions/workflows/ci.yml)
-[![PyPI version](https://img.shields.io/pypi/v/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
-[![Python versions](https://img.shields.io/pypi/pyversions/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
+[![PyPI version](https://img.shields.io/pypi/v/aig-guardian.svg)](https://pypi.org/project/aig-guardian/)
+[![Python versions](https://img.shields.io/pypi/pyversions/aig-guardian.svg)](https://pypi.org/project/aig-guardian/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
-[![Downloads](https://img.shields.io/pypi/dm/ai-guardian.svg)](https://pypi.org/project/ai-guardian/)
+[![Downloads](https://img.shields.io/pypi/dm/aig-guardian.svg)](https://pypi.org/project/aig-guardian/)
 [![codecov](https://codecov.io/gh/killertcell428/ai-guardian/branch/main/graph/badge.svg)](https://codecov.io/gh/killertcell428/ai-guardian)
 
 **LLM アプリケーションをプロンプトインジェクション・PII 漏洩・ジェイルブレイク・SQL インジェクションから守る、オープンソースのセキュリティミドルウェア。**
@@ -83,7 +83,7 @@ print(result.reasons)     # ['Ignore Previous Instructions', 'System Prompt Extr
 
 ```bash
 # コアライブラリ（依存ゼロ）
-pip install ai-guardian
+pip install aig-guardian
 
 # FastAPI ミドルウェア付き
 pip install 'ai-guardian[fastapi]'

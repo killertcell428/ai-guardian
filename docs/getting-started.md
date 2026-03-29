@@ -9,7 +9,7 @@
 
 ```bash
 # 最小構成 — Guard クラスのみ
-pip install ai-guardian
+pip install aig-guardian
 
 # FastAPI ミドルウェア付き
 pip install 'ai-guardian[fastapi]'

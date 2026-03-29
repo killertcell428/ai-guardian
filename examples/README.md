@@ -5,7 +5,7 @@ Runnable code samples for ai-guardian.
 ## Setup
 
 ```bash
-pip install ai-guardian
+pip install aig-guardian
 # or for all examples:
 pip install 'ai-guardian[all]'
 ```
