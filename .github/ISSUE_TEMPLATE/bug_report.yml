@@ -1,0 +1,111 @@
+name: Bug Report
+description: Something isn't working as expected
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill in as much detail as possible.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Before you submit
+      options:
+        - label: I have searched [existing issues](https://github.com/your-org/ai-guardian/issues) and this is not a duplicate
+          required: true
+        - label: I am using the latest released version of ai-guardian
+          required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: ai-guardian version
+      description: Run `python -c "import ai_guardian; print(ai_guardian.__version__)"` or `pip show ai-guardian`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Run `python --version`
+      placeholder: "3.11.9"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: integration
+    attributes:
+      label: Integration used
+      description: Which part of ai-guardian are you using?
+      multiple: true
+      options:
+        - Core (Guard class)
+        - FastAPI middleware
+        - LangChain callback
+        - OpenAI proxy wrapper
+        - YAML policy loading
+        - Self-hosted backend
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal code snippet or steps that reproduce the issue.
+      render: python
+      placeholder: |
+        from ai_guardian import Guard
+
+        guard = Guard()
+        result = guard.check_input("...")
+        # unexpected behaviour here
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What actually happened? Include the full traceback if applicable.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Any other information that might help (policy file contents, environment details, etc.)

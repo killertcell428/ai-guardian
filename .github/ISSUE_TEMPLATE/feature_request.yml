@@ -1,0 +1,82 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make ai-guardian better! Please describe your idea in detail.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Before you submit
+      options:
+        - label: I have searched [existing issues](https://github.com/your-org/ai-guardian/issues) and this is not a duplicate
+          required: true
+        - label: I have checked the [roadmap / discussions](https://github.com/your-org/ai-guardian/discussions) for a related proposal
+          required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature area
+      options:
+        - New detection pattern
+        - New integration (middleware / callback)
+        - Policy / configuration
+        - Performance
+        - Documentation
+        - CLI tool
+        - Self-hosted backend
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What problem does this feature solve? Why is it needed?
+      placeholder: "Currently, ai-guardian does not detect X, which means..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe what you'd like to see. Include a code sketch if helpful.
+      render: python
+      placeholder: |
+        guard = Guard(feature_x=True)
+        result = guard.check_input("...")
+        # result.blocked == True  because of X
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you've thought about?
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Would you like to implement this?
+      options:
+        - "Yes — I'll open a PR"
+        - "Maybe — I could use guidance"
+        - "No — just suggesting"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, links, references to related issues, etc.
