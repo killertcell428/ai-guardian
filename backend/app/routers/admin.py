@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.api_keys import generate_api_key
 from app.auth.jwt import create_access_token, hash_password, verify_password
+from app.billing.enforcement import check_user_limit
 from app.db.session import get_db
 from app.dependencies import get_admin_user, get_current_user
 from app.models.tenant import Tenant
@@ -144,6 +145,12 @@ async def create_user(
     current_user: Annotated[User, Depends(get_admin_user)] = None,
 ) -> User:
     """Create a user within the admin's tenant."""
+    # Check team member limit
+    if current_user:
+        tenant = await db.get(Tenant, current_user.tenant_id)
+        if tenant:
+            await check_user_limit(tenant, db)
+
     # For MVP bootstrap, allow user creation without auth if no admin exists yet
     result = await db.execute(select(User).where(User.email == body.email))
     if result.scalar_one_or_none():

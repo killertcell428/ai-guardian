@@ -4,44 +4,44 @@ import PricingSection from "@/components/PricingSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const COMPARISON_ROWS_EN = [
-  { feature: "Users", values: ["Up to 10", "Unlimited", "Unlimited"] },
-  { feature: "Meeting hours / month", values: ["30 hrs", "Unlimited", "Unlimited"] },
-  { feature: "Secure meeting notes (AI)", values: [true, true, true] },
-  { feature: "PII detection & masking", values: ["Basic", "Industry-specific", "Custom rules"] },
-  { feature: "Decision tracking", values: [false, true, true] },
-  { feature: "Action item extraction", values: [false, true, true] },
-  { feature: "Organization knowledge base", values: [false, false, true] },
+  { feature: "Team members", values: ["Up to 5", "Up to 50", "Unlimited"] },
+  { feature: "API requests / month", values: ["500K", "5M", "Unlimited"] },
+  { feature: "Cloud dashboard", values: [true, true, true] },
+  { feature: "Risk score visualization", values: [true, true, true] },
+  { feature: "Playground (prompt testing)", values: [true, true, true] },
+  { feature: "Detection patterns (57+)", values: [true, true, true] },
+  { feature: "Custom detection rules", values: ["Unlimited", "Unlimited", "Unlimited"] },
+  { feature: "Human-in-the-Loop review", values: [false, true, true] },
   { feature: "Data retention", values: ["90 days", "1 year", "Unlimited"] },
+  { feature: "Compliance reports (OWASP, SOC2)", values: [false, true, true] },
   { feature: "SSO / SAML", values: [false, true, true] },
-  { feature: "Audit logs", values: ["Basic", "Detailed", "Custom"] },
-  { feature: "Compliance reports", values: [false, "Standard", "Custom"] },
-  { feature: "SLA guarantee", values: [false, "99.9%", "99.99%"] },
+  { feature: "Slack / PagerDuty alerts", values: [false, true, true] },
   { feature: "On-premises / VPC", values: [false, false, true] },
-  { feature: "SOC2 / GDPR / HIPAA", values: [false, false, true] },
+  { feature: "SLA guarantee", values: ["99.5%", "99.9%", "99.99%"] },
   { feature: "Support", values: ["Email", "Priority (Chat + Email)", "Dedicated CSM"] },
 ];
 
 const COMPARISON_ROWS_JA = [
-  { feature: "ユーザー数", values: ["最大10名", "無制限", "無制限"] },
-  { feature: "月間会議時間", values: ["30時間", "無制限", "無制限"] },
-  { feature: "セキュア議事録（AI）", values: [true, true, true] },
-  { feature: "PII検出・マスキング", values: ["基本", "業界別ルール", "カスタムルール"] },
-  { feature: "意思決定追跡", values: [false, true, true] },
-  { feature: "アクションアイテム抽出", values: [false, true, true] },
-  { feature: "組織ナレッジ基盤", values: [false, false, true] },
+  { feature: "チームメンバー", values: ["最大5名", "最大50名", "無制限"] },
+  { feature: "月間APIリクエスト", values: ["50万", "500万", "無制限"] },
+  { feature: "クラウドダッシュボード", values: [true, true, true] },
+  { feature: "リスクスコア可視化", values: [true, true, true] },
+  { feature: "Playground（プロンプトテスト）", values: [true, true, true] },
+  { feature: "検出パターン（57種以上）", values: [true, true, true] },
+  { feature: "カスタム検出ルール", values: ["無制限", "無制限", "無制限"] },
+  { feature: "Human-in-the-Loopレビュー", values: [false, true, true] },
   { feature: "データ保持期間", values: ["90日", "1年", "無制限"] },
+  { feature: "コンプラレポート（OWASP, SOC2）", values: [false, true, true] },
   { feature: "SSO / SAML", values: [false, true, true] },
-  { feature: "監査ログ", values: ["基本", "詳細", "カスタム"] },
-  { feature: "コンプライアンスレポート", values: [false, "標準", "カスタム"] },
-  { feature: "SLA保証", values: [false, "99.9%", "99.99%"] },
+  { feature: "Slack / PagerDuty通知", values: [false, true, true] },
   { feature: "オンプレミス / VPC", values: [false, false, true] },
-  { feature: "SOC2 / GDPR / HIPAA", values: [false, false, true] },
+  { feature: "SLA保証", values: ["99.5%", "99.9%", "99.99%"] },
   { feature: "サポート", values: ["メール", "優先（チャット + メール）", "専任CSM"] },
 ];
 
-const PLAN_NAMES = ["Starter", "Business", "Enterprise"];
-const PLAN_PRICES_EN = ["$15/user/mo", "$38/user/mo", "Custom"];
-const PLAN_PRICES_JA = ["¥2,000/ユーザー/月", "¥5,000/ユーザー/月", "要相談"];
+const PLAN_NAMES = ["Pro", "Business", "Enterprise"];
+const PLAN_PRICES_EN = ["$49/mo", "$299/mo", "Custom"];
+const PLAN_PRICES_JA = ["$49/月", "$299/月", "要相談"];
 
 export default function PricingPage() {
   const { lang } = useLanguage();

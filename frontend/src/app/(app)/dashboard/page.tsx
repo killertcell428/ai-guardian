@@ -15,7 +15,7 @@ import {
   Legend,
 } from "recharts";
 import StatCard from "@/components/StatCard";
-import { auditApi, type AuditLog } from "@/lib/api";
+import { auditApi, billingApi, type AuditLog, type UsageStats } from "@/lib/api";
 
 interface Stats {
   total: number;
@@ -28,13 +28,19 @@ interface Stats {
 
 export default function DashboardPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [usage, setUsage] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState<"en" | "ja">("ja");
 
   useEffect(() => {
-    auditApi
-      .list({ limit: 200 })
-      .then(setLogs)
+    Promise.all([
+      auditApi.list({ limit: 200 }),
+      billingApi.getUsage().catch(() => null),
+    ])
+      .then(([l, u]) => {
+        setLogs(l);
+        setUsage(u);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -143,6 +149,44 @@ export default function DashboardPage() {
           value={stats.allowed}
         />
       </div>
+
+      {/* Plan usage */}
+      {usage && usage.plan !== "free" && (
+        <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-lg">💳</span>
+            <div>
+              <p className="text-sm font-semibold text-slate-800 capitalize">
+                {usage.plan} Plan
+              </p>
+              <p className="text-xs text-slate-500">
+                {usage.monthly_requests_used.toLocaleString()}
+                {usage.monthly_requests_limit
+                  ? ` / ${usage.monthly_requests_limit.toLocaleString()} requests`
+                  : " requests"}
+              </p>
+            </div>
+          </div>
+          {usage.monthly_requests_limit && (
+            <div className="w-32">
+              <div className="w-full bg-slate-100 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full ${
+                    usage.monthly_requests_used / usage.monthly_requests_limit >= 0.9
+                      ? "bg-red-500"
+                      : usage.monthly_requests_used / usage.monthly_requests_limit >= 0.8
+                      ? "bg-yellow-500"
+                      : "bg-sky-500"
+                  }`}
+                  style={{
+                    width: `${Math.min(100, (usage.monthly_requests_used / usage.monthly_requests_limit) * 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Governance message */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 flex items-center gap-3">

@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.enforcement import check_request_quota
 from app.config import settings
 from app.db.session import get_db
 from app.dependencies import get_current_user, resolve_tenant_from_api_key
@@ -30,6 +31,9 @@ async def proxy_chat_completions(
     tenant, user = tenant_user
     body: dict[str, Any] = await request.json()
     client_ip = request.client.host if request.client else None
+
+    # Check request quota before forwarding
+    await check_request_quota(tenant, db)
 
     response_body, status_code = await handle_proxy_request(
         db=db,

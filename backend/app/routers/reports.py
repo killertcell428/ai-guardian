@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.enforcement import require_plan
 from app.db.session import get_db
 from app.dependencies import get_current_user
 from app.reports.generator import generate_report_data, render_csv
@@ -13,7 +14,7 @@ from app.reports.generator import generate_report_data, render_csv
 router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
 
 
-@router.get("/generate")
+@router.get("/generate", dependencies=[Depends(require_plan("business"))])
 async def generate_report(
     format: str = Query("json", enum=["json", "csv"]),
     days: int = Query(30, ge=1, le=365),

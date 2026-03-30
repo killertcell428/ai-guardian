@@ -14,6 +14,7 @@ PRICE_IDS = {
 def create_checkout_session(
     customer_email: str,
     plan: str,
+    tenant_id: str,
     success_url: str,
     cancel_url: str,
 ) -> stripe.checkout.Session:
@@ -22,6 +23,7 @@ def create_checkout_session(
     Args:
         customer_email: Email address of the customer.
         plan: Plan name, must be a key in PRICE_IDS ("pro" or "business").
+        tenant_id: AI Guardian tenant ID to link back in webhooks.
         success_url: URL to redirect to after successful payment.
         cancel_url: URL to redirect to if the user cancels.
 
@@ -47,7 +49,9 @@ def create_checkout_session(
         ],
         subscription_data={
             "trial_period_days": 14,
+            "metadata": {"tenant_id": tenant_id},
         },
+        metadata={"tenant_id": tenant_id},
         success_url=success_url,
         cancel_url=cancel_url,
     )

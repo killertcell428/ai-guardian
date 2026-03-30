@@ -1,9 +1,18 @@
 """Stripe Webhook handler for AI Guardian SaaS billing events."""
 import os
 import logging
+from datetime import datetime, timezone
+from typing import Annotated
 
 import stripe
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.billing.plans import PLAN_LIMITS, get_plan_limits
+from app.billing.stripe_client import PRICE_IDS
+from app.db.session import get_db
+from app.models.tenant import Tenant
 
 logger = logging.getLogger(__name__)
 
@@ -12,35 +21,65 @@ router = APIRouter(prefix="/billing", tags=["billing"])
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 
+async def _find_tenant_by_customer_id(
+    db: AsyncSession, customer_id: str
+) -> Tenant | None:
+    """Look up a tenant by Stripe customer ID."""
+    result = await db.execute(
+        select(Tenant).where(Tenant.stripe_customer_id == customer_id)
+    )
+    return result.scalar_one_or_none()
+
+
+async def _find_tenant_by_metadata_or_email(
+    db: AsyncSession, data: dict
+) -> Tenant | None:
+    """Look up a tenant by checkout session metadata (tenant_id) or customer email."""
+    # Try metadata first
+    tenant_id = data.get("metadata", {}).get("tenant_id")
+    if tenant_id:
+        result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+        tenant = result.scalar_one_or_none()
+        if tenant:
+            return tenant
+
+    # Fallback: find tenant via user email
+    customer_email = data.get("customer_email") or data.get(
+        "customer_details", {}
+    ).get("email")
+    if customer_email:
+        from app.models.user import User
+
+        result = await db.execute(select(User).where(User.email == customer_email))
+        user = result.scalar_one_or_none()
+        if user:
+            result2 = await db.execute(
+                select(Tenant).where(Tenant.id == user.tenant_id)
+            )
+            return result2.scalar_one_or_none()
+
+    return None
+
+
+def _resolve_plan_from_price_id(price_id: str | None) -> str:
+    """Resolve plan name from a Stripe price ID."""
+    if not price_id:
+        return "free"
+    for name, pid in PRICE_IDS.items():
+        if pid and pid == price_id:
+            return name.replace("_monthly", "")
+    return "free"
+
+
 @router.post("/webhook")
 async def stripe_webhook(
     request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
     stripe_signature: str = Header(alias="stripe-signature"),
 ) -> dict:
-    """Handle incoming Stripe Webhook events.
-
-    Stripe sends signed POST requests to this endpoint when billing events
-    occur. The signature is verified using STRIPE_WEBHOOK_SECRET to ensure
-    authenticity before processing.
-
-    Processed events:
-    - checkout.session.completed       → activate subscription in DB
-    - customer.subscription.updated    → sync plan changes to DB
-    - customer.subscription.deleted    → downgrade user to Free plan
-    - invoice.payment_succeeded        → log successful renewal
-    - invoice.payment_failed           → send warning email, start grace period
-    - customer.subscription.trial_will_end → send trial-ending reminder email
-
-    Returns:
-        {"status": "ok"} on success.
-
-    Raises:
-        HTTPException 400: If signature verification fails or payload is invalid.
-        HTTPException 422: If event type is unrecognized (logged and ignored).
-    """
+    """Handle incoming Stripe Webhook events."""
     payload = await request.body()
 
-    # Verify Stripe signature to prevent spoofed events
     try:
         event = stripe.Webhook.construct_event(
             payload=payload,
@@ -61,26 +100,38 @@ async def stripe_webhook(
 
     # ------------------------------------------------------------------
     # checkout.session.completed
-    # Fired when a new subscription checkout is completed successfully.
     # ------------------------------------------------------------------
     if event_type == "checkout.session.completed":
         customer_id = data.get("customer")
         subscription_id = data.get("subscription")
-        customer_email = data.get("customer_email") or data.get("customer_details", {}).get("email")
 
-        logger.info(
-            "Checkout completed: customer=%s subscription=%s email=%s",
-            customer_id, subscription_id, customer_email,
-        )
+        tenant = await _find_tenant_by_metadata_or_email(db, data)
+        if not tenant:
+            logger.error("checkout.session.completed: tenant not found for event %s", event["id"])
+            return {"status": "ok"}
 
-        # TODO: Look up user in DB by customer_email
-        # TODO: Save customer_id and subscription_id to the user record
-        # TODO: Fetch the plan from the subscription and update user.plan
-        # TODO: Send a welcome email via Resend/SendGrid
+        # Resolve plan from subscription
+        plan_name = "pro"
+        if subscription_id:
+            try:
+                sub = stripe.Subscription.retrieve(subscription_id)
+                price_id = sub["items"]["data"][0]["price"]["id"] if sub["items"]["data"] else None
+                plan_name = _resolve_plan_from_price_id(price_id)
+                trial_end = sub.get("trial_end")
+                if trial_end:
+                    tenant.trial_ends_at = datetime.fromtimestamp(trial_end, tz=timezone.utc)
+            except Exception:
+                logger.exception("Failed to retrieve subscription details")
+
+        tenant.stripe_customer_id = customer_id
+        tenant.stripe_subscription_id = subscription_id
+        tenant.plan = plan_name
+        tenant.subscription_status = "active"
+
+        logger.info("Tenant %s activated on plan=%s", tenant.slug, plan_name)
 
     # ------------------------------------------------------------------
     # customer.subscription.updated
-    # Fired when the user upgrades, downgrades, or resumes a subscription.
     # ------------------------------------------------------------------
     elif event_type == "customer.subscription.updated":
         customer_id = data.get("customer")
@@ -89,88 +140,100 @@ async def stripe_webhook(
             data.get("items", {}).get("data", [{}])[0].get("price", {}).get("id")
         )
 
-        logger.info(
-            "Subscription updated: customer=%s status=%s price_id=%s",
-            customer_id, status, price_id,
-        )
+        tenant = await _find_tenant_by_customer_id(db, customer_id)
+        if not tenant:
+            logger.warning("subscription.updated: tenant not found for customer=%s", customer_id)
+            return {"status": "ok"}
 
-        # TODO: Resolve plan name from price_id using PRICE_IDS mapping
-        # TODO: Update user.plan and user.subscription_status in DB
-        # TODO: If status is "past_due", flag the account and send a warning email
+        plan_name = _resolve_plan_from_price_id(price_id)
+        tenant.plan = plan_name
+        tenant.subscription_status = status or "active"
+
+        if status == "past_due":
+            logger.warning("Tenant %s subscription is past_due", tenant.slug)
+
+        logger.info("Tenant %s updated: plan=%s status=%s", tenant.slug, plan_name, status)
 
     # ------------------------------------------------------------------
     # customer.subscription.deleted
-    # Fired when a subscription is fully canceled (end of period or immediately).
     # ------------------------------------------------------------------
     elif event_type == "customer.subscription.deleted":
         customer_id = data.get("customer")
-        subscription_id = data.get("id")
 
-        logger.info(
-            "Subscription deleted: customer=%s subscription=%s",
-            customer_id, subscription_id,
-        )
+        tenant = await _find_tenant_by_customer_id(db, customer_id)
+        if not tenant:
+            logger.warning("subscription.deleted: tenant not found for customer=%s", customer_id)
+            return {"status": "ok"}
 
-        # TODO: Look up user in DB by customer_id
-        # TODO: Set user.plan = "free" and user.subscription_status = "canceled"
-        # TODO: Revoke API keys that exceed Free tier limits (keep only 1)
-        # TODO: Send a cancellation confirmation email
+        tenant.plan = "free"
+        tenant.subscription_status = "canceled"
+        tenant.stripe_subscription_id = None
+
+        logger.info("Tenant %s downgraded to free (subscription canceled)", tenant.slug)
 
     # ------------------------------------------------------------------
     # invoice.payment_succeeded
-    # Fired on each successful recurring payment.
     # ------------------------------------------------------------------
     elif event_type == "invoice.payment_succeeded":
         customer_id = data.get("customer")
-        amount_paid = data.get("amount_paid", 0)
         period_end = data.get("lines", {}).get("data", [{}])[0].get("period", {}).get("end")
 
-        logger.info(
-            "Payment succeeded: customer=%s amount=%d period_end=%s",
-            customer_id, amount_paid, period_end,
-        )
+        tenant = await _find_tenant_by_customer_id(db, customer_id)
+        if not tenant:
+            return {"status": "ok"}
 
-        # TODO: Update user.subscription_current_period_end in DB
-        # TODO: Clear any past_due / warning flags on the account
+        if period_end:
+            tenant.subscription_current_period_end = datetime.fromtimestamp(
+                period_end, tz=timezone.utc
+            )
+        # Clear past_due if it was set
+        if tenant.subscription_status == "past_due":
+            tenant.subscription_status = "active"
+
+        logger.info("Payment succeeded for tenant %s", tenant.slug)
 
     # ------------------------------------------------------------------
     # invoice.payment_failed
-    # Fired when a renewal payment fails (e.g. expired card).
     # ------------------------------------------------------------------
     elif event_type == "invoice.payment_failed":
         customer_id = data.get("customer")
         attempt_count = data.get("attempt_count", 1)
-        next_attempt = data.get("next_payment_attempt")
 
-        logger.warning(
-            "Payment failed: customer=%s attempt=%d next_attempt=%s",
-            customer_id, attempt_count, next_attempt,
-        )
+        tenant = await _find_tenant_by_customer_id(db, customer_id)
+        if not tenant:
+            return {"status": "ok"}
 
-        # TODO: Look up user in DB by customer_id
-        # TODO: Send payment failure email with Stripe Customer Portal link
-        # TODO: If attempt_count >= 3, set user.plan = "free" (grace period exceeded)
-        # TODO: Flag user.payment_failed = True for dashboard warning banner
+        if attempt_count >= 3:
+            tenant.plan = "free"
+            tenant.subscription_status = "canceled"
+            logger.warning(
+                "Tenant %s downgraded to free after %d failed payment attempts",
+                tenant.slug, attempt_count,
+            )
+        else:
+            tenant.subscription_status = "past_due"
+            logger.warning(
+                "Payment failed for tenant %s (attempt %d)",
+                tenant.slug, attempt_count,
+            )
 
     # ------------------------------------------------------------------
     # customer.subscription.trial_will_end
-    # Fired 3 days before a trial period ends.
     # ------------------------------------------------------------------
     elif event_type == "customer.subscription.trial_will_end":
         customer_id = data.get("customer")
         trial_end = data.get("trial_end")
 
-        logger.info(
-            "Trial ending soon: customer=%s trial_end=%s",
-            customer_id, trial_end,
-        )
+        tenant = await _find_tenant_by_customer_id(db, customer_id)
+        if not tenant:
+            return {"status": "ok"}
 
-        # TODO: Look up user in DB by customer_id
-        # TODO: Send trial-ending reminder email with CTA to add payment method
-        # TODO: Include "X threats blocked during your trial" in the email body
+        if trial_end:
+            tenant.trial_ends_at = datetime.fromtimestamp(trial_end, tz=timezone.utc)
+
+        logger.info("Trial ending soon for tenant %s", tenant.slug)
 
     else:
-        # Unrecognized event type — log and ignore gracefully
         logger.debug("Unhandled Stripe event type: %s", event_type)
 
     return {"status": "ok"}

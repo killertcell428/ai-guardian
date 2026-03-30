@@ -9,8 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
+from app.billing.webhooks import router as webhook_router
 from app.routers.admin import router as admin_router
 from app.routers.audit import router as audit_router
+from app.routers.billing import router as billing_router
 from app.routers.gandalf import router as gandalf_router
 from app.routers.reports import router as reports_router
 from app.routers.policies import router as policies_router
@@ -94,6 +96,8 @@ app.include_router(audit_router)
 app.include_router(admin_router)
 app.include_router(gandalf_router)
 app.include_router(reports_router)
+app.include_router(billing_router)
+app.include_router(webhook_router)
 
 
 @app.get("/health", tags=["health"])

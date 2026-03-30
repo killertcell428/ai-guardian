@@ -11,7 +11,9 @@ const navItems = [
   { href: "/policies", label: "Policies", icon: "🛡️" },
   { href: "/audit", label: "Audit Logs", icon: "📋" },
   { href: "/reports", label: "Reports", icon: "📄" },
+  { href: "/team", label: "Team", icon: "👥" },
   { href: "/settings", label: "Settings", icon: "⚙️" },
+  { href: "/billing", label: "Billing", icon: "💳" },
 ];
 
 export default function Sidebar() {

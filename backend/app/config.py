@@ -50,5 +50,14 @@ class Settings(BaseSettings):
     # Auto-allow threshold (skip review, allow immediately)
     auto_allow_threshold: int = 30  # Low
 
+    # Stripe billing
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_pro_monthly: str = ""
+    stripe_price_business_monthly: str = ""
+
+    # Billing enforcement mode: "strict" blocks, "warn" logs only
+    billing_enforcement_mode: str = "warn"
+
 
 settings = Settings()

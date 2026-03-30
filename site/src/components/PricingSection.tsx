@@ -12,7 +12,7 @@ export default function PricingSection() {
   const PLANS = [
     {
       name: tx(t.pricing.starter.name, lang),
-      price: ja ? "¥2,000" : "$15",
+      price: "$49",
       period: tx(t.pricing.starter.period, lang),
       tagline: tx(t.pricing.starter.tagline, lang),
       features: [
@@ -29,7 +29,7 @@ export default function PricingSection() {
     },
     {
       name: tx(t.pricing.business.name, lang),
-      price: ja ? "¥5,000" : "$38",
+      price: "$299",
       period: tx(t.pricing.business.period, lang),
       tagline: tx(t.pricing.business.tagline, lang),
       features: [
@@ -144,35 +144,35 @@ export default function PricingSection() {
           </h3>
           <p className="text-center text-gray-500 mb-10 max-w-xl mx-auto text-sm">
             {ja
-              ? "議事録で入り口を開き、意思決定追跡で差別化し、ナレッジ基盤で定着する"
-              : "Start with meeting notes, differentiate with decision tracking, retain with knowledge base"}
+              ? "OSSライブラリで入り口を開き、ダッシュボードで可視化し、コンプライアンスで定着する"
+              : "Start with the OSS library, visualize with the dashboard, retain with compliance"}
           </p>
           <div className="space-y-4">
             <ValueLayer
               number="1"
-              title={ja ? "セキュア議事録" : "Secure Meeting Notes"}
+              title={ja ? "OSSセキュリティライブラリ" : "OSS Security Library"}
               desc={ja
-                ? "ai-guardian内蔵のエンドツーエンド暗号化議事録。PII自動マスキング、業界別コンプライアンス対応。既存ツールより安全なAI議事録で導入のドアを開く。"
-                : "End-to-end encrypted meeting notes powered by ai-guardian. Auto PII masking, industry compliance. Open the door with safer AI meeting notes."}
-              plan="Starter"
+                ? "pip install aig-guardian で即座にLLMアプリを保護。57種の検出パターン、FastAPI/LangChain/OpenAI統合。永久無料でセキュリティの入り口を開く。"
+                : "Protect LLM apps instantly with pip install aig-guardian. 57 detection patterns, FastAPI/LangChain/OpenAI integration. Free forever to open the door to security."}
+              plan="Free"
               color="bg-guardian-50 border-guardian-200"
             />
             <ValueLayer
               number="2"
-              title={ja ? "意思決定追跡" : "Decision Tracking"}
+              title={ja ? "クラウドダッシュボード" : "Cloud Dashboard"}
               desc={ja
-                ? "誰が・いつ・なぜ決めたかを自動記録。アクションアイテムの抽出と履行追跡。会議間の意思決定フローを可視化し。競合にない価値で定着を図る。"
-                : "Auto-track who decided what, when, and why. Extract and follow up on action items. Visualize decision flows across meetings."}
-              plan="Business"
+                ? "チーム全体のLLMリクエストをリアルタイム可視化。リスクスコア推移、脅威ブロック統計、Playgroundでの動作テスト。チームで共有した瞬間、価値が倍増する。"
+                : "Real-time visibility into all LLM requests across your team. Risk score trends, threat blocking stats, Playground testing. Value multiplies the moment you share with your team."}
+              plan="Pro"
               color="bg-blue-50 border-blue-200"
             />
             <ValueLayer
               number="3"
-              title={ja ? "組織ナレッジ基盤" : "Organization Knowledge Base"}
+              title={ja ? "コンプライアンス・ガバナンス" : "Compliance & Governance"}
               desc={ja
-                ? "会議の集合知を検索可能なナレッジグラフに。新メンバーのオンボーディング支援、組織の意思決定パターン分析。使うほどデータが蓄積され、組織の競争力になる。"
-                : "Turn collective meeting intelligence into a searchable knowledge graph. Support onboarding, analyze organizational decision patterns."}
-              plan="Enterprise"
+                ? "OWASP LLM Top 10、SOC2、GDPR対応のコンプライアンスレポートを自動生成。イミュータブル監査ログ、SSO統合。CISOが四半期レビューで求める証跡を自動で提供。"
+                : "Auto-generate compliance reports for OWASP LLM Top 10, SOC2, GDPR. Immutable audit logs, SSO integration. Automatically provide the evidence trail CISOs need for quarterly reviews."}
+              plan="Business"
               color="bg-purple-50 border-purple-200"
             />
           </div>
