@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Cloud Dashboard Billing** — Stripe integration with 14-day free trial, Pro ($49/mo) and Business ($299/mo) plans
+  - Checkout, Customer Portal, subscription status, and usage metrics API endpoints
+  - 6 Stripe webhook handlers (checkout, subscription update/delete, payment success/failure, trial ending)
+  - Plan enforcement middleware: request quota, user limit, feature gating (warn mode for beta)
+  - Billing page with plan status, usage meter, upgrade/manage buttons
+  - PlanGate component for plan-gated features
+- **Team Management** — invite members, role management (admin/reviewer), plan-based user limits
+- **Slack Notifications** — real-time Block Kit rich messages on blocked events
+  - Configurable per-tenant: webhook URL, notify_on_block, notify_on_high_risk
+  - Settings page UI for Slack webhook configuration
+- **Compliance Report Auto-Generation** — PDF, Excel, CSV, JSON export formats
+  - **OWASP LLM Top 10**: Runtime defense scope 6/6 (100%), with out-of-scope items clearly noted
+  - **SOC2 Trust Service Criteria**: 8 criteria mapped (CC6.1, CC6.6, CC7.2, CC8.1, A1.2, PI1.1, C1.1, P1.1)
+  - **GDPR Technical Measures**: 5 articles (Art. 25, 30, 32, 33, 35)
+  - **Japan AI Regulation**: 4 frameworks, 25 requirements, 100% coverage
+  - Professional PDF with colored tables (reportlab), multi-sheet Excel (openpyxl)
+- **Data Retention Cleanup** — background job deletes old requests/audit logs based on plan retention_days (hourly)
+- **Dashboard Usage Card** — plan name, request usage progress bar, warning at 80%+
 - **`aig scan --file PATH`** — scan a file directly from the CLI (useful for CI workflows and pre-commit hooks). Returns JSON with `--json` flag for machine consumption.
 - **GitHub Actions example workflow** (`examples/github-actions/ai-guardian-scan.yml`) — copy-paste CI workflow that scans prompt files on every push/PR, posts warnings/errors as annotations
 - **pre-commit hook support** (`.pre-commit-hooks.yaml`) — `ai-guardian-scan` and `ai-guardian-scan-python` hooks; users add the repo to `.pre-commit-config.yaml` and get automatic scanning on every commit
