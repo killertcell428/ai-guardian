@@ -288,6 +288,28 @@
     margin-top: auto;
   }
 
+  .article-card.draft {
+    cursor: default;
+    opacity: 0.65;
+  }
+  .article-card.draft:hover {
+    border-color: var(--border);
+    transform: none;
+    box-shadow: none;
+  }
+  .article-card.draft:hover .card-title { color: var(--text-primary); }
+
+  .card-cta.draft {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    background: var(--bg-tertiary);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    display: inline-block;
+  }
+
   /* ── FOOTER ── */
   footer {
     background: var(--bg-secondary);
@@ -433,7 +455,7 @@
     <div class="articles-grid">
 
       <!-- 記事1 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/litellm-supply-chain-attack" target="_blank" rel="noopener">
+      <div class="article-card draft">
         <span class="card-emoji">🔓</span>
         <div class="card-body">
           <div class="card-meta">
@@ -443,12 +465,12 @@
           </div>
           <div class="card-title">litellmに悪意あるコードが混入 — AIエージェント環境を狙ったサプライチェーン攻撃の全貌と防御策</div>
           <p class="card-summary">人気LLMライブラリ litellm に悪意あるコードが混入した事件を詳解。AIエージェント開発環境を標的にしたサプライチェーン攻撃の手口と、依存関係の安全な管理方法を解説します。</p>
-          <span class="card-cta">Zenn で読む →</span>
+          <span class="card-cta draft">近日公開</span>
         </div>
-      </a>
+      </div>
 
       <!-- 記事2 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/mcp-trust-model-security" target="_blank" rel="noopener">
+      <div class="article-card draft">
         <span class="card-emoji">🔐</span>
         <div class="card-body">
           <div class="card-meta">
@@ -458,27 +480,27 @@
           </div>
           <div class="card-title">なぜAIエージェントはMCPツールを信頼しすぎるのか — 信頼境界から設計するセキュリティアーキテクチャ</div>
           <p class="card-summary">Model Context Protocol（MCP）を通じてツールを呼び出す AI エージェントの信頼境界を解説。ツール呼び出しに潜むプロンプトインジェクションリスクと、安全なアーキテクチャ設計の原則を紹介します。</p>
-          <span class="card-cta">Zenn で読む →</span>
+          <span class="card-cta draft">近日公開</span>
         </div>
-      </a>
+      </div>
 
       <!-- 記事3 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/aig-doctor-hook-debug" target="_blank" rel="noopener">
+      <a class="article-card" href="https://zenn.dev/sharu389no/articles/9ca2fe5db16e27" target="_blank" rel="noopener">
         <span class="card-emoji">🔍</span>
         <div class="card-body">
           <div class="card-meta">
             <span class="platform-badge platform-zenn">Z Zenn</span>
-            <span class="tag-badge">Claude Code / OSS</span>
-            <span class="card-date">2026-03-27</span>
+            <span class="tag-badge">Claude Code / Hook</span>
+            <span class="card-date">2026-03-30</span>
           </div>
-          <div class="card-title">ai-guardian の Claude Code Hook が動かない！原因調査から aig doctor 誕生まで</div>
-          <p class="card-summary">Claude Code のフック設定が無音で失敗する問題を調査した実録。環境差異・パス解決・権限チェックを一発診断する aig doctor コマンドを作るに至った経緯を解説します。</p>
+          <div class="card-title">Claude Code Hookが動かない！原因調査から解決まで</div>
+          <p class="card-summary">Claude Code のフック設定が無音で失敗する問題を調査した実録。環境差異・パス解決・権限チェックのトラブルシューティングを詳解。同じ問題でハマった開発者に向けた解決ガイドです。</p>
           <span class="card-cta">Zenn で読む →</span>
         </div>
       </a>
 
       <!-- 記事4 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/japanese-llm-security" target="_blank" rel="noopener">
+      <div class="article-card draft">
         <span class="card-emoji">🇯🇵</span>
         <div class="card-body">
           <div class="card-meta">
@@ -488,42 +510,42 @@
           </div>
           <div class="card-title">日本語LLMセキュリティの盲点 — マイナンバー検出から日本語プロンプトインジェクションまで</div>
           <p class="card-summary">英語圏のセキュリティツールが見落とす「日本語固有の脅威」を徹底解説。マイナンバー・住所・電話番号の検出パターンと、日本語で記述されたプロンプトインジェクション攻撃への対策を紹介します。</p>
-          <span class="card-cta">Zenn で読む →</span>
+          <span class="card-cta draft">近日公開</span>
         </div>
-      </a>
+      </div>
 
       <!-- 記事5 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/oss-cicd-pypi-claude-code" target="_blank" rel="noopener">
+      <a class="article-card" href="https://zenn.dev/sharu389no/articles/ed98efe89e7f1e" target="_blank" rel="noopener">
         <span class="card-emoji">🚀</span>
         <div class="card-body">
           <div class="card-meta">
             <span class="platform-badge platform-zenn">Z Zenn</span>
-            <span class="tag-badge">CI/CD / PyPI</span>
-            <span class="card-date">2026-03-25</span>
+            <span class="tag-badge">Claude Code / 自動化</span>
+            <span class="card-date">2026-03-28</span>
           </div>
-          <div class="card-title">OSSのCI/CD＋PyPI公開を Claude Code だけで構築した話</div>
-          <p class="card-summary">テスト・lint・型チェック・PyPI リリース・GitHub Release まで、CI/CD パイプライン全体を Claude Code で自動化した実録。ruff・mypy・GitHub Actions の設定から、バージョン管理の工夫まで解説します。</p>
+          <div class="card-title">OSSのサービス展開を0からClaude Codeで全自動化した話 — 開発・デプロイ・SNS投稿・記事執筆まで</div>
+          <p class="card-summary">OSS開発からデプロイ・SNS告知・Zenn記事執筆まで、サービス展開の全工程を Claude Code で自動化した実録。CI/CD・PyPI リリース・GitHub Actions の設定と、AIエージェント活用の全貌を公開します。</p>
           <span class="card-cta">Zenn で読む →</span>
         </div>
       </a>
 
       <!-- 記事6 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/ai-guardian-guideline-checklist" target="_blank" rel="noopener">
-        <span class="card-emoji">📋</span>
+      <a class="article-card" href="https://zenn.dev/sharu389no/articles/e07c926d87ac57" target="_blank" rel="noopener">
+        <span class="card-emoji">🙆</span>
         <div class="card-body">
           <div class="card-meta">
             <span class="platform-badge platform-zenn">Z Zenn</span>
-            <span class="tag-badge">ガバナンス / OWASP</span>
-            <span class="card-date">2026-03-24</span>
+            <span class="tag-badge">セキュリティ / AIエージェント</span>
+            <span class="card-date">2026-03-28</span>
           </div>
-          <div class="card-title">AI事業者ガイドライン第1.1版が公表 — AIエージェント時代に求められるセキュリティ対策チェックリスト</div>
-          <p class="card-summary">経済産業省・総務省が公表した AI 事業者ガイドライン第1.1版を読み解き、OWASP LLM Top 10 との対応関係を整理。プロダクト開発者がすぐに使えるセキュリティ実装チェックリストを公開します。</p>
+          <div class="card-title">AIエージェント導入で「セキュリティどうするの？」と聞かれたときの技術的な答え方</div>
+          <p class="card-summary">AIエージェントを本番導入する際に必ず聞かれる「セキュリティ大丈夫？」への具体的な技術的回答をまとめました。OWASP LLM Top 10 をベースに、プロダクトマネージャー・経営層にも伝わる説明フレームワークを解説します。</p>
           <span class="card-cta">Zenn で読む →</span>
         </div>
       </a>
 
       <!-- 記事7 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/claude-code-skills-automation" target="_blank" rel="noopener">
+      <div class="article-card draft">
         <span class="card-emoji">⚡</span>
         <div class="card-body">
           <div class="card-meta">
@@ -533,12 +555,12 @@
           </div>
           <div class="card-title">Claude Code のスキル機能で業務自動化30連発 — 商品企画AIから議事録まで</div>
           <p class="card-summary">Claude Code のカスタムスキル（/コマンド）を活用して業務フローを自動化した事例集。商品企画・競合分析・議事録生成・コードレビューなど30種類のスキルを紹介します。</p>
-          <span class="card-cta">Zenn で読む →</span>
+          <span class="card-cta draft">近日公開</span>
         </div>
-      </a>
+      </div>
 
       <!-- 記事8 -->
-      <a class="article-card" href="https://zenn.dev/killertcell428/articles/claude-code-multi-agent" target="_blank" rel="noopener">
+      <div class="article-card draft">
         <span class="card-emoji">🎯</span>
         <div class="card-body">
           <div class="card-meta">
@@ -548,9 +570,9 @@
           </div>
           <div class="card-title">Claude Code で「AI管理職」を作った — 商品企画を自律完走するマルチエージェントオーケストレーション</div>
           <p class="card-summary">商品企画の全工程（市場調査→競合分析→コンセプト立案→価格設計→資料作成）を AI エージェントが自律完走する仕組みを構築。サブエージェントの設計と並列実行の実装を解説します。</p>
-          <span class="card-cta">Zenn で読む →</span>
+          <span class="card-cta draft">近日公開</span>
         </div>
-      </a>
+      </div>
 
     </div>
   </div>
