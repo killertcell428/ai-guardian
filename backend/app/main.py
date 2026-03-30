@@ -18,6 +18,7 @@ from app.routers.reports import router as reports_router
 from app.routers.policies import router as policies_router
 from app.routers.proxy import router as proxy_router
 from app.routers.review import router as review_router
+from app.routers.settings import router as settings_router
 
 logger = structlog.get_logger()
 
@@ -35,16 +36,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         except Exception as exc:
             logger.warning("Demo seed skipped", error=str(exc))
 
-    # Start background SLA watcher
+    # Start background tasks
     sla_task = asyncio.create_task(_sla_watcher())
+    retention_task = asyncio.create_task(_retention_cleanup())
 
     yield
 
-    sla_task.cancel()
-    try:
-        await sla_task
-    except asyncio.CancelledError:
-        pass
+    for task in (sla_task, retention_task):
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
     logger.info("AI Guardian shut down")
 
 
@@ -65,6 +68,57 @@ async def _sla_watcher() -> None:
                     )
         except Exception as exc:
             logger.error("SLA watcher error", exc_info=exc)
+
+
+async def _retention_cleanup() -> None:
+    """Background task: delete old requests/audit logs beyond plan retention."""
+    from datetime import datetime, timedelta, timezone
+
+    from sqlalchemy import delete, select
+
+    from app.billing.plans import get_plan_limits
+    from app.db.session import AsyncSessionLocal
+    from app.models.audit import AuditLog
+    from app.models.request import Request
+    from app.models.tenant import Tenant
+
+    while True:
+        # Run once per hour
+        await asyncio.sleep(3600)
+        try:
+            async with AsyncSessionLocal() as db:
+                result = await db.execute(
+                    select(Tenant).where(Tenant.is_active == True)
+                )
+                tenants = result.scalars().all()
+
+                for tenant in tenants:
+                    limits = get_plan_limits(tenant.plan)
+                    retention_days = limits.get("retention_days")
+                    if retention_days is None or retention_days == 0:
+                        continue  # unlimited or no cloud storage
+
+                    cutoff = datetime.now(timezone.utc) - timedelta(days=retention_days)
+
+                    # Delete old requests
+                    await db.execute(
+                        delete(Request).where(
+                            Request.tenant_id == tenant.id,
+                            Request.created_at < cutoff,
+                        )
+                    )
+                    # Delete old audit logs
+                    await db.execute(
+                        delete(AuditLog).where(
+                            AuditLog.tenant_id == tenant.id,
+                            AuditLog.created_at < cutoff,
+                        )
+                    )
+
+                await db.commit()
+                logger.info("Retention cleanup completed", tenant_count=len(tenants))
+        except Exception as exc:
+            logger.error("Retention cleanup error", exc_info=exc)
 
 
 app = FastAPI(
@@ -98,6 +152,7 @@ app.include_router(gandalf_router)
 app.include_router(reports_router)
 app.include_router(billing_router)
 app.include_router(webhook_router)
+app.include_router(settings_router)
 
 
 @app.get("/health", tags=["health"])

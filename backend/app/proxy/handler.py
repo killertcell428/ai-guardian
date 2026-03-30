@@ -1,4 +1,5 @@
 """Proxy handler: core logic for filtering and forwarding LLM requests."""
+import asyncio
 import time
 import uuid
 from typing import Any
@@ -13,6 +14,7 @@ from app.filters.output_filter import filter_output
 from app.models.policy import Policy
 from app.models.request import Request
 from app.models.tenant import Tenant
+from app.notifications.slack import send_slack_notification
 from app.policies.manager import create_default_policy, get_active_policy
 from app.review.service import enqueue_for_review
 
@@ -147,6 +149,19 @@ async def handle_proxy_request(
                 "reason": input_result.reason,
             },
         )
+        # Fire-and-forget Slack notification
+        asyncio.create_task(
+            send_slack_notification(
+                tenant=tenant,
+                event_type="request.blocked",
+                summary=f"Request auto-blocked (score={input_result.risk_score}): {input_result.reason}",
+                details={
+                    "risk_score": input_result.risk_score,
+                    "risk_level": input_result.risk_level,
+                    "matched_rules": req.input_matched_rules,
+                },
+            )
+        )
         return blocked_response(
             input_result.reason,
             input_result.risk_score,
@@ -204,6 +219,18 @@ async def handle_proxy_request(
                     "risk_score": output_result.risk_score,
                     "reason": output_result.reason,
                 },
+            )
+            asyncio.create_task(
+                send_slack_notification(
+                    tenant=tenant,
+                    event_type="response.blocked",
+                    summary=f"Response blocked by output filter (score={output_result.risk_score})",
+                    details={
+                        "risk_score": output_result.risk_score,
+                        "risk_level": output_result.risk_level,
+                        "matched_rules": req.output_matched_rules,
+                    },
+                )
             )
             return blocked_response(
                 output_result.reason,

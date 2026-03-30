@@ -25,7 +25,7 @@ OSS Core（無料・永久）
 
 | ティア | 対象 | 価格 | 主な機能 |
 |--------|------|------|---------|
-| **OSS Free** | 個人・スタートアップ | 無料 | Guard クラス・48ルール・CLI |
+| **OSS Free** | 個人・スタートアップ | 無料 | Guard クラス・57ルール・CLI |
 | **Cloud Pro** | 小規模チーム (2-20名) | $49/月 | Webダッシュボード・Slack通知・月次レポート |
 | **Business** | 中規模企業 (20-200名) | $299/月 | 複数テナント・SSO・SLA・カスタムポリシー |
 | **Enterprise** | 大企業・金融・医療 | 要見積 | オンプレ・LDAP・監査対応・専任サポート |
@@ -47,7 +47,7 @@ OSS Core（無料・永久）
 - [x] PyPI v0.4.0 リリース
 - [x] GitHub Discussions 有効化
 - [x] good-first-issue 3件作成
-- [ ] Gandalf Challenge の動作確認・デバッグ
+- [x] Gandalf Challenge の動作確認・デバッグ（levels.py構文修正、全7レベル正常動作）
 
 ### KPI 目標
 | 指標 | 現在 | 2週間後目標 |
@@ -100,10 +100,10 @@ OSS Core（無料・永久）
 - [ ] AI Security Conference 登壇（「個人開発でOSS作った話」）
 
 ### プロダクト（SaaS β）
-- [ ] **Cloud Dashboard β**: ログ可視化・アラート設定・月次レポート
-- [ ] **Stripe 決済統合**: Free/Pro/Business プラン切り替え
-- [ ] **チーム管理**: 複数メンバー招待・ロール設定
-- [ ] **Slack / Teams 通知**: 高リスク検知をリアルタイム通知
+- [x] **Cloud Dashboard β**: ログ可視化・課金ページ・使用量メーター・PlanGate
+- [x] **Stripe 決済統合**: Free/Pro/Business/Enterprise プラン、Webhook 6件実装、プラン制御ミドルウェア
+- [x] **チーム管理**: メンバー一覧・招待・ロール設定・プラン上限制御
+- [x] **Slack 通知**: 高リスク検知時の Webhook 通知（Block Kit メッセージ、Settings UI、通知設定API）
 - [ ] メールリスト → β招待フロー構築
 
 ### KPI 目標
@@ -190,7 +190,7 @@ OSS Core（無料・永久）
 2. Zenn 6本目手動公開
 3. ~~Reddit 3本投稿~~ ✅ 投稿済
 4. ~~DEV.to 英語記事投稿~~ ✅ 投稿済
-5. Gandalf Challenge 動作確認
+5. ~~Gandalf Challenge 動作確認~~ ✅ 修正済
 
 ### 🟠 今月（Phase 0 完走）
 6. Awesome list PR 送信

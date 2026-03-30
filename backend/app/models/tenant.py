@@ -57,6 +57,17 @@ class Tenant(Base):
         DateTime(timezone=True), nullable=True
     )
 
+    # Notifications
+    slack_webhook_url: Mapped[Optional[str]] = mapped_column(
+        String(500), nullable=True
+    )
+    notify_on_block: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true", nullable=False
+    )
+    notify_on_high_risk: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
+
     # Relationships
     users: Mapped[list["User"]] = relationship(back_populates="tenant", lazy="selectin")
     policies: Mapped[list["Policy"]] = relationship(back_populates="tenant", lazy="selectin")

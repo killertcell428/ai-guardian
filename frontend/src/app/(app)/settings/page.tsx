@@ -86,6 +86,60 @@ response = client.chat.completions.create(
         </pre>
       </div>
 
+      {/* Slack Integration */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4 mt-4">
+        <h2 className="font-semibold text-slate-800">Slack Notifications</h2>
+        <p className="text-sm text-slate-500">
+          Get real-time alerts in Slack when threats are blocked. Paste your{" "}
+          <a
+            href="https://api.slack.com/messaging/webhooks"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sky-600 underline"
+          >
+            Incoming Webhook URL
+          </a>{" "}
+          below.
+        </p>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.target as HTMLFormElement;
+            const input = form.elements.namedItem("slack_url") as HTMLInputElement;
+            try {
+              await fetch("/api/v1/settings/notifications", {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("guardian_token")}`,
+                },
+                body: JSON.stringify({
+                  slack_webhook_url: input.value || null,
+                  notify_on_block: true,
+                }),
+              });
+              alert("Slack webhook saved!");
+            } catch (err) {
+              alert(`Error: ${err}`);
+            }
+          }}
+          className="flex gap-2"
+        >
+          <input
+            name="slack_url"
+            type="url"
+            placeholder="https://hooks.slack.com/services/..."
+            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-medium"
+          >
+            Save
+          </button>
+        </form>
+      </div>
+
       {/* Logout */}
       <div className="mt-6">
         <button
