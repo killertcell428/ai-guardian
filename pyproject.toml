@@ -57,6 +57,8 @@ server = [
     "redis>=5.0.0",
     "structlog>=24.1.0",
     "stripe>=8.0.0",
+    "reportlab>=4.0.0",
+    "openpyxl>=3.1.0",
 ]
 
 # Everything

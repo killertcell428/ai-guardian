@@ -26,11 +26,14 @@ interface ReportData {
   };
   risk_distribution: Record<string, number>;
   compliance_summary: {
-    owasp_coverage: string[];
-    cwe_coverage: string[];
+    owasp_llm_top_10: Array<{ id: string; name: string; status: string; detail: string }>;
+    owasp_coverage_rate: string;
+    cwe_coverage: Array<{ id: string; name: string; patterns: number }>;
     human_review_rate: number;
     audit_trail: string;
   };
+  soc2_compliance?: Array<{ id: string; category: string; name: string; status: string; detail: string }>;
+  gdpr_compliance?: Array<{ article: string; name: string; status: string; detail: string }>;
   japan_compliance?: Record<string, {
     status: string;
     details: string[];
@@ -41,6 +44,30 @@ export default function ReportsPage() {
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<ReportData | null>(null);
+
+  async function downloadFile(format: "pdf" | "excel" | "csv") {
+    setLoading(true);
+    try {
+      const token = getToken();
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${BASE}/reports/generate?format=${format}&days=${days}`, { headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const ext = format === "excel" ? "xlsx" : format;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ai_guardian_report_${days}d.${ext}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(`Error: ${e}`);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function generateReport(format: "json" | "csv") {
     setLoading(true);
@@ -109,6 +136,20 @@ export default function ReportsPage() {
             className="px-5 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
           >
             Download CSV
+          </button>
+          <button
+            onClick={() => downloadFile("pdf")}
+            disabled={loading}
+            className="px-5 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+          >
+            Download PDF
+          </button>
+          <button
+            onClick={() => downloadFile("excel")}
+            disabled={loading}
+            className="px-5 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+          >
+            Download Excel
           </button>
         </div>
       </div>

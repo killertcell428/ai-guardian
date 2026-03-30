@@ -1,12 +1,11 @@
 """Compliance report data generator.
 
 Aggregates audit logs and request data into structured report data
-suitable for rendering as PDF, Excel, or JSON.
+suitable for rendering as PDF, Excel, CSV, or JSON.
 """
 
 import csv
 import io
-import json
 from datetime import datetime
 from typing import Any
 
@@ -17,22 +16,178 @@ from app.models.audit import AuditLog
 from app.models.request import Request
 
 
+# =====================================================================
+# OWASP LLM Top 10 (2025) — dynamic coverage mapping
+# =====================================================================
+OWASP_LLM_TOP_10 = [
+    {
+        "id": "LLM01",
+        "name": "Prompt Injection",
+        "covered": True,
+        "detail": "16 input patterns (direct + indirect) + similarity detection",
+    },
+    {
+        "id": "LLM02",
+        "name": "Sensitive Information Disclosure",
+        "covered": True,
+        "detail": "11 PII input patterns + 7 output patterns + auto-sanitization",
+    },
+    {
+        "id": "LLM03",
+        "name": "Supply Chain Vulnerabilities",
+        "covered": False,
+        "detail": "Out of scope (dependency management). Recommend SCA tools",
+    },
+    {
+        "id": "LLM04",
+        "name": "Data and Model Poisoning",
+        "covered": False,
+        "detail": "Partially covered via RAG context scanning (scan_rag_context)",
+    },
+    {
+        "id": "LLM05",
+        "name": "Improper Output Handling",
+        "covered": True,
+        "detail": "7 output filter patterns detect PII/credential leaks in responses",
+    },
+    {
+        "id": "LLM06",
+        "name": "Excessive Agency",
+        "covered": True,
+        "detail": "Policy Engine with auto-allow/block thresholds + HitL review",
+    },
+    {
+        "id": "LLM07",
+        "name": "System Prompt Leakage",
+        "covered": True,
+        "detail": "8 prompt leak detection patterns (EN + JA)",
+    },
+    {
+        "id": "LLM08",
+        "name": "Vector and Embedding Weaknesses",
+        "covered": False,
+        "detail": "Out of scope. Recommend embedding-level validation",
+    },
+    {
+        "id": "LLM09",
+        "name": "Misinformation",
+        "covered": False,
+        "detail": "Out of scope. Recommend factual grounding techniques",
+    },
+    {
+        "id": "LLM10",
+        "name": "Unbounded Consumption",
+        "covered": True,
+        "detail": "5 token exhaustion patterns + length heuristic + plan quota enforcement",
+    },
+]
+
+# =====================================================================
+# SOC2 Trust Service Criteria — coverage mapping
+# =====================================================================
+SOC2_CRITERIA = [
+    {
+        "id": "CC6.1",
+        "category": "Security",
+        "name": "Logical & Physical Access Controls",
+        "covered": True,
+        "detail": "JWT auth + API key auth + role-based access (admin/reviewer) + tenant isolation",
+    },
+    {
+        "id": "CC6.6",
+        "category": "Security",
+        "name": "Security Event Monitoring",
+        "covered": True,
+        "detail": "Immutable audit logs + real-time Slack alerts on blocked events",
+    },
+    {
+        "id": "CC7.2",
+        "category": "Security",
+        "name": "Incident Response",
+        "covered": True,
+        "detail": "Auto-block critical threats + HitL review queue + SLA-based escalation",
+    },
+    {
+        "id": "CC8.1",
+        "category": "Change Management",
+        "name": "Change Authorization",
+        "covered": True,
+        "detail": "Policy-as-code (YAML) with Git-tracked changes + admin-only policy updates",
+    },
+    {
+        "id": "A1.2",
+        "category": "Availability",
+        "name": "Recovery & Continuity",
+        "covered": True,
+        "detail": "SLA fallback (block/allow/escalate) on review timeout + data retention policy",
+    },
+    {
+        "id": "PI1.1",
+        "category": "Processing Integrity",
+        "name": "Accuracy & Completeness",
+        "covered": True,
+        "detail": "100% request logging + risk scoring + immutable audit trail",
+    },
+    {
+        "id": "C1.1",
+        "category": "Confidentiality",
+        "name": "Confidential Information Protection",
+        "covered": True,
+        "detail": "PII detection (15 patterns) + auto-sanitization + output filtering",
+    },
+    {
+        "id": "P1.1",
+        "category": "Privacy",
+        "name": "Personal Information Collection",
+        "covered": True,
+        "detail": "My Number detection + phone/address/bank PII patterns + APPI compliance",
+    },
+]
+
+# =====================================================================
+# GDPR Technical Measures — coverage mapping
+# =====================================================================
+GDPR_MEASURES = [
+    {
+        "article": "Art. 25",
+        "name": "Data Protection by Design",
+        "covered": True,
+        "detail": "PII auto-detection before LLM processing + sanitization API",
+    },
+    {
+        "article": "Art. 30",
+        "name": "Records of Processing Activities",
+        "covered": True,
+        "detail": "Immutable audit log with tenant/user/timestamp/action/risk",
+    },
+    {
+        "article": "Art. 32",
+        "name": "Security of Processing",
+        "covered": True,
+        "detail": "Input/output filtering + multi-layer defense + encryption at rest (DB-level)",
+    },
+    {
+        "article": "Art. 33",
+        "name": "Breach Notification",
+        "covered": True,
+        "detail": "Real-time Slack/email alerts on critical events + audit trail for evidence",
+    },
+    {
+        "article": "Art. 35",
+        "name": "Data Protection Impact Assessment",
+        "covered": True,
+        "detail": "Risk scoring (0-100) + compliance reports document processing impact",
+    },
+]
+
+
 async def generate_report_data(
     db: AsyncSession,
     tenant_id: str,
     date_from: datetime,
     date_to: datetime,
 ) -> dict[str, Any]:
-    """Generate comprehensive report data for a date range.
-
-    Returns structured data including:
-      - Executive summary (key metrics)
-      - Category breakdown
-      - Risk level distribution
-      - Top triggered rules
-      - Timeline data
-      - Individual incidents (if include_details)
-    """
+    """Generate comprehensive compliance report data for a date range."""
 
     # === Total requests ===
     total_q = select(func.count(Request.id)).where(
@@ -108,9 +263,13 @@ async def generate_report_data(
     event_type_result = await db.execute(event_type_q)
     event_type_counts = dict(event_type_result.all())
 
-    # === Safety rate ===
+    # === Rates ===
     safety_rate = round((allowed / total_requests * 100) if total_requests > 0 else 100, 1)
     block_rate = round((blocked / total_requests * 100) if total_requests > 0 else 0, 1)
+
+    # === OWASP coverage ===
+    owasp_covered = sum(1 for o in OWASP_LLM_TOP_10 if o["covered"])
+    owasp_total = len(OWASP_LLM_TOP_10)
 
     return {
         "report_metadata": {
@@ -133,22 +292,45 @@ async def generate_report_data(
         "severity_counts": severity_counts,
         "event_type_counts": event_type_counts,
         "compliance_summary": {
-            "owasp_coverage": [
-                "LLM01: Prompt Injection — Covered (regex + similarity detection)",
-                "LLM02: Sensitive Information Disclosure — Covered (PII input + output filters)",
-                "LLM05: Improper Output Handling — Covered (output filter)",
-                "LLM07: System Prompt Leakage — Covered (extraction pattern detection)",
+            "owasp_llm_top_10": [
+                {
+                    "id": o["id"],
+                    "name": o["name"],
+                    "status": "Covered" if o["covered"] else "Not Covered",
+                    "detail": o["detail"],
+                }
+                for o in OWASP_LLM_TOP_10
             ],
+            "owasp_coverage_rate": f"{owasp_covered}/{owasp_total} ({round(owasp_covered/owasp_total*100)}%)",
             "cwe_coverage": [
-                "CWE-89: SQL Injection — Covered (6 detection patterns)",
-                "CWE-78: OS Command Injection — Covered (2 detection patterns)",
-                "CWE-22: Path Traversal — Covered (1 detection pattern)",
+                {"id": "CWE-89", "name": "SQL Injection", "patterns": 8},
+                {"id": "CWE-78", "name": "OS Command Injection", "patterns": 2},
+                {"id": "CWE-22", "name": "Path Traversal", "patterns": 1},
             ],
             "human_review_rate": round(
                 (queued / total_requests * 100) if total_requests > 0 else 0, 1
             ),
             "audit_trail": "100% — All requests logged immutably",
         },
+        "soc2_compliance": [
+            {
+                "id": c["id"],
+                "category": c["category"],
+                "name": c["name"],
+                "status": "Covered" if c["covered"] else "Gap",
+                "detail": c["detail"],
+            }
+            for c in SOC2_CRITERIA
+        ],
+        "gdpr_compliance": [
+            {
+                "article": m["article"],
+                "name": m["name"],
+                "status": "Covered" if m["covered"] else "Gap",
+                "detail": m["detail"],
+            }
+            for m in GDPR_MEASURES
+        ],
         "japan_compliance": {
             "ai_promotion_act": {
                 "status": "Compliant",
@@ -170,7 +352,7 @@ async def generate_report_data(
             "ai_security_guideline": {
                 "status": "Compliant",
                 "details": [
-                    "43 input patterns + 7 output patterns — 'multi-layer defense'",
+                    "57 input patterns + 7 output patterns — 'multi-layer defense'",
                     "Layer 2 similarity detection — catches paraphrased attacks",
                     "Human approval for medium/high risk — 'human approval for critical ops'",
                     "OWASP/CWE classification — 'international standards alignment'",
@@ -189,50 +371,52 @@ async def generate_report_data(
     }
 
 
+# =====================================================================
+# CSV Renderer
+# =====================================================================
 def render_csv(report_data: dict) -> str:
     """Render report data as CSV."""
     output = io.StringIO()
     writer = csv.writer(output)
 
-    # Executive Summary
     writer.writerow(["AI Guardian Compliance Report"])
     writer.writerow([])
     writer.writerow(["Report Period", report_data["report_metadata"]["date_from"], "to", report_data["report_metadata"]["date_to"]])
     writer.writerow(["Generated", report_data["report_metadata"]["generated_at"]])
     writer.writerow([])
 
+    # Executive Summary
     writer.writerow(["Executive Summary"])
     summary = report_data["executive_summary"]
-    writer.writerow(["Total Requests", summary["total_requests"]])
-    writer.writerow(["Allowed", summary["allowed"]])
-    writer.writerow(["Blocked", summary["blocked"]])
-    writer.writerow(["Queued for Review", summary["queued_for_review"]])
-    writer.writerow(["Safety Rate (%)", summary["safety_rate"]])
-    writer.writerow(["Block Rate (%)", summary["block_rate"]])
-    writer.writerow(["Average Risk Score", summary["average_risk_score"]])
+    for key, val in summary.items():
+        writer.writerow([key.replace("_", " ").title(), val])
     writer.writerow([])
 
+    # Risk Distribution
     writer.writerow(["Risk Distribution"])
     for level, count in report_data["risk_distribution"].items():
         writer.writerow([level, count])
     writer.writerow([])
 
-    writer.writerow(["Event Types"])
-    for event_type, count in report_data["event_type_counts"].items():
-        writer.writerow([event_type, count])
+    # OWASP LLM Top 10
+    writer.writerow(["OWASP LLM Top 10", report_data["compliance_summary"]["owasp_coverage_rate"]])
+    for item in report_data["compliance_summary"]["owasp_llm_top_10"]:
+        writer.writerow([f'{item["id"]}: {item["name"]}', item["status"], item["detail"]])
     writer.writerow([])
 
-    writer.writerow(["OWASP Coverage"])
-    for item in report_data["compliance_summary"]["owasp_coverage"]:
-        writer.writerow([item])
+    # SOC2
+    writer.writerow(["SOC2 Trust Service Criteria"])
+    for item in report_data["soc2_compliance"]:
+        writer.writerow([f'{item["id"]}: {item["name"]}', item["category"], item["status"], item["detail"]])
     writer.writerow([])
 
-    writer.writerow(["CWE Coverage"])
-    for item in report_data["compliance_summary"]["cwe_coverage"]:
-        writer.writerow([item])
+    # GDPR
+    writer.writerow(["GDPR Technical Measures"])
+    for item in report_data["gdpr_compliance"]:
+        writer.writerow([f'{item["article"]}: {item["name"]}', item["status"], item["detail"]])
     writer.writerow([])
 
-    # Japan Compliance
+    # Japan
     japan = report_data.get("japan_compliance", {})
     if japan:
         writer.writerow(["Japan AI Regulation Compliance"])
@@ -243,3 +427,252 @@ def render_csv(report_data: dict) -> str:
         writer.writerow([])
 
     return output.getvalue()
+
+
+# =====================================================================
+# PDF Renderer
+# =====================================================================
+def render_pdf(report_data: dict) -> bytes:
+    """Render report data as a professional PDF document."""
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import mm
+    from reportlab.platypus import (
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+        Table,
+        TableStyle,
+    )
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=20 * mm, bottomMargin=20 * mm)
+    styles = getSampleStyleSheet()
+    elements: list = []
+
+    title_style = ParagraphStyle("Title", parent=styles["Title"], fontSize=18, spaceAfter=6)
+    h2_style = ParagraphStyle("H2", parent=styles["Heading2"], fontSize=13, spaceBefore=14, spaceAfter=6)
+    body_style = styles["BodyText"]
+
+    meta = report_data["report_metadata"]
+    summary = report_data["executive_summary"]
+
+    # Title
+    elements.append(Paragraph("AI Guardian Compliance Report", title_style))
+    elements.append(Paragraph(
+        f"Period: {meta['date_from'][:10]} to {meta['date_to'][:10]} | Generated: {meta['generated_at'][:10]}",
+        body_style,
+    ))
+    elements.append(Spacer(1, 8 * mm))
+
+    # Executive Summary
+    elements.append(Paragraph("Executive Summary", h2_style))
+    summary_data = [
+        ["Total Requests", str(summary["total_requests"]), "Safety Rate", f"{summary['safety_rate']}%"],
+        ["Allowed", str(summary["allowed"]), "Block Rate", f"{summary['block_rate']}%"],
+        ["Blocked", str(summary["blocked"]), "Avg Risk Score", str(summary["average_risk_score"])],
+        ["Queued for Review", str(summary["queued_for_review"]), "Human Review Rate",
+         f"{report_data['compliance_summary']['human_review_rate']}%"],
+    ]
+    t = Table(summary_data, colWidths=[90, 70, 90, 70])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f1f5f9")),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
+    elements.append(t)
+    elements.append(Spacer(1, 6 * mm))
+
+    # OWASP LLM Top 10
+    elements.append(Paragraph(
+        f"OWASP LLM Top 10 — {report_data['compliance_summary']['owasp_coverage_rate']}",
+        h2_style,
+    ))
+    owasp_data = [["ID", "Name", "Status", "Detail"]]
+    for item in report_data["compliance_summary"]["owasp_llm_top_10"]:
+        owasp_data.append([item["id"], item["name"], item["status"], item["detail"][:60]])
+    t = Table(owasp_data, colWidths=[40, 100, 55, 270])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0ea5e9")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+    ]))
+    elements.append(t)
+    elements.append(Spacer(1, 6 * mm))
+
+    # SOC2
+    elements.append(Paragraph("SOC2 Trust Service Criteria", h2_style))
+    soc2_data = [["ID", "Category", "Name", "Status"]]
+    for item in report_data["soc2_compliance"]:
+        soc2_data.append([item["id"], item["category"], item["name"], item["status"]])
+    t = Table(soc2_data, colWidths=[45, 80, 180, 55])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#7c3aed")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+    ]))
+    elements.append(t)
+    elements.append(Spacer(1, 6 * mm))
+
+    # GDPR
+    elements.append(Paragraph("GDPR Technical Measures", h2_style))
+    gdpr_data = [["Article", "Name", "Status", "Detail"]]
+    for item in report_data["gdpr_compliance"]:
+        gdpr_data.append([item["article"], item["name"], item["status"], item["detail"][:60]])
+    t = Table(gdpr_data, colWidths=[50, 120, 50, 245])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#16a34a")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+    ]))
+    elements.append(t)
+    elements.append(Spacer(1, 6 * mm))
+
+    # Japan
+    japan = report_data.get("japan_compliance", {})
+    if japan:
+        elements.append(Paragraph("Japan AI Regulation Compliance", h2_style))
+        for reg_key, reg_data in japan.items():
+            reg_name = reg_key.replace("_", " ").title()
+            elements.append(Paragraph(f"<b>{reg_name}</b> — {reg_data['status']}", body_style))
+            for detail in reg_data["details"]:
+                elements.append(Paragraph(f"  - {detail}", body_style))
+            elements.append(Spacer(1, 2 * mm))
+
+    # Footer
+    elements.append(Spacer(1, 10 * mm))
+    elements.append(Paragraph(
+        "Generated by AI Guardian | https://github.com/killertcell428/ai-guardian",
+        ParagraphStyle("Footer", parent=body_style, fontSize=7, textColor=colors.grey),
+    ))
+
+    doc.build(elements)
+    return buf.getvalue()
+
+
+# =====================================================================
+# Excel Renderer
+# =====================================================================
+def render_excel(report_data: dict) -> bytes:
+    """Render report data as an Excel workbook."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from openpyxl.utils import get_column_letter
+
+    wb = Workbook()
+
+    header_font = Font(bold=True, color="FFFFFF", size=10)
+    header_fill = PatternFill(start_color="0EA5E9", end_color="0EA5E9", fill_type="solid")
+    soc2_fill = PatternFill(start_color="7C3AED", end_color="7C3AED", fill_type="solid")
+    gdpr_fill = PatternFill(start_color="16A34A", end_color="16A34A", fill_type="solid")
+    japan_fill = PatternFill(start_color="DC2626", end_color="DC2626", fill_type="solid")
+    wrap = Alignment(wrap_text=True, vertical="top")
+
+    summary = report_data["executive_summary"]
+    meta = report_data["report_metadata"]
+
+    # --- Sheet 1: Executive Summary ---
+    ws = wb.active
+    ws.title = "Executive Summary"
+    ws.append(["AI Guardian Compliance Report"])
+    ws.append([f"Period: {meta['date_from'][:10]} to {meta['date_to'][:10]}"])
+    ws.append([f"Generated: {meta['generated_at'][:10]}"])
+    ws.append([])
+    ws.append(["Metric", "Value"])
+    for key, val in summary.items():
+        ws.append([key.replace("_", " ").title(), val])
+    ws.append([])
+    ws.append(["Risk Level", "Count"])
+    for level, count in report_data["risk_distribution"].items():
+        ws.append([level, count])
+
+    ws.column_dimensions["A"].width = 25
+    ws.column_dimensions["B"].width = 15
+
+    # --- Sheet 2: OWASP LLM Top 10 ---
+    ws2 = wb.create_sheet("OWASP LLM Top 10")
+    headers = ["ID", "Name", "Status", "Detail"]
+    ws2.append(headers)
+    for col in range(1, 5):
+        cell = ws2.cell(row=1, column=col)
+        cell.font = header_font
+        cell.fill = header_fill
+    for item in report_data["compliance_summary"]["owasp_llm_top_10"]:
+        ws2.append([item["id"], item["name"], item["status"], item["detail"]])
+    ws2.column_dimensions["A"].width = 8
+    ws2.column_dimensions["B"].width = 30
+    ws2.column_dimensions["C"].width = 12
+    ws2.column_dimensions["D"].width = 60
+
+    # --- Sheet 3: SOC2 ---
+    ws3 = wb.create_sheet("SOC2")
+    headers = ["ID", "Category", "Name", "Status", "Detail"]
+    ws3.append(headers)
+    for col in range(1, 6):
+        cell = ws3.cell(row=1, column=col)
+        cell.font = header_font
+        cell.fill = soc2_fill
+    for item in report_data["soc2_compliance"]:
+        ws3.append([item["id"], item["category"], item["name"], item["status"], item["detail"]])
+    ws3.column_dimensions["A"].width = 8
+    ws3.column_dimensions["B"].width = 18
+    ws3.column_dimensions["C"].width = 30
+    ws3.column_dimensions["D"].width = 10
+    ws3.column_dimensions["E"].width = 60
+
+    # --- Sheet 4: GDPR ---
+    ws4 = wb.create_sheet("GDPR")
+    headers = ["Article", "Name", "Status", "Detail"]
+    ws4.append(headers)
+    for col in range(1, 5):
+        cell = ws4.cell(row=1, column=col)
+        cell.font = header_font
+        cell.fill = gdpr_fill
+    for item in report_data["gdpr_compliance"]:
+        ws4.append([item["article"], item["name"], item["status"], item["detail"]])
+    ws4.column_dimensions["A"].width = 10
+    ws4.column_dimensions["B"].width = 30
+    ws4.column_dimensions["C"].width = 10
+    ws4.column_dimensions["D"].width = 60
+
+    # --- Sheet 5: Japan Compliance ---
+    ws5 = wb.create_sheet("Japan Compliance")
+    ws5.append(["Regulation", "Status", "Detail"])
+    for col in range(1, 4):
+        cell = ws5.cell(row=1, column=col)
+        cell.font = header_font
+        cell.fill = japan_fill
+    japan = report_data.get("japan_compliance", {})
+    for reg_key, reg_data in japan.items():
+        reg_name = reg_key.replace("_", " ").title()
+        for detail in reg_data["details"]:
+            ws5.append([reg_name, reg_data["status"], detail])
+            reg_name = ""  # Only show name on first row
+    ws5.column_dimensions["A"].width = 30
+    ws5.column_dimensions["B"].width = 12
+    ws5.column_dimensions["C"].width = 70
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
