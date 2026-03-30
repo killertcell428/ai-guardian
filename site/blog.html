@@ -3,31 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blog & Resources — ai-guardian</title>
+<title>ブログ — ai-guardian</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg-primary: #0D1117;
+    --bg-primary:   #0D1117;
     --bg-secondary: #161B22;
-    --bg-tertiary: #21262D;
-    --bg-card: #1C2128;
-    --border: #30363D;
+    --bg-tertiary:  #21262D;
+    --bg-card:      #1C2128;
+    --border:       #30363D;
     --border-hover: #484F58;
     --text-primary: #F0F6FC;
     --text-secondary: #8B949E;
-    --text-muted: #6E7681;
-    --green: #00D97E;
-    --green-dim: #00B36B;
-    --green-glow: rgba(0, 217, 126, 0.15);
-    --blue: #58A6FF;
-    --blue-dim: #388BFD;
-    --blue-glow: rgba(88, 166, 255, 0.15);
-    --orange: #F78166;
-    --orange-glow: rgba(247, 129, 102, 0.15);
-    --purple: #D2A8FF;
+    --text-muted:   #6E7681;
+    --green:        #00D97E;
+    --green-dim:    #00B36B;
+    --green-glow:   rgba(0, 217, 126, 0.15);
+    --blue:         #58A6FF;
+    --blue-dim:     #388BFD;
+    --blue-glow:    rgba(88, 166, 255, 0.15);
+    --orange:       #F78166;
+    --purple:       #D2A8FF;
   }
 
   html { scroll-behavior: smooth; }
@@ -124,70 +123,25 @@
     color: var(--text-secondary);
   }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 18px;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    border: none;
-    font-family: inherit;
-  }
-
-  .btn-primary {
-    background: var(--green);
-    color: #000;
-  }
-  .btn-primary:hover {
-    background: var(--green-dim);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px var(--green-glow);
-  }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-  }
-  .btn-ghost:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--border-hover);
-  }
-
-  /* ── HERO ── */
-  .blog-hero {
-    padding: 120px 24px 64px;
+  /* ── PAGE HERO ── */
+  .page-hero {
+    padding: 120px 24px 56px;
     text-align: center;
     position: relative;
     overflow: hidden;
   }
 
-  .blog-hero::before {
+  .page-hero::before {
     content: '';
     position: absolute;
-    top: -100px; left: 50%;
+    top: 0; left: 50%;
     transform: translateX(-50%);
-    width: 600px; height: 400px;
-    background: radial-gradient(ellipse, rgba(0,217,126,0.08) 0%, transparent 70%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,217,126,0.07) 0%, transparent 70%);
     pointer-events: none;
   }
 
-  .blog-hero::after {
-    content: '';
-    position: absolute;
-    top: -60px; left: 60%;
-    transform: translateX(-50%);
-    width: 400px; height: 300px;
-    background: radial-gradient(ellipse, rgba(88,166,255,0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .blog-hero .section-label {
+  .section-label {
     display: inline-block;
     font-size: 0.75rem;
     font-weight: 600;
@@ -201,22 +155,17 @@
     border: 1px solid rgba(0, 217, 126, 0.3);
   }
 
-  .blog-hero h1 {
-    font-size: clamp(2rem, 5vw, 3.2rem);
+  .page-hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 800;
-    line-height: 1.15;
+    line-height: 1.2;
     letter-spacing: -0.03em;
     margin-bottom: 16px;
   }
 
-  .blog-hero h1 span {
-    background: linear-gradient(135deg, var(--green), var(--blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  .page-hero h1 span { color: var(--green); }
 
-  .blog-hero p {
+  .page-hero p {
     font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 520px;
@@ -224,80 +173,9 @@
     line-height: 1.7;
   }
 
-  /* ── CONTAINER ── */
-  .container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* ── FILTER TABS ── */
-  .filter-section {
-    padding: 0 24px 48px;
-    position: relative;
-  }
-
-  .filter-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .filter-tabs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0;
-  }
-
-  .filter-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    border-radius: 8px 8px 0 0;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    bottom: -1px;
-    font-family: inherit;
-  }
-
-  .filter-tab:hover {
-    color: var(--text-primary);
-    background: var(--bg-secondary);
-  }
-
-  .filter-tab.active {
-    color: var(--green);
-    border-bottom-color: var(--green);
-    background: var(--bg-secondary);
-  }
-
-  .filter-tab .tab-count {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 20px;
-    background: var(--bg-tertiary);
-    color: var(--text-muted);
-  }
-
-  .filter-tab.active .tab-count {
-    background: var(--green-glow);
-    color: var(--green);
-  }
-
   /* ── ARTICLES GRID ── */
   .articles-section {
-    padding: 40px 24px 80px;
+    padding: 20px 24px 100px;
   }
 
   .articles-inner {
@@ -317,255 +195,116 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    opacity: 1;
-    transform: translateY(0);
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
   }
 
   .article-card:hover {
     border-color: var(--border-hover);
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
   }
 
-  .article-card.hidden {
-    display: none;
+  .card-emoji {
+    font-size: 2.2rem;
+    padding: 28px 24px 16px;
+    line-height: 1;
+    display: block;
   }
 
-  /* Card thumbnail */
-  .card-thumbnail {
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-thumbnail.technical {
-    background: linear-gradient(135deg, rgba(88,166,255,0.15) 0%, rgba(88,166,255,0.05) 100%);
-    border-bottom: 1px solid rgba(88,166,255,0.2);
-  }
-
-  .card-thumbnail.product {
-    background: linear-gradient(135deg, rgba(0,217,126,0.15) 0%, rgba(0,217,126,0.05) 100%);
-    border-bottom: 1px solid rgba(0,217,126,0.2);
-  }
-
-  .card-thumbnail.tutorial {
-    background: linear-gradient(135deg, rgba(247,129,102,0.15) 0%, rgba(247,129,102,0.05) 100%);
-    border-bottom: 1px solid rgba(247,129,102,0.2);
-  }
-
-  .card-thumbnail-icon {
-    font-size: 2.5rem;
-    opacity: 0.7;
-    transition: transform 0.3s;
-  }
-
-  .article-card:hover .card-thumbnail-icon {
-    transform: scale(1.1);
-  }
-
-  .card-thumbnail-pattern {
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-
-  /* Card body */
   .card-body {
-    padding: 20px;
-    flex: 1;
+    padding: 0 24px 24px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    flex: 1;
   }
 
   .card-meta {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
   }
 
-  .badge {
+  .platform-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .badge-technical {
-    background: var(--blue-glow);
-    color: var(--blue);
-    border: 1px solid rgba(88,166,255,0.3);
-  }
-
-  .badge-product {
-    background: var(--green-glow);
-    color: var(--green);
-    border: 1px solid rgba(0,217,126,0.3);
-  }
-
-  .badge-tutorial {
-    background: var(--orange-glow);
-    color: var(--orange);
-    border: 1px solid rgba(247,129,102,0.3);
-  }
-
-  /* Platform badges */
-  .platform-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 9px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
   }
 
   .platform-zenn {
     background: rgba(62, 168, 255, 0.12);
     color: #3EA8FF;
-    border: 1px solid rgba(62,168,255,0.3);
+    border: 1px solid rgba(62, 168, 255, 0.25);
   }
 
   .platform-qiita {
     background: rgba(85, 197, 0, 0.12);
     color: #55C500;
-    border: 1px solid rgba(85,197,0,0.3);
+    border: 1px solid rgba(85, 197, 0, 0.25);
   }
 
-  .platform-note {
-    background: rgba(65, 201, 180, 0.12);
-    color: #41C9B4;
-    border: 1px solid rgba(65,201,180,0.3);
-  }
-
-  .platform-devto {
-    background: rgba(210, 168, 255, 0.12);
-    color: #D2A8FF;
-    border: 1px solid rgba(210,168,255,0.3);
-  }
-
-  .card-title {
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.4;
-    color: var(--text-primary);
-    transition: color 0.2s;
-  }
-
-  .article-card:hover .card-title {
-    color: var(--green);
-  }
-
-  .card-summary {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    line-height: 1.65;
-    flex: 1;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-    margin-top: auto;
+  .tag-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
   }
 
   .card-date {
     font-size: 0.78rem;
     color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    transition: color 0.2s;
+  }
+
+  .article-card:hover .card-title { color: var(--green); }
+
+  .card-summary {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    flex: 1;
+    margin-bottom: 20px;
   }
 
   .card-cta {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.8rem;
+    gap: 6px;
+    font-size: 0.82rem;
     font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-    padding: 5px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    background: transparent;
+    color: var(--green);
+    margin-top: auto;
   }
 
-  .card-cta:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--border-hover);
-    color: var(--text-primary);
-    transform: translateX(2px);
-  }
-
-  .card-cta svg {
-    transition: transform 0.2s;
-  }
-
-  .card-cta:hover svg {
-    transform: translateX(2px);
-  }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    display: none;
-    text-align: center;
-    padding: 80px 24px;
+  .card-cta-soon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
     color: var(--text-muted);
-    grid-column: 1 / -1;
-  }
-
-  .empty-state.visible {
-    display: block;
-  }
-
-  .empty-state-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
-    opacity: 0.4;
-  }
-
-  /* ── CTA SECTION ── */
-  .blog-cta {
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 64px 24px;
-    text-align: center;
-  }
-
-  .blog-cta h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  .blog-cta p {
-    color: var(--text-secondary);
-    margin-bottom: 28px;
-    font-size: 1rem;
-  }
-
-  .blog-cta-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
   }
 
   /* ── FOOTER ── */
@@ -595,17 +334,18 @@
   }
 
   .footer-col h4 {
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
     margin-bottom: 16px;
+    color: var(--text-primary);
   }
 
-  .footer-col ul { list-style: none; }
-
-  .footer-col li { margin-bottom: 10px; }
+  .footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
   .footer-col a {
     font-size: 0.875rem;
@@ -617,13 +357,11 @@
   .footer-col a:hover { color: var(--text-primary); }
 
   .footer-bottom {
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
   }
 
   .footer-bottom p {
@@ -632,35 +370,55 @@
   }
 
   .license-badge {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
     padding: 4px 10px;
     border: 1px solid var(--border);
     border-radius: 20px;
   }
 
-  /* ── ANIMATIONS ── */
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    border: none;
+    font-family: inherit;
   }
 
-  .animate-in {
-    animation: fadeInUp 0.4s ease both;
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border-hover);
   }
 
   /* ── RESPONSIVE ── */
+  @media (max-width: 1000px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+
   @media (max-width: 900px) {
     .articles-grid { grid-template-columns: repeat(2, 1fr); }
-    .footer-top { grid-template-columns: 1fr 1fr; }
   }
 
   @media (max-width: 600px) {
     .articles-grid { grid-template-columns: 1fr; }
-    .footer-top { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
     .nav-links { display: none; }
-    .blog-hero { padding: 100px 16px 48px; }
-    .filter-section, .articles-section { padding-left: 16px; padding-right: 16px; }
+    .page-hero { padding: 100px 16px 40px; }
+    .articles-section { padding-left: 16px; padding-right: 16px; }
+    .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
   }
 </style>
 </head>
@@ -677,73 +435,152 @@
     <li><a href="index.html#features">Features</a></li>
     <li><a href="index.html#quickstart">Quick Start</a></li>
     <li><a href="index.html#integrations">Integrations</a></li>
-    <li><a href="index.html#powered-by">Built With</a></li>
     <li><a href="blog.html" class="active">Blog</a></li>
   </ul>
   <div class="nav-cta">
-    <a href="#" class="github-star">
+    <a href="https://github.com/killertcell428/ai-guardian" target="_blank" rel="noopener" class="github-star">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
       </svg>
       Star on GitHub
-      <span class="star-count">★ 1.2k</span>
+      <span class="star-count">★ 4</span>
     </a>
   </div>
 </nav>
 
-<!-- HERO -->
-<div class="blog-hero">
-  <div class="section-label">Blog & Resources</div>
-  <h1>Insights on <span>LLM Security</span><br>& AI Development</h1>
-  <p>Technical deep-dives, product stories, and practical tutorials — from the team building ai-guardian.</p>
-</div>
-
-<!-- FILTER TABS -->
-<div class="filter-section">
-  <div class="filter-inner">
-    <div class="filter-tabs" id="filterTabs">
-      <button class="filter-tab active" data-filter="all">
-        All <span class="tab-count" id="count-all">7</span>
-      </button>
-      <button class="filter-tab" data-filter="technical">
-        🔧 Technical <span class="tab-count" id="count-technical">0</span>
-      </button>
-      <button class="filter-tab" data-filter="product">
-        🚀 Product <span class="tab-count" id="count-product">0</span>
-      </button>
-      <button class="filter-tab" data-filter="tutorial">
-        📚 Tutorial <span class="tab-count" id="count-tutorial">0</span>
-      </button>
-    </div>
-  </div>
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="section-label">Blog</div>
+  <h1>LLMセキュリティの<span>技術記事</span></h1>
+  <p>ai-guardian の開発を通じて学んだ、LLMアプリのセキュリティ設計・実装・運用の知見を Zenn に連載しています。</p>
 </div>
 
 <!-- ARTICLES -->
 <div class="articles-section">
   <div class="articles-inner">
-    <div class="articles-grid" id="articlesGrid">
-      <!-- Cards are injected by JS -->
-      <div class="empty-state" id="emptyState">
-        <div class="empty-state-icon">📭</div>
-        <p>No articles found in this category.</p>
-      </div>
-    </div>
-  </div>
-</div>
+    <div class="articles-grid">
 
-<!-- CTA -->
-<div class="blog-cta">
-  <h2>Ready to secure your LLM app?</h2>
-  <p>3 lines of Python. Zero config. Production ready.</p>
-  <div class="blog-cta-actions">
-    <a href="index.html#quickstart" class="btn btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Get Started
-    </a>
-    <a href="#" class="btn btn-ghost">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-      View on GitHub
-    </a>
+      <!-- 1 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/litellm-supply-chain-attack" target="_blank" rel="noopener">
+        <span class="card-emoji">🔓</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">セキュリティ</span>
+            <span class="card-date">2026-03-28</span>
+          </div>
+          <div class="card-title">litellmに悪意あるコードが混入 — AIエージェント環境を狙ったサプライチェーン攻撃の全貌と防御策</div>
+          <p class="card-summary">人気LLMライブラリ litellm に悪意あるコードが混入した事件を詳解。AIエージェント開発環境を標的にしたサプライチェーン攻撃の手口と、依存関係の安全な管理方法を解説します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+      <!-- 2 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/mcp-trust-model-security" target="_blank" rel="noopener">
+        <span class="card-emoji">🔐</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">MCP / アーキテクチャ</span>
+            <span class="card-date">2026-03-29</span>
+          </div>
+          <div class="card-title">なぜAIエージェントはMCPツールを信頼しすぎるのか — 信頼境界から設計するセキュリティアーキテクチャ</div>
+          <p class="card-summary">Model Context Protocol（MCP）を通じてツールを呼び出す AI エージェントの信頼境界を解説。ツール呼び出しに潜むプロンプトインジェクションリスクと、安全なアーキテクチャ設計の原則を紹介します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+      <!-- 3 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/aig-doctor-hook-debug" target="_blank" rel="noopener">
+        <span class="card-emoji">🔍</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">Claude Code / OSS</span>
+            <span class="card-date">2026-03-27</span>
+          </div>
+          <div class="card-title">ai-guardian の Claude Code Hook が動かない！原因調査から <code style="font-size:0.85em;background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;">aig doctor</code> 誕生まで</div>
+          <p class="card-summary">Claude Code のフック設定が無音で失敗する問題を調査した実録。環境差異・パス解決・権限チェックを一発診断する <code>aig doctor</code> コマンドを作るに至った経緯を解説します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+      <!-- 4 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/japanese-llm-security" target="_blank" rel="noopener">
+        <span class="card-emoji">🇯🇵</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">日本語 / PII</span>
+            <span class="card-date">2026-03-26</span>
+          </div>
+          <div class="card-title">日本語LLMセキュリティの盲点 — マイナンバー検出から日本語プロンプトインジェクションまで</div>
+          <p class="card-summary">英語圏のセキュリティツールが見落とす「日本語固有の脅威」を徹底解説。マイナンバー・住所・電話番号の検出パターンと、日本語で記述されたプロンプトインジェクション攻撃への対策を紹介します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+      <!-- 5 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/oss-cicd-pypi-claude-code" target="_blank" rel="noopener">
+        <span class="card-emoji">🚀</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">CI/CD / PyPI</span>
+            <span class="card-date">2026-03-25</span>
+          </div>
+          <div class="card-title">OSSのCI/CD＋PyPI公開を Claude Code だけで構築した話</div>
+          <p class="card-summary">テスト・lint・型チェック・PyPI リリース・GitHub Release まで、CI/CD パイプライン全体を Claude Code で自動化した実録。ruff・mypy・GitHub Actions の設定から、バージョン管理の工夫まで解説します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+      <!-- 6 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/ai-guardian-guideline-checklist" target="_blank" rel="noopener">
+        <span class="card-emoji">📋</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">ガバナンス / OWASP</span>
+            <span class="card-date">2026-03-24</span>
+          </div>
+          <div class="card-title">AI事業者ガイドライン第1.1版が公表 — AIエージェント時代に求められるセキュリティ対策チェックリスト</div>
+          <p class="card-summary">経済産業省・総務省が公表した AI 事業者ガイドライン第1.1版を読み解き、OWASP LLM Top 10 との対応関係を整理。プロダクト開発者がすぐに使えるセキュリティ実装チェックリストを公開します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+      <!-- 7 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/claude-code-skills-automation" target="_blank" rel="noopener">
+        <span class="card-emoji">⚡</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">Claude Code / 自動化</span>
+            <span class="card-date">2026-03-23</span>
+          </div>
+          <div class="card-title">Claude Code のスキル機能で業務自動化30連発 — 商品企画AIから議事録まで</div>
+          <p class="card-summary">Claude Code のカスタムスキル（/コマンド）を活用して業務フローを自動化した事例集。商品企画・競合分析・議事録生成・コードレビューなど30種類のスキルを紹介します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+      <!-- 8 -->
+      <a class="article-card" href="https://zenn.dev/killertcell428/articles/claude-code-multi-agent" target="_blank" rel="noopener">
+        <span class="card-emoji">🎯</span>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="platform-badge platform-zenn">Z Zenn</span>
+            <span class="tag-badge">マルチエージェント</span>
+            <span class="card-date">2026-03-22</span>
+          </div>
+          <div class="card-title">Claude Code で「AI管理職」を作った — 商品企画を自律完走するマルチエージェントオーケストレーション</div>
+          <p class="card-summary">商品企画の全工程（市場調査→競合分析→コンセプト立案→価格設計→資料作成）を AI エージェントが自律完走する仕組みを構築。サブエージェントの設計と並列実行の実装を解説します。</p>
+          <span class="card-cta">Zenn で読む →</span>
+        </div>
+      </a>
+
+    </div>
   </div>
 </div>
 
@@ -757,235 +594,44 @@
           <span>ai-guardian</span>
         </a>
         <p>Open-source LLM security middleware.<br>Built by developers, for developers.</p>
-        <div style="margin-top:16px; display:flex; gap:12px;">
-          <a href="#" class="btn btn-ghost" style="font-size:0.8rem; padding:6px 12px;">GitHub</a>
-          <a href="#" class="btn btn-ghost" style="font-size:0.8rem; padding:6px 12px;">PyPI</a>
-          <a href="#" class="btn btn-ghost" style="font-size:0.8rem; padding:6px 12px;">Discord</a>
+        <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="https://github.com/killertcell428/ai-guardian" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:0.8rem; padding:6px 12px;">GitHub</a>
+          <a href="https://pypi.org/project/aig-guardian/" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:0.8rem; padding:6px 12px;">PyPI</a>
         </div>
       </div>
       <div class="footer-col">
-        <h4>Docs</h4>
+        <h4>ドキュメント</h4>
         <ul>
-          <li><a href="#">Getting Started</a></li>
-          <li><a href="#">Configuration</a></li>
-          <li><a href="#">API Reference</a></li>
-          <li><a href="#">Examples</a></li>
-          <li><a href="#">Changelog</a></li>
+          <li><a href="https://github.com/killertcell428/ai-guardian/tree/main/docs/en" target="_blank" rel="noopener">Getting Started</a></li>
+          <li><a href="https://github.com/killertcell428/ai-guardian/tree/main/docs/en" target="_blank" rel="noopener">Configuration</a></li>
+          <li><a href="https://github.com/killertcell428/ai-guardian/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Integrations</h4>
+        <h4>統合</h4>
         <ul>
-          <li><a href="#">FastAPI</a></li>
-          <li><a href="#">LangChain</a></li>
-          <li><a href="#">OpenAI Proxy</a></li>
-          <li><a href="#">LlamaIndex</a></li>
-          <li><a href="#">Django</a></li>
+          <li><a href="index.html#integrations">FastAPI</a></li>
+          <li><a href="index.html#integrations">LangChain</a></li>
+          <li><a href="index.html#integrations">LangGraph</a></li>
+          <li><a href="index.html#integrations">OpenAI Proxy</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Community</h4>
+        <h4>コミュニティ</h4>
         <ul>
-          <li><a href="#">Contributing</a></li>
-          <li><a href="#">Security Policy</a></li>
-          <li><a href="#">Roadmap</a></li>
+          <li><a href="https://github.com/killertcell428/ai-guardian/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+          <li><a href="https://github.com/killertcell428/ai-guardian/blob/main/SECURITY.md" target="_blank" rel="noopener">Security Policy</a></li>
+          <li><a href="https://github.com/killertcell428/ai-guardian/blob/main/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a></li>
           <li><a href="blog.html">Blog</a></li>
-          <li><a href="#">Built With Helm ↗</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 ai-guardian contributors. All rights reserved.</p>
+      <p>© 2026 ai-guardian contributors. All rights reserved.</p>
       <span class="license-badge">📄 Apache 2.0 License</span>
     </div>
   </div>
 </footer>
-
-<script>
-// ── Article Data ──────────────────────────────────────────────
-const articles = [
-  {
-    id: 1,
-    title: "Introducing ai-guardian: Open-Source LLM Security in 3 Lines of Python",
-    category: "technical",
-    platform: "devto",
-    date: "2026-03-29",
-    summary: "We're open-sourcing ai-guardian — a lightweight Python middleware that adds prompt injection detection, PII masking, and output validation to any LLM application with just 3 lines of code.",
-    url: "#",
-    lang: "en",
-    icon: "🛡️"
-  },
-  {
-    id: 2,
-    title: "3行で始めるLLMセキュリティ",
-    category: "technical",
-    platform: "zenn",
-    date: "2026-03-29",
-    summary: "pip install aig-guardian の一行から始まるLLMアプリのセキュリティ対策。プロンプトインジェクション検出、PIIマスキング、出力バリデーションを最小コストで導入する方法を解説します。",
-    url: "#",
-    lang: "ja",
-    icon: "🔐"
-  },
-  {
-    id: 3,
-    title: "なぜ議事録AIだけでは売れないのか",
-    category: "product",
-    platform: "note",
-    date: "2026-03-20",
-    summary: "議事録を自動生成するAIを作って気づいたこと。機能が揃っているのに誰も使わない理由は、「信頼」の問題だった。企業がAIツールを導入する際に本当に求めているものとは何か。",
-    url: "#",
-    lang: "ja",
-    icon: "💡"
-  },
-  {
-    id: 4,
-    title: "議事録AIを作ったら、セキュリティが本当の課題だと気づいた話",
-    category: "product",
-    platform: "note",
-    date: "2026-03-22",
-    summary: "会議の内容をLLMに渡すとき、そこには個人情報・機密情報・競合情報が混在している。議事録AIの開発を通じて、エンタープライズAI導入の本質的なボトルネックに気づいた経緯を振り返ります。",
-    url: "#",
-    lang: "ja",
-    icon: "🔍"
-  },
-  {
-    id: 5,
-    title: "ai-guardianを組み込んだセキュア会議AIの設計と実装",
-    category: "technical",
-    platform: "zenn",
-    date: "2026-03-25",
-    summary: "会議音声の文字起こし→要約→タスク抽出のパイプラインにai-guardianを統合する実装例。FastAPIとの組み合わせ、Helmチャートによるデプロイ、PIIマスキングの設定方法まで詳解。",
-    url: "#",
-    lang: "ja",
-    icon: "⚙️"
-  },
-  {
-    id: 6,
-    title: "大企業のAI導入を阻むのは技術ではなく\"信頼\"だった",
-    category: "product",
-    platform: "note",
-    date: "2026-03-27",
-    summary: "数十社のヒアリングで見えてきたパターン：技術的なハードルは低くなった。残る課題は「このAIに社外秘を渡して大丈夫か」という信頼の問題。ai-guardianが解こうとしているのはまさにここだ。",
-    url: "#",
-    lang: "ja",
-    icon: "🏢"
-  },
-  {
-    id: 7,
-    title: "PythonでセキュアなLLMアプリを作る",
-    category: "tutorial",
-    platform: "qiita",
-    date: "2026-03-28",
-    summary: "OpenAI APIを使ったLLMアプリ開発で見落とされがちなセキュリティ対策を体系的にまとめました。プロンプトインジェクション・PII漏洩・レートリミット・ログ設計など、実装例とともに解説します。",
-    url: "#",
-    lang: "ja",
-    icon: "🐍"
-  }
-];
-
-// ── Platform config ───────────────────────────────────────────
-const platforms = {
-  zenn:  { label: "Zenn",   className: "platform-zenn",  icon: "Z" },
-  qiita: { label: "Qiita",  className: "platform-qiita", icon: "Q" },
-  note:  { label: "note",   className: "platform-note",  icon: "n" },
-  devto: { label: "Dev.to", className: "platform-devto", icon: "D" }
-};
-
-const categoryLabels = {
-  technical: "Technical",
-  product:   "Product",
-  tutorial:  "Tutorial"
-};
-
-// ── Render helpers ────────────────────────────────────────────
-function formatDate(dateStr) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-function buildCard(article, delay) {
-  const p = platforms[article.platform];
-  const readLabel = `Read on ${p.label} →`;
-
-  return `
-    <div class="article-card animate-in" data-category="${article.category}" style="animation-delay:${delay}ms">
-      <div class="card-thumbnail ${article.category}">
-        <div class="card-thumbnail-pattern"></div>
-        <span class="card-thumbnail-icon">${article.icon}</span>
-      </div>
-      <div class="card-body">
-        <div class="card-meta">
-          <span class="badge badge-${article.category}">${categoryLabels[article.category]}</span>
-          <span class="platform-badge ${p.className}">${p.icon} ${p.label}</span>
-        </div>
-        <div class="card-title">${article.title}</div>
-        <p class="card-summary">${article.summary}</p>
-        <div class="card-footer">
-          <span class="card-date">${formatDate(article.date)}</span>
-          <a href="${article.url}" class="card-cta" ${article.url !== '#' ? 'target="_blank" rel="noopener"' : ''}>
-            ${readLabel}
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ── Count articles per category ───────────────────────────────
-function updateCounts(filter) {
-  const counts = { technical: 0, product: 0, tutorial: 0 };
-  articles.forEach(a => counts[a.category]++);
-  document.getElementById('count-all').textContent       = articles.length;
-  document.getElementById('count-technical').textContent = counts.technical;
-  document.getElementById('count-product').textContent   = counts.product;
-  document.getElementById('count-tutorial').textContent  = counts.tutorial;
-}
-
-// ── Render cards ──────────────────────────────────────────────
-function renderCards(filter) {
-  const grid  = document.getElementById('articlesGrid');
-  const empty = document.getElementById('emptyState');
-  const filtered = filter === 'all' ? articles : articles.filter(a => a.category === filter);
-
-  // Remove old cards (keep emptyState)
-  Array.from(grid.querySelectorAll('.article-card')).forEach(c => c.remove());
-
-  if (filtered.length === 0) {
-    empty.classList.add('visible');
-    return;
-  }
-  empty.classList.remove('visible');
-
-  filtered.forEach((article, i) => {
-    grid.insertAdjacentHTML('afterbegin', buildCard(article, i * 60));
-  });
-
-  // Re-insert in correct order (afterbegin reverses, so reverse filtered first)
-  Array.from(grid.querySelectorAll('.article-card')).forEach(c => c.remove());
-  filtered.forEach((article, i) => {
-    grid.insertAdjacentHTML('beforeend', buildCard(article, i * 60));
-  });
-  empty.classList.remove('visible');
-}
-
-// ── Filter tab logic ──────────────────────────────────────────
-function initFilters() {
-  const tabs = document.querySelectorAll('.filter-tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderCards(tab.dataset.filter);
-    });
-  });
-}
-
-// ── Init ──────────────────────────────────────────────────────
-updateCounts();
-renderCards('all');
-initFilters();
-</script>
 
 </body>
 </html>

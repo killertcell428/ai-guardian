@@ -39,7 +39,7 @@ I built this because every guardrail library I tried either required a cloud cal
 
 ---
 
-## Post 2: r/netsec
+## Post 2: r/netsec → ❌ 動画投稿のみ受付。代替: r/cybersecurity / r/AskNetsec / r/hacking
 
 **Title:** AI Guardian: Open-source LLM security scanner with OWASP LLM Top 10 coverage and remediation hints
 
@@ -69,7 +69,7 @@ I'm actively collecting bypass samples and edge cases. If you're doing LLM red-t
 
 ---
 
-## Post 3: r/MachineLearning
+## Post 3: r/MachineLearning → ❌ 認証済みユーザーのみ。代替: r/artificial / r/LocalLLaMA / r/LLMDevs / r/ChatGPTCoding
 
 **Title:** Show r/ML: Open-source guardrails library for LLM apps – focuses on WHY something was flagged, not just blocking
 
