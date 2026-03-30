@@ -82,10 +82,6 @@ print(result.risk_level)  # RiskLevel.HIGH
 <!-- 🟢 NEW: Demo / Animation Section                              -->
 <!-- ============================================================ -->
 
-## 🎬 デモ
-
-<!-- GIF デモをここに配置。推奨: asciinema や VHS (https://github.com/charmbracelet/vhs) で録画 -->
-<!-- 例: <p align="center"><img src=".github/demo.gif" alt="AI Guardian Demo" width="700" /></p> -->
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -106,9 +102,6 @@ print(result.risk_level)  # RiskLevel.HIGH
 │    → 参照: OWASP LLM Top 10 — LLM01, LLM07                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-> 🎥 **GIF デモの追加方法：** [VHS](https://github.com/charmbracelet/vhs) で `aig scan` のターミナル録画を `.github/demo.gif` に配置すると、ここに自動表示されます。
-> 参考: `vhs < .github/demo.tape` でワンコマンド録画が可能です。
 
 ### 動作イメージ
 
