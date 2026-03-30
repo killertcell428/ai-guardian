@@ -1,12 +1,20 @@
 """Application configuration using pydantic-settings."""
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Look for .env in backend/ first, then project root
+_backend_env = Path(__file__).resolve().parents[2] / ".env"
+_root_env = Path(__file__).resolve().parents[3] / ".env"
+_env_file = str(_backend_env) if _backend_env.exists() else str(_root_env) if _root_env.exists() else ".env"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_env_file,
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",
     )
 
     # App

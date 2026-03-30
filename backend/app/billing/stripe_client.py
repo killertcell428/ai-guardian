@@ -1,13 +1,14 @@
 """Stripe billing integration for AI Guardian SaaS."""
-import os
 import stripe
 from typing import Optional
 
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
+from app.config import settings
+
+stripe.api_key = settings.stripe_secret_key
 
 PRICE_IDS = {
-    "pro_monthly": os.getenv("STRIPE_PRICE_PRO_MONTHLY", ""),
-    "business_monthly": os.getenv("STRIPE_PRICE_BUSINESS_MONTHLY", ""),
+    "pro_monthly": settings.stripe_price_pro_monthly,
+    "business_monthly": settings.stripe_price_business_monthly,
 }
 
 

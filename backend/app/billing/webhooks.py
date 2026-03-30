@@ -1,5 +1,4 @@
 """Stripe Webhook handler for AI Guardian SaaS billing events."""
-import os
 import logging
 from datetime import datetime, timezone
 from typing import Annotated
@@ -11,14 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.billing.plans import PLAN_LIMITS, get_plan_limits
 from app.billing.stripe_client import PRICE_IDS
+from app.config import settings
 from app.db.session import get_db
 from app.models.tenant import Tenant
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/billing", tags=["billing"])
-
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
 
 async def _find_tenant_by_customer_id(
@@ -84,7 +82,7 @@ async def stripe_webhook(
         event = stripe.Webhook.construct_event(
             payload=payload,
             sig_header=stripe_signature,
-            secret=STRIPE_WEBHOOK_SECRET,
+            secret=settings.stripe_webhook_secret,
         )
     except stripe.error.SignatureVerificationError as exc:
         logger.warning("Stripe webhook signature verification failed: %s", exc)
