@@ -19,66 +19,70 @@ from app.models.request import Request
 # =====================================================================
 # OWASP LLM Top 10 (2025) — dynamic coverage mapping
 # =====================================================================
-OWASP_LLM_TOP_10 = [
+# Scope: AI Guardian is a runtime defense layer. It covers OWASP LLM Top 10
+# items that are addressable at the input/output filtering level.
+# Items that belong to the training pipeline, model infrastructure, or content
+# verification layers are explicitly out of scope and noted as such.
+
+OWASP_LLM_TOP_10_IN_SCOPE = [
     {
         "id": "LLM01",
         "name": "Prompt Injection",
-        "covered": True,
+        "status": "Covered",
         "detail": "16 input patterns (direct + indirect) + similarity detection",
     },
     {
         "id": "LLM02",
         "name": "Sensitive Information Disclosure",
-        "covered": True,
+        "status": "Covered",
         "detail": "11 PII input patterns + 7 output patterns + auto-sanitization",
-    },
-    {
-        "id": "LLM03",
-        "name": "Supply Chain Vulnerabilities",
-        "covered": False,
-        "detail": "Out of scope (dependency management). Recommend SCA tools",
-    },
-    {
-        "id": "LLM04",
-        "name": "Data and Model Poisoning",
-        "covered": False,
-        "detail": "Partially covered via RAG context scanning (scan_rag_context)",
     },
     {
         "id": "LLM05",
         "name": "Improper Output Handling",
-        "covered": True,
+        "status": "Covered",
         "detail": "7 output filter patterns detect PII/credential leaks in responses",
     },
     {
         "id": "LLM06",
         "name": "Excessive Agency",
-        "covered": True,
+        "status": "Covered",
         "detail": "Policy Engine with auto-allow/block thresholds + HitL review",
     },
     {
         "id": "LLM07",
         "name": "System Prompt Leakage",
-        "covered": True,
+        "status": "Covered",
         "detail": "8 prompt leak detection patterns (EN + JA)",
-    },
-    {
-        "id": "LLM08",
-        "name": "Vector and Embedding Weaknesses",
-        "covered": False,
-        "detail": "Out of scope. Recommend embedding-level validation",
-    },
-    {
-        "id": "LLM09",
-        "name": "Misinformation",
-        "covered": False,
-        "detail": "Out of scope. Recommend factual grounding techniques",
     },
     {
         "id": "LLM10",
         "name": "Unbounded Consumption",
-        "covered": True,
+        "status": "Covered",
         "detail": "5 token exhaustion patterns + length heuristic + plan quota enforcement",
+    },
+]
+
+OWASP_LLM_TOP_10_OUT_OF_SCOPE = [
+    {
+        "id": "LLM03",
+        "name": "Supply Chain Vulnerabilities",
+        "reason": "Dependency/package-level concern — use SCA tools (Snyk, Dependabot)",
+    },
+    {
+        "id": "LLM04",
+        "name": "Data and Model Poisoning",
+        "reason": "Training pipeline concern — use data validation & provenance tracking",
+    },
+    {
+        "id": "LLM08",
+        "name": "Vector and Embedding Weaknesses",
+        "reason": "Embedding infrastructure concern — use embedding-level validation",
+    },
+    {
+        "id": "LLM09",
+        "name": "Misinformation",
+        "reason": "Content verification concern — use factual grounding & RAG verification",
     },
 ]
 
@@ -267,9 +271,8 @@ async def generate_report_data(
     safety_rate = round((allowed / total_requests * 100) if total_requests > 0 else 100, 1)
     block_rate = round((blocked / total_requests * 100) if total_requests > 0 else 0, 1)
 
-    # === OWASP coverage ===
-    owasp_covered = sum(1 for o in OWASP_LLM_TOP_10 if o["covered"])
-    owasp_total = len(OWASP_LLM_TOP_10)
+    # === OWASP coverage (runtime defense scope) ===
+    in_scope_count = len(OWASP_LLM_TOP_10_IN_SCOPE)
 
     return {
         "report_metadata": {
@@ -292,16 +295,25 @@ async def generate_report_data(
         "severity_counts": severity_counts,
         "event_type_counts": event_type_counts,
         "compliance_summary": {
+            "scope": "Runtime defense layer (input/output filtering, policy enforcement, audit)",
             "owasp_llm_top_10": [
                 {
                     "id": o["id"],
                     "name": o["name"],
-                    "status": "Covered" if o["covered"] else "Not Covered",
+                    "status": o["status"],
                     "detail": o["detail"],
                 }
-                for o in OWASP_LLM_TOP_10
+                for o in OWASP_LLM_TOP_10_IN_SCOPE
             ],
-            "owasp_coverage_rate": f"{owasp_covered}/{owasp_total} ({round(owasp_covered/owasp_total*100)}%)",
+            "owasp_coverage_rate": f"{in_scope_count}/{in_scope_count} (100%)",
+            "owasp_out_of_scope": [
+                {
+                    "id": o["id"],
+                    "name": o["name"],
+                    "reason": o["reason"],
+                }
+                for o in OWASP_LLM_TOP_10_OUT_OF_SCOPE
+            ],
             "cwe_coverage": [
                 {"id": "CWE-89", "name": "SQL Injection", "patterns": 8},
                 {"id": "CWE-78", "name": "OS Command Injection", "patterns": 2},
@@ -398,10 +410,14 @@ def render_csv(report_data: dict) -> str:
         writer.writerow([level, count])
     writer.writerow([])
 
-    # OWASP LLM Top 10
-    writer.writerow(["OWASP LLM Top 10", report_data["compliance_summary"]["owasp_coverage_rate"]])
+    # OWASP LLM Top 10 (in-scope)
+    writer.writerow(["OWASP LLM Top 10 — Runtime Defense Scope", report_data["compliance_summary"]["owasp_coverage_rate"]])
     for item in report_data["compliance_summary"]["owasp_llm_top_10"]:
         writer.writerow([f'{item["id"]}: {item["name"]}', item["status"], item["detail"]])
+    writer.writerow([])
+    writer.writerow(["OWASP LLM Top 10 — Out of Scope (Training/Infrastructure Layer)"])
+    for item in report_data["compliance_summary"].get("owasp_out_of_scope", []):
+        writer.writerow([f'{item["id"]}: {item["name"]}', "Out of Scope", item["reason"]])
     writer.writerow([])
 
     # SOC2
@@ -489,10 +505,14 @@ def render_pdf(report_data: dict) -> bytes:
     elements.append(t)
     elements.append(Spacer(1, 6 * mm))
 
-    # OWASP LLM Top 10
+    # OWASP LLM Top 10 — Runtime Defense Scope
     elements.append(Paragraph(
-        f"OWASP LLM Top 10 — {report_data['compliance_summary']['owasp_coverage_rate']}",
+        f"OWASP LLM Top 10 — Runtime Defense Scope — {report_data['compliance_summary']['owasp_coverage_rate']}",
         h2_style,
+    ))
+    elements.append(Paragraph(
+        f"<i>Scope: {report_data['compliance_summary'].get('scope', '')}</i>",
+        ParagraphStyle("ScopeNote", parent=body_style, fontSize=7, textColor=colors.grey),
     ))
     owasp_data = [["ID", "Name", "Status", "Detail"]]
     for item in report_data["compliance_summary"]["owasp_llm_top_10"]:
@@ -509,6 +529,28 @@ def render_pdf(report_data: dict) -> bytes:
         ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
     ]))
     elements.append(t)
+
+    # Out-of-scope items
+    out_of_scope = report_data["compliance_summary"].get("owasp_out_of_scope", [])
+    if out_of_scope:
+        elements.append(Spacer(1, 3 * mm))
+        elements.append(Paragraph("Out of Scope (Training/Infrastructure Layer)", ParagraphStyle(
+            "OutOfScope", parent=body_style, fontSize=8, textColor=colors.HexColor("#64748b"),
+        )))
+        oos_data = [["ID", "Name", "Reason"]]
+        for item in out_of_scope:
+            oos_data.append([item["id"], item["name"], item["reason"]])
+        t = Table(oos_data, colWidths=[40, 140, 285])
+        t.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#94a3b8")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTSIZE", (0, 0), (-1, -1), 7),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")),
+            ("LEFTPADDING", (0, 0), (-1, -1), 4),
+            ("TOPPADDING", (0, 0), (-1, -1), 2),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+        ]))
+        elements.append(t)
     elements.append(Spacer(1, 6 * mm))
 
     # SOC2
