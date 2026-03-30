@@ -28,7 +28,7 @@ print(result.risk_level)  # RiskLevel.CRITICAL
 print(result.reasons)     # ['System Prompt Extraction', 'Ignore Previous Instructions']
 ```
 
-It uses 53 regex-based detection patterns covering:
+It uses 57 regex-based detection patterns covering:
 - Prompt injection (10 patterns) + Jailbreak/roleplay bypass (6 patterns)
 - System prompt leakage / prompt leak attacks (7 patterns)
 - PII in inputs/outputs, SQL injection, command injection
@@ -39,7 +39,7 @@ Key design decisions:
 - **Zero required dependencies** — pure Python stdlib for the core. FastAPI/LangChain/OpenAI/Anthropic are optional extras
 - **Drop-in middleware** — `AIGuardianMiddleware` for FastAPI, `AIGuardianCallback` for LangChain, `SecureOpenAI`/`SecureAnthropic` proxy wrappers
 - **Policy-as-code** — YAML policy files with auto-block/allow thresholds and custom rules
-- **Built-in benchmark**: `aig benchmark` runs 53 adversarial test cases and reports detection accuracy (currently **100% precision**, 0% false-positive rate)
+- **Built-in benchmark**: `aig benchmark` runs adversarial test cases and reports detection accuracy (currently **100% precision**, 0% false-positive rate)
 - **VS Code extension** in progress for inline scanning in the editor
 
 I've been building this as part of learning LLM security patterns. It's early but functional — would love feedback from the security community on what attack vectors I'm missing.

@@ -39,11 +39,9 @@ OSS Core（無料・永久）
 ### マーケティング
 - [ ] Show HN 投稿（月曜夜 22:00 JST）← **最優先**
 - [ ] Zenn 6本目（MCP信頼モデル）手動公開
-- [ ] Reddit r/Python, r/netsec, r/MachineLearning 投稿
-- [ ] DEV.to 英語記事投稿
+- [x] Reddit r/Python, r/netsec, r/MachineLearning 投稿
+- [x] DEV.to 英語記事投稿
 - [ ] Awesome list への PR 送信（3リスト）
-- [ ] はてなブックマーク自分でブクマ
-- [ ] 知人・同僚への直接スター依頼
 
 ### プロダクト
 - [x] PyPI v0.4.0 リリース
@@ -190,16 +188,15 @@ OSS Core（無料・永久）
 ### 🔴 今すぐ（今週）
 1. Show HN 投稿（月曜夜 22:00 JST）
 2. Zenn 6本目手動公開
-3. Reddit 3本投稿
-4. DEV.to 英語記事投稿
+3. ~~Reddit 3本投稿~~ ✅ 投稿済
+4. ~~DEV.to 英語記事投稿~~ ✅ 投稿済
 5. Gandalf Challenge 動作確認
 
 ### 🟠 今月（Phase 0 完走）
 6. Awesome list PR 送信
-7. はてなブックマーク
-8. AI Meetup LT 登壇申し込み
-9. Policy Template Hub の設計
-10. バッジ「Secured by AI Guardian」作成
+7. AI Meetup LT 登壇申し込み
+8. Policy Template Hub の設計
+9. バッジ「Secured by AI Guardian」作成
 
 ### 🟡 来月（Phase 1 着手）
 11. Product Hunt 準備開始

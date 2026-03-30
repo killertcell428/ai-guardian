@@ -31,7 +31,7 @@ HOW to fix it.
   # result.risk_score = 94, result.reasons = ["prompt_injection"],
   # result.remediation = "..."
 
-What it detects (48 patterns):
+What it detects (57 patterns):
 - Prompt injection & jailbreaks ("ignore previous instructions", DAN, roleplay abuse)
 - SQL injection in LLM pipelines (UNION SELECT, blind injection)
 - PII & credential leaks (API keys, credit cards, My Number / マイナンバー)
@@ -48,7 +48,7 @@ Try the Gandalf Challenge — an interactive game where you try to
 trick the AI into revealing a secret password. Each level uses
 harder defenses: https://ai-guardian-mauve.vercel.app/challenge
 
-pip install aig-guardian  (v0.4.0, just released today)
+pip install aig-guardian  (v0.6.1, latest)
 
 Would love feedback on detection patterns and any bypasses you find!
 ```

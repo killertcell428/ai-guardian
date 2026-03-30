@@ -145,8 +145,6 @@ LEVELS: list[LevelConfig] = [
         hint="This is the hardest level. Think completely outside the box. Maybe the AI can help you without knowing it's helping...",
         hint_ja="最も難しいレベルです。完全に発想を変えてください。AIが知らないうちに手助けしてくれるかもしれません...",
     ),
-]
-
 
     # Level 6: Semantic similarity detection (Layer 2)
     LevelConfig(
