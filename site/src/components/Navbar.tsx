@@ -23,7 +23,7 @@ export default function Navbar() {
           <Link href="/challenge" className="hover:text-guardian-600 transition-colors font-semibold text-guardian-600">{lang === "ja" ? "チャレンジ" : "Challenge"}</Link>
           <Link href="/pricing" className="hover:text-guardian-600 transition-colors">{tx(t.nav.pricing, lang)}</Link>
           <Link href="/docs" className="hover:text-guardian-600 transition-colors">{tx(t.nav.docs, lang)}</Link>
-          <Link href="/blog.html" className="hover:text-guardian-600 transition-colors">{lang === "ja" ? "ブログ" : "Blog"}</Link>
+          <a href="https://zenn.dev/sharu389no" target="_blank" rel="noopener noreferrer" className="hover:text-guardian-600 transition-colors">{lang === "ja" ? "ブログ" : "Blog"}</a>
           <a
             href="https://github.com/killertcell428/ai-guardian"
             target="_blank"
@@ -77,7 +77,7 @@ export default function Navbar() {
           <Link href="/challenge" className="block text-sm font-bold text-guardian-600 py-2">{lang === "ja" ? "チャレンジ" : "Challenge"}</Link>
           <Link href="/pricing" className="block text-sm font-medium text-gray-700 py-2">{tx(t.nav.pricing, lang)}</Link>
           <Link href="/docs" className="block text-sm font-medium text-gray-700 py-2">{tx(t.nav.docs, lang)}</Link>
-          <Link href="/blog.html" className="block text-sm font-medium text-gray-700 py-2">{lang === "ja" ? "ブログ" : "Blog"}</Link>
+          <a href="https://zenn.dev/sharu389no" target="_blank" rel="noopener noreferrer" className="block text-sm font-medium text-gray-700 py-2">{lang === "ja" ? "ブログ" : "Blog"}</a>
           <a href="https://github.com/killertcell428/ai-guardian" target="_blank" rel="noreferrer" className="block text-sm font-medium text-gray-700 py-2">GitHub</a>
           {/* Mobile lang toggle */}
           <div className="flex items-center gap-2 py-2">
