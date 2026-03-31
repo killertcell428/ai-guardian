@@ -21,8 +21,6 @@ import json
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from starlette.types import ASGIApp
 
     from ai_guardian.guard import Guard
