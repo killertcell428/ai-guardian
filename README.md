@@ -78,7 +78,7 @@ print(result.risk_level)  # RiskLevel.HIGH
 
 ---
 
-## 📊 Download Stats
+## 📊 Download数
 
 <p align="center">
   <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian" alt="Total Downloads" /></a>
@@ -92,7 +92,7 @@ print(result.risk_level)  # RiskLevel.HIGH
   </a>
 </p>
 
-> 📈 **[ダウンロード推移チャートを見る →](https://pepy.tech/projects/aig-guardian)**
+> 📈 **[ダウンロード推移 →](https://pepy.tech/projects/aig-guardian)**
 
 ---
 
