@@ -1,6 +1,6 @@
 # AI Guardian — OSS から収益化へのロードマップ
 
-> 最終更新: 2026-03-29
+> 最終更新: 2026-03-31
 > 戦略: OSS で信頼を獲得 → SaaS で収益化 → エンタープライズで拡大
 
 ---
@@ -37,14 +37,14 @@ OSS Core（無料・永久）
 **ゴール**: 最初の 50 スター・100 PyPI DL/日・コミュニティの芽
 
 ### マーケティング
-- [ ] Show HN 投稿（月曜夜 22:00 JST）← **最優先**
-- [ ] Zenn 6本目（MCP信頼モデル）手動公開
+- [x] HN で既存スレッドに返信（新規アカウント投稿制限のため Show HN → 返信に変更）
+- [x] Zenn 記事投稿（MCP信頼モデルは内容が浅く取り消し → 別記事を投稿済）
 - [x] Reddit r/Python, r/netsec, r/MachineLearning 投稿
 - [x] DEV.to 英語記事投稿
 - [ ] Awesome list への PR 送信（3リスト）
 
 ### プロダクト
-- [x] PyPI v0.4.0 リリース
+- [x] PyPI v0.7.0 リリース（v0.4.0 → v0.5.0 → v0.6.0 → v0.6.1 → v0.7.0）
 - [x] GitHub Discussions 有効化
 - [x] good-first-issue 3件作成
 - [x] Gandalf Challenge の動作確認・デバッグ（levels.py構文修正、全7レベル正常動作）
@@ -186,24 +186,22 @@ OSS Core（無料・永久）
 ## 直近アクション一覧（優先順位付き）
 
 ### 🔴 今すぐ（今週）
-1. Show HN 投稿（月曜夜 22:00 JST）
-2. Zenn 6本目手動公開
+1. ~~HN 返信投稿~~ ✅ 完了（Show HN → 返信に変更）
+2. ~~Zenn 記事投稿~~ ✅ 完了（別記事で代替）
 3. ~~Reddit 3本投稿~~ ✅ 投稿済
 4. ~~DEV.to 英語記事投稿~~ ✅ 投稿済
 5. ~~Gandalf Challenge 動作確認~~ ✅ 修正済
+6. ~~v0.7.0 リリース~~ ✅ 2026-03-31
 
-### 🟠 今月（Phase 0 完走）
-6. Awesome list PR 送信
-7. AI Meetup LT 登壇申し込み
-8. Policy Template Hub の設計
-9. バッジ「Secured by AI Guardian」作成
+### 🟠 今月（Phase 0 完走〜Phase 1 移行）
+7. Awesome list PR 送信（3リスト）
+8. AI Meetup LT 登壇申し込み
 
-### 🟡 来月（Phase 1 着手）
-11. Product Hunt 準備開始
-12. Anthropic SDK 統合（Issue #3）
-13. SaaS β の基本設計・Stripe 統合
-14. 全日本AIハッカソン 4/25 参加
-15. メールリスト収集開始
+### 🟡 来月（Phase 1 本格着手）
+9. Product Hunt 準備開始（5月ローンチ想定）
+10. 全日本AIハッカソン 4/25 参加
+11. Qiita/Zenn 週1記事ペース
+12. メールリスト → β招待フロー構築
 
 ---
 

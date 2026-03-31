@@ -51,3 +51,14 @@
 - 型: 問いかけ型
 - 投稿URL: https://x.com/Charles_389_no/status/2038439617129836548
 - 内容: AIエージェント使いたいのに「セキュリティは？」で止まってる人、どのくらいいる？操作ログ+危険ブロック+監査レポート、全部OSSで用意した。pip install aig-guardian あなたの会社はどう突破した？ #AIエージェント #セキュリティ
+
+## 2026-03-31
+- 型: 実用Tips型
+- 投稿URL: https://x.com/Charles_389_no/status/2038815712953892941
+- 内容: AIエージェントの操作、3行で守れる。$ pip install aig-guardian / $ aig init / $ aig status 全操作ログ記録、48パターン危険検知、マイナンバー自動墨消し。情シスへの監査レポートもaig reportで一発生成。#AIセキュリティ #ClaudeCode
+
+## 2026-03-31 (2回目 / Zenn記事紹介投稿)
+- 型: Zenn記事紹介
+- 投稿URL: https://x.com/Charles_389_no/status/2038890030547222535
+- 紹介記事: https://zenn.dev/sharu389no/articles/e07c926d87ac57
+- 内容: 📝 Zennに記事を書きました！ AIエージェント導入で「セキュリティは？」と聞かれて止まっている人へ。操作ログ・危険操作ブロック・監査レポートで技術的に答える方法をまとめました🛡️ #Zenn #AIセキュリティ #ClaudeCode
