@@ -68,7 +68,7 @@ OSS Core（無料・永久）
 - [ ] Product Hunt 準備（5月ローンチ想定）
 - [ ] AI系 Meetup での 5分 LT 登壇
 - [ ] LangChain/LlamaIndex Discord でシェア
-- [ ] 全日本AIハッカソン 2026（4/25）参加
+- [x] ~~全日本AIハッカソン 2026（4/25）~~ → 不参加（取消）
 
 ### プロダクト
 - [x] Anthropic SDK 統合（Issue #3） ← v0.5.0 完了
@@ -199,8 +199,7 @@ OSS Core（無料・永久）
 
 ### 🟡 来月（Phase 1 本格着手）
 9. Product Hunt 準備開始（5月ローンチ想定）
-10. 全日本AIハッカソン 4/25 参加
-11. Qiita/Zenn 週1記事ペース
+10. Qiita/Zenn 週1記事ペース
 12. メールリスト → β招待フロー構築
 
 ---

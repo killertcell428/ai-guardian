@@ -15,7 +15,7 @@
   <a href="https://pypi.org/project/aig-guardian/"><img src="https://img.shields.io/pypi/v/aig-guardian.svg" alt="PyPI version" /></a>
   <a href="https://pypi.org/project/aig-guardian/"><img src="https://img.shields.io/pypi/pyversions/aig-guardian.svg" alt="Python versions" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License: Apache 2.0" /></a>
-  <a href="https://pypi.org/project/aig-guardian/"><img src="https://img.shields.io/pypi/dm/aig-guardian.svg" alt="Downloads" /></a>
+  <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian" alt="Total Downloads" /></a>
   <a href="https://codecov.io/gh/killertcell428/ai-guardian"><img src="https://codecov.io/gh/killertcell428/ai-guardian/branch/main/graph/badge.svg" alt="codecov" /></a>
 </p>
 
@@ -75,6 +75,24 @@ print(result.risk_level)  # RiskLevel.HIGH
 ```
 
 > 💡 **もっと詳しく：** [はじめにガイド](docs/getting-started.md) ｜ [設定ガイド](docs/configuration.md) ｜ [Zenn 解説記事](https://zenn.dev/sharu389no/articles/e07c926d87ac57)
+
+---
+
+## 📊 Download Stats
+
+<p align="center">
+  <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian" alt="Total Downloads" /></a>
+  <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian/month" alt="Monthly Downloads" /></a>
+  <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian/week" alt="Weekly Downloads" /></a>
+</p>
+
+<p align="center">
+  <a href="https://pepy.tech/projects/aig-guardian">
+    <img src="https://static.pepy.tech/personalized-badge/aig-guardian?period=month&units=international_system&left_color=grey&right_color=blue&left_text=downloads/month" alt="Downloads per month" />
+  </a>
+</p>
+
+> 📈 **[ダウンロード推移チャートを見る →](https://pepy.tech/projects/aig-guardian)**
 
 ---
 
