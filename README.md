@@ -76,21 +76,7 @@ print(result.risk_level)  # RiskLevel.HIGH
 
 > 💡 **もっと詳しく：** [はじめにガイド](docs/getting-started.md) ｜ [設定ガイド](docs/configuration.md) ｜ [Zenn 解説記事](https://zenn.dev/sharu389no/articles/e07c926d87ac57)
 
----
-
-## 📊 Download数
-
-<p align="center">
-  <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian" alt="Total Downloads" /></a>
-  <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian/month" alt="Monthly Downloads" /></a>
-  <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian/week" alt="Weekly Downloads" /></a>
-</p>
-
-<p align="center">
-  <a href="https://pepy.tech/projects/aig-guardian">
-    <img src="https://static.pepy.tech/personalized-badge/aig-guardian?period=month&units=international_system&left_color=grey&right_color=blue&left_text=downloads/month" alt="Downloads per month" />
-  </a>
-</p>
+### 📊 Download数
 
 > 📈 **[ダウンロード推移 →](https://pepy.tech/projects/aig-guardian)**
 
