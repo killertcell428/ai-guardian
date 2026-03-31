@@ -56,7 +56,7 @@ export default function Navbar() {
           <Link href="/docs/quickstart" className="text-sm font-semibold text-gray-700 hover:text-guardian-600 transition-colors">
             {tx(t.nav.signIn, lang)}
           </Link>
-          <Link href="/docs/quickstart" className="btn-primary text-sm">
+          <Link href="/#waitlist" className="btn-primary text-sm">
             {tx(t.nav.startTrial, lang)}
           </Link>
         </div>
@@ -91,7 +91,7 @@ export default function Navbar() {
               className={`text-xs px-2 py-1 rounded border ${lang === "ja" ? "bg-guardian-600 text-white border-guardian-600" : "border-gray-300 text-gray-600"}`}
             >日本語</button>
           </div>
-          <Link href="/docs/quickstart" className="btn-primary w-full text-center mt-2">{tx(t.nav.startTrial, lang)}</Link>
+          <Link href="/#waitlist" className="btn-primary w-full text-center mt-2">{tx(t.nav.startTrial, lang)}</Link>
         </div>
       )}
     </header>

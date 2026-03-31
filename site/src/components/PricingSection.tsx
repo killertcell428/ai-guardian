@@ -24,8 +24,9 @@ export default function PricingSection() {
         tx(t.pricing.starter.f6, lang),
       ],
       cta: tx(t.pricing.starter.cta, lang),
-      ctaHref: "/docs/quickstart",
+      ctaHref: "#waitlist",
       highlight: false,
+      trialBadge: ja ? "14日間無料" : "14-day free trial",
     },
     {
       name: tx(t.pricing.business.name, lang),
@@ -42,9 +43,10 @@ export default function PricingSection() {
         tx(t.pricing.business.f7, lang),
       ],
       cta: tx(t.pricing.business.cta, lang),
-      ctaHref: "/docs/quickstart",
+      ctaHref: "#waitlist",
       highlight: true,
       badge: tx(t.pricing.business.badge, lang),
+      trialBadge: ja ? "14日間無料" : "14-day free trial",
     },
     {
       name: tx(t.pricing.enterprise.name, lang),
@@ -60,7 +62,7 @@ export default function PricingSection() {
         tx(t.pricing.enterprise.f6, lang),
       ],
       cta: tx(t.pricing.enterprise.cta, lang),
-      ctaHref: "mailto:ueda.bioinfo.base01@gmail.com",
+      ctaHref: "/contact",
       highlight: false,
     },
   ];
@@ -111,6 +113,15 @@ export default function PricingSection() {
                 <span className={clsx("text-sm ml-2", plan.highlight ? "text-guardian-200" : "text-gray-500")}>
                   {plan.period}
                 </span>
+                {plan.trialBadge && (
+                  <div className={clsx("mt-2 inline-block text-xs font-semibold px-2.5 py-1 rounded-full",
+                    plan.highlight
+                      ? "bg-white/20 text-white"
+                      : "bg-green-100 text-green-700"
+                  )}>
+                    {plan.trialBadge}
+                  </div>
+                )}
               </div>
 
               <ul className="space-y-3 mb-8">

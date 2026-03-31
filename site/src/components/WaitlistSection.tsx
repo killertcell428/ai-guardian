@@ -56,7 +56,7 @@ export default function WaitlistSection({ lang = "en" }: WaitlistSectionProps) {
   };
 
   return (
-    <section className="relative bg-gradient-to-b from-guardian-800 to-guardian-950 py-20 overflow-hidden">
+    <section id="waitlist" className="relative bg-gradient-to-b from-guardian-800 to-guardian-950 py-20 overflow-hidden scroll-mt-16">
       {/* subtle grid overlay */}
       <div
         className="absolute inset-0 opacity-5"

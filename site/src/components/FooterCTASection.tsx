@@ -14,7 +14,7 @@ export default function FooterCTASection() {
         <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">{tx(t.footerCta.heading, lang)}</h2>
         <p className="text-guardian-200 text-lg max-w-xl mx-auto mb-10">{tx(t.footerCta.sub, lang)}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/docs/quickstart" className="bg-white text-guardian-700 hover:bg-guardian-50 transition-colors font-semibold px-8 py-3 rounded-lg text-base">
+          <Link href="/#waitlist" className="bg-white text-guardian-700 hover:bg-guardian-50 transition-colors font-semibold px-8 py-3 rounded-lg text-base">
             {tx(t.footerCta.cta1, lang)}
           </Link>
           <Link href="/docs" className="btn-outline-white px-8 py-3 text-base">

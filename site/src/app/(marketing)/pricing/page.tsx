@@ -9,7 +9,7 @@ const COMPARISON_ROWS_EN = [
   { feature: "Cloud dashboard", values: [true, true, true] },
   { feature: "Risk score visualization", values: [true, true, true] },
   { feature: "Playground (prompt testing)", values: [true, true, true] },
-  { feature: "Detection patterns (57+)", values: [true, true, true] },
+  { feature: "Detection patterns (64+)", values: [true, true, true] },
   { feature: "Custom detection rules", values: ["Unlimited", "Unlimited", "Unlimited"] },
   { feature: "Human-in-the-Loop review", values: [false, true, true] },
   { feature: "Data retention", values: ["90 days", "1 year", "Unlimited"] },
@@ -27,7 +27,7 @@ const COMPARISON_ROWS_JA = [
   { feature: "クラウドダッシュボード", values: [true, true, true] },
   { feature: "リスクスコア可視化", values: [true, true, true] },
   { feature: "Playground（プロンプトテスト）", values: [true, true, true] },
-  { feature: "検出パターン（57種以上）", values: [true, true, true] },
+  { feature: "検出パターン（64種以上）", values: [true, true, true] },
   { feature: "カスタム検出ルール", values: ["無制限", "無制限", "無制限"] },
   { feature: "Human-in-the-Loopレビュー", values: [false, true, true] },
   { feature: "データ保持期間", values: ["90日", "1年", "無制限"] },
@@ -115,7 +115,7 @@ export default function PricingPage() {
             ? "金融・ヘルスケア・政府向けのオンプレミス対応、コンプライアンス要件、カスタム契約に対応します。"
             : "On-premises deployment, compliance requirements, and custom contracts for finance, healthcare, and government."}
         </p>
-        <a href="mailto:ueda.bioinfo.base01@gmail.com" className="btn-primary px-8 py-3">
+        <a href="/contact" className="btn-primary px-8 py-3">
           {ja ? "営業チームに問い合わせる" : "Contact Sales"}
         </a>
       </section>
