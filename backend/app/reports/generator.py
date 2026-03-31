@@ -364,7 +364,7 @@ async def generate_report_data(
             "ai_security_guideline": {
                 "status": "Compliant",
                 "details": [
-                    "57 input patterns + 7 output patterns — 'multi-layer defense'",
+                    "57 input + 7 output = 64 patterns — 'multi-layer defense'",
                     "Layer 2 similarity detection — catches paraphrased attacks",
                     "Human approval for medium/high risk — 'human approval for critical ops'",
                     "OWASP/CWE classification — 'international standards alignment'",

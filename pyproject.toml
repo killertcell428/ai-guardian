@@ -5,13 +5,15 @@ build-backend = "hatchling.build"
 [project]
 name = "aig-guardian"
 version = "0.7.0"
-description = "Protect your LLM application from prompt injection, PII leaks, and jailbreaks"
+description = "Zero-dependency LLM security middleware: prompt injection, jailbreak, PII detection with OWASP LLM Top 10 coverage. Integrates with FastAPI, LangChain, OpenAI, Anthropic."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
 keywords = [
     "llm", "security", "prompt-injection", "ai-safety",
     "pii", "jailbreak", "guardrails", "owasp",
+    "ai-agent", "governance", "middleware", "fastapi",
+    "langchain", "openai", "anthropic",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -22,6 +24,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Security",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
 ]
 # Zero required dependencies for the core library
 dependencies = []
@@ -110,19 +114,5 @@ ignore_missing_imports = true
 # is not consistently used in the codebase and fixing it is a large refactor.
 disallow_any_generics = false
 
-[[tool.mypy.overrides]]
-# Legacy modules with incomplete type annotations — suppress all errors.
-# These predate the strict type annotation policy; fixing them is a separate
-# refactor tracked in GitHub issues.
-module = [
-    "ai_guardian.activity",
-    "ai_guardian.badge",
-    "ai_guardian.cli",
-    "ai_guardian.compliance",
-    "ai_guardian.patterns",
-    "ai_guardian.scanner",
-    "ai_guardian.similarity",
-    "ai_guardian.middleware.fastapi",
-    "ai_guardian.middleware.langchain",
-]
-ignore_errors = true
+# The [[tool.mypy.overrides]] section with ignore_errors = true has been
+# removed.  All 9 legacy modules now have proper type annotations.

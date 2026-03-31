@@ -743,7 +743,9 @@ from ai_guardian.filters.patterns import (  # noqa: E402
     TOKEN_EXHAUSTION_PATTERNS,
 )
 
-ALL_INPUT_PATTERNS: list[DetectionPattern] = (
+# Note: filters.patterns.DetectionPattern is a structurally identical but separate
+# class from the local DetectionPattern. Unifying them is tracked as a future refactor.
+_combined = (
     PROMPT_INJECTION_PATTERNS
     + JAPANESE_INJECTION_PATTERNS
     + SQL_INJECTION_PATTERNS
@@ -756,3 +758,4 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + TOKEN_EXHAUSTION_PATTERNS
     + JAILBREAK_ROLEPLAY_PATTERNS
 )
+ALL_INPUT_PATTERNS: list[DetectionPattern] = _combined  # type: ignore[assignment]

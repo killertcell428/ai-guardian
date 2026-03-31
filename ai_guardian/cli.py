@@ -150,7 +150,7 @@ def _warn_if_hooks_disabled(project_dir: str = ".") -> None:
         pass
 
 
-def cmd_init(args) -> int:
+def cmd_init(args: argparse.Namespace) -> int:
     """Initialize AI Guardian in the current project."""
     from ai_guardian.policy import _default_policy, save_policy
 
@@ -192,7 +192,7 @@ def cmd_init(args) -> int:
     return 0
 
 
-def cmd_logs(args) -> int:
+def cmd_logs(args: argparse.Namespace) -> int:
     """View activity stream."""
     from ai_guardian.activity import ActivityStream
 
@@ -247,7 +247,7 @@ def cmd_logs(args) -> int:
     return 0
 
 
-def cmd_policy(args) -> int:
+def cmd_policy(args: argparse.Namespace) -> int:
     """Policy management."""
     from ai_guardian.policy import _default_policy, load_policy, save_policy
 
@@ -285,7 +285,7 @@ def cmd_policy(args) -> int:
     return 0
 
 
-def cmd_status(args) -> int:
+def cmd_status(args: argparse.Namespace) -> int:
     """Show governance status summary."""
     from ai_guardian.activity import ActivityStream
     from ai_guardian.policy import load_policy
@@ -334,7 +334,7 @@ def cmd_status(args) -> int:
     return 0
 
 
-def cmd_report(args) -> int:
+def cmd_report(args: argparse.Namespace) -> int:
     """Generate compliance report."""
     from ai_guardian.activity import ActivityStream
     from ai_guardian.compliance import get_compliance_summary
@@ -362,7 +362,7 @@ def cmd_report(args) -> int:
     return 0
 
 
-def cmd_maintenance(args) -> int:
+def cmd_maintenance(args: argparse.Namespace) -> int:
     """Log maintenance: rotate and compress."""
     from ai_guardian.activity import ActivityStream
 
@@ -380,7 +380,7 @@ def cmd_maintenance(args) -> int:
     return 0
 
 
-def cmd_doctor(args) -> int:
+def cmd_doctor(args: argparse.Namespace) -> int:
     """Diagnose AI Guardian setup issues."""
     print("AI Guardian Doctor")
     print("=" * 50)
@@ -389,17 +389,17 @@ def cmd_doctor(args) -> int:
     warned = 0
     failed = 0
 
-    def ok(msg: str):
+    def ok(msg: str) -> None:
         nonlocal passed
         print(f"  [OK]   {msg}")
         passed += 1
 
-    def warn(msg: str):
+    def warn(msg: str) -> None:
         nonlocal warned
         print(f"  [WARN] {msg}")
         warned += 1
 
-    def fail(msg: str):
+    def fail(msg: str) -> None:
         nonlocal failed
         print(f"  [FAIL] {msg}")
         failed += 1
@@ -513,7 +513,7 @@ def cmd_doctor(args) -> int:
         return 0
 
 
-def cmd_scan(args) -> int:
+def cmd_scan(args: argparse.Namespace) -> int:
     """Quick scan from CLI."""
     from ai_guardian import scan
 
@@ -575,7 +575,7 @@ def cmd_scan(args) -> int:
     return 0 if result.is_safe else 1
 
 
-def cmd_benchmark(args) -> int:
+def cmd_benchmark(args: argparse.Namespace) -> int:
     """Run built-in adversarial benchmark suite."""
     from ai_guardian.benchmark import ATTACK_CORPUS, BenchmarkSuite
 

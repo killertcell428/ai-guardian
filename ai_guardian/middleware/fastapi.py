@@ -18,9 +18,13 @@ All other paths pass through unchanged.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from starlette.types import ASGIApp
+
     from ai_guardian.guard import Guard
 
 try:
@@ -52,7 +56,7 @@ class AIGuardianMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: ASGIApp,
         guard: Guard,
         check_output: bool = False,
         paths: list[str] | None = None,
@@ -62,7 +66,7 @@ class AIGuardianMiddleware(BaseHTTPMiddleware):
         self.check_output = check_output
         self.paths = paths
 
-    async def dispatch(self, request: Request, call_next) -> Response:
+    async def dispatch(self, request: Request, call_next: Any) -> Response:
         if request.method == "POST" and self._should_scan(request.url.path):
             body_bytes = await request.body()
             try:
@@ -89,7 +93,7 @@ class AIGuardianMiddleware(BaseHTTPMiddleware):
                         },
                     )
 
-        response = await call_next(request)
+        response: Response = await call_next(request)
         return response
 
     def _should_scan(self, path: str) -> bool:

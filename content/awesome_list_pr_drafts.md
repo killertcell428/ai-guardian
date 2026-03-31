@@ -6,7 +6,7 @@
 **PR Title**: Add AI Guardian — LLM security middleware
 **Entry**:
 ```markdown
-- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Zero-dependency middleware that detects prompt injection, jailbreaks, and data exfiltration in LLM applications. 57 regex-based patterns with 100% precision benchmark.
+- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Zero-dependency middleware that detects prompt injection, jailbreaks, and data exfiltration in LLM applications. 64 regex-based patterns with 100% precision benchmark.
 ```
 
 **Category candidates** (pick best fit):
@@ -24,7 +24,7 @@
 ### Defense Tools
 
 - [AI Guardian](https://github.com/killertcell428/ai-guardian) - Open-source Python library for protecting LLM applications. Features include:
-  - 57 detection patterns (prompt injection, jailbreak roleplay, data exfiltration, PII, token exhaustion)
+  - 64 detection patterns (prompt injection, jailbreak roleplay, data exfiltration, PII, token exhaustion)
   - Zero dependencies (stdlib only)
   - FastAPI, LangChain, OpenAI, Anthropic, LangGraph middleware
   - Built-in benchmark: 53/53 attacks detected, 0% false positive
@@ -39,7 +39,7 @@
 **PR Title**: Add AI Guardian — LLM guardrails and security filter
 **Entry**:
 ```markdown
-- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Lightweight Python library for LLM security. Detects prompt injection, jailbreaks, PII leaks, and data exfiltration with 57 regex patterns. Zero dependencies, integrates with FastAPI/LangChain/OpenAI/Anthropic.
+- [AI Guardian](https://github.com/killertcell428/ai-guardian) - Lightweight Python library for LLM security. Detects prompt injection, jailbreaks, PII leaks, and data exfiltration with 64 regex patterns. Zero dependencies, integrates with FastAPI/LangChain/OpenAI/Anthropic.
 ```
 
 ---
@@ -52,7 +52,7 @@
 AI Guardian is an open-source Python library (`pip install aig-guardian`) that protects LLM applications from prompt injection, jailbreaks, and data exfiltration attacks.
 
 ### Key features:
-- **57 detection patterns** covering OWASP LLM Top 10 categories
+- **64 detection patterns** covering OWASP LLM Top 10 categories
 - **Zero dependencies** (Python stdlib only)
 - **100% precision** on built-in adversarial benchmark (53/53 attacks, 0/20 false positives)
 - **One-line integration** with FastAPI, LangChain, OpenAI SDK, Anthropic SDK, and LangGraph

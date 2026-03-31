@@ -152,8 +152,8 @@ export default function PricingSection() {
               number="1"
               title={ja ? "OSSセキュリティライブラリ" : "OSS Security Library"}
               desc={ja
-                ? "pip install aig-guardian で即座にLLMアプリを保護。57種の検出パターン、FastAPI/LangChain/OpenAI統合。永久無料でセキュリティの入り口を開く。"
-                : "Protect LLM apps instantly with pip install aig-guardian. 57 detection patterns, FastAPI/LangChain/OpenAI integration. Free forever to open the door to security."}
+                ? "pip install aig-guardian で即座にLLMアプリを保護。64種の検出パターン、FastAPI/LangChain/OpenAI統合。永久無料でセキュリティの入り口を開く。"
+                : "Protect LLM apps instantly with pip install aig-guardian. 64 detection patterns, FastAPI/LangChain/OpenAI integration. Free forever to open the door to security."}
               plan="Free"
               color="bg-guardian-50 border-guardian-200"
             />

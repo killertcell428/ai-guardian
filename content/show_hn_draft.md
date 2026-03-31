@@ -31,7 +31,7 @@ HOW to fix it.
   # result.risk_score = 94, result.reasons = ["prompt_injection"],
   # result.remediation = "..."
 
-What it detects (57 patterns):
+What it detects (64 patterns):
 - Prompt injection & jailbreaks ("ignore previous instructions", DAN, roleplay abuse)
 - SQL injection in LLM pipelines (UNION SELECT, blind injection)
 - PII & credential leaks (API keys, credit cards, My Number / マイナンバー)

@@ -39,7 +39,7 @@ class GuardianBlockedError(RuntimeError):
         self.reasons = reasons
 
 
-class AIGuardianCallback(BaseCallbackHandler):
+class AIGuardianCallback(BaseCallbackHandler):  # type: ignore[misc]
     """LangChain callback that scans prompts and responses with ai-guardian.
 
     Args:

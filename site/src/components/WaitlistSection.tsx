@@ -41,12 +41,18 @@ export default function WaitlistSection({ lang = "en" }: WaitlistSectionProps) {
     if (!email.trim()) return;
 
     setStatus("loading");
-    // TODO: Replace with real API call (e.g. POST /api/waitlist)
-    console.log("[WaitlistSection] New waitlist signup:", { email, lang });
-
-    // Simulate async (remove when wiring up real API)
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setStatus("success");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, lang }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setStatus("success");
+    } catch {
+      console.error("[WaitlistSection] Waitlist signup failed");
+      setStatus("error");
+    }
   };
 
   return (

@@ -28,7 +28,7 @@ print(result.risk_level)  # RiskLevel.CRITICAL
 print(result.reasons)     # ['System Prompt Extraction', 'Ignore Previous Instructions']
 ```
 
-It uses 57 regex-based detection patterns covering:
+It uses 64 regex-based detection patterns covering:
 - Prompt injection (10 patterns) + Jailbreak/roleplay bypass (6 patterns)
 - System prompt leakage / prompt leak attacks (7 patterns)
 - PII in inputs/outputs, SQL injection, command injection

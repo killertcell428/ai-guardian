@@ -20,13 +20,17 @@ Usage:
     stream.record(event)  # Writes to local + global + alert (if blocked)
 """
 
+from __future__ import annotations
+
 import csv
 import getpass
 import gzip
 import json
+from collections.abc import Generator
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 # Default retention periods
 LOG_RETENTION_DAYS = 60  # Full logs kept for 60 days
@@ -88,7 +92,7 @@ class ActivityEvent:
     suggested_fix: str = ""  # AI-suggested safe alternative
     fix_applied: bool = False  # Was the fix automatically applied?
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.timestamp:
             self.timestamp = datetime.now(UTC).isoformat()
         if not self.event_id:
@@ -235,7 +239,7 @@ class ActivityStream:
             paths.append(compressed)
         return paths
 
-    def _read_jsonl(self, path: Path):
+    def _read_jsonl(self, path: Path) -> Generator[dict[str, Any], None, None]:
         """Read JSONL file (handles both plain and gzip)."""
         if path.suffix == ".gz":
             with gzip.open(path, "rt", encoding="utf-8") as f:
