@@ -1,0 +1,29 @@
+{
+  "name": "ai-guardian",
+  "version": "1.0.0",
+  "description": "<p align=\"center\">\r   <img src=\"https://raw.githubusercontent.com/killertcell428/ai-guardian/main/.github/shield.svg\" alt=\"AI Guardian\" width=\"120\" />\r </p>",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/killertcell428/ai-guardian.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/killertcell428/ai-guardian/issues"
+  },
+  "homepage": "https://github.com/killertcell428/ai-guardian#readme",
+  "dependencies": {
+    "zenn-cli": "^0.4.7"
+  }
+}
