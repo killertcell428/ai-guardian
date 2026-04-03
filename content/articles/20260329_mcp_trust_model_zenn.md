@@ -342,3 +342,10 @@ AIエージェントは非常に強力なツールですが、その信頼モデ
 - [MCP Security Vulnerabilities: Understanding Tool Poisoning](https://marmelab.com/blog/2026/02/16/mcp-security-vulnerabilities.html)
 
 LLMの入出力を包括的に監視・フィルタリングするOSSとして、[AI Guardian](https://github.com/killertcell428/ai-guardian)があります。MCPを使った開発環境でのポリシー適用や、不審な出力のロギングに活用できます（[PyPI: aig-guardian](https://pypi.org/project/aig-guardian/)）。
+
+---
+
+:::message
+📚 **この記事の内容をさらに深く学ぶなら**
+本記事のテーマは、Zenn本 **[AIエージェント・セキュリティ＆ガバナンス実践ガイド](https://zenn.dev/sharu389no/books/ai-agent-security-governance)** で体系的に解説しています。OWASP Agentic Top 10、MCPセキュリティ、NHI管理、EU AI Act対応まで、全18章で網羅。
+:::

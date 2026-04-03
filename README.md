@@ -17,6 +17,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License: Apache 2.0" /></a>
   <a href="https://pepy.tech/projects/aig-guardian"><img src="https://static.pepy.tech/badge/aig-guardian" alt="Total Downloads" /></a>
   <a href="https://codecov.io/gh/killertcell428/ai-guardian"><img src="https://codecov.io/gh/killertcell428/ai-guardian/branch/main/graph/badge.svg" alt="codecov" /></a>
+  <a href="https://zenn.dev/sharu389no/books/ai-agent-security-governance"><img src="https://img.shields.io/badge/Zenn_Book-AIエージェントセキュリティ実践ガイド-blue?logo=zenn" alt="Zenn Book" /></a>
 </p>
 
 ---
@@ -538,6 +539,7 @@ ruff check ai_guardian/ tests/
 | リソース | リンク |
 |---------|-------|
 | 📰 **Zenn 解説記事** (70+ いいね) | [AIエージェント導入で「セキュリティどうするの？」と聞かれたときの技術的な答え方](https://zenn.dev/sharu389no/articles/e07c926d87ac57) |
+| 📚 **体系的に学ぶなら** | [AIエージェント・セキュリティ＆ガバナンス実践ガイド（Zenn本・全18章）](https://zenn.dev/sharu389no/books/ai-agent-security-governance) |
 | 💬 **GitHub Discussions** | [質問・活用事例の共有](https://github.com/killertcell428/ai-guardian/discussions) |
 | 🐛 **Issues** | [バグ報告・機能リクエスト](https://github.com/killertcell428/ai-guardian/issues) |
 
