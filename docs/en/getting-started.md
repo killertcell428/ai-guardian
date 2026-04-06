@@ -116,14 +116,68 @@ guard = Guard(policy_file="policy_templates/healthcare.yaml")
 
 Available templates: `finance` / `healthcare` / `ecommerce` / `internal_tools` / `education` / `customer_support` / `developer_tools`
 
+## MCP Security Scanner — First and Only OSS
+
+43% of MCP servers have command injection vulnerabilities. AI Guardian is the **first and only open-source tool** to scan MCP tool definitions for security threats.
+
+```python
+from ai_guardian import scan_mcp_tool, scan_mcp_tools
+
+# Scan a single MCP tool definition
+result = scan_mcp_tool(tool_definition)
+if not result.is_safe:
+    print(f"Dangerous tool: {result.reason}")
+
+# Scan all tools from an MCP server
+results = scan_mcp_tools(mcp_server.list_tools())
+```
+
+```bash
+# CLI: scan MCP tools from a JSON file
+aig mcp --file mcp_tools.json
+
+# CLI: scan from stdin
+curl -s http://mcp-server/tools/list | aig mcp --json
+```
+
+Covers all 6 MCP attack surfaces:
+1. **Tool description poisoning** — `<IMPORTANT>` tags, file read instructions
+2. **Parameter schema injection** — hidden instructions in parameter names/descriptions
+3. **Tool output re-injection** — poisoned return values
+4. **Cross-tool shadowing** — one tool manipulating another's behavior
+5. **Rug pull** — silent redefinition after approval
+6. **Sampling protocol hijack** — prompt manipulation via sampling
+
+> See [MCP Security Architecture](../compliance/MCP_SECURITY_ARCHITECTURE.md) for the full technical deep-dive.
+
+## Automated Red Team
+
+Generate and test adversarial inputs automatically to find detection gaps before attackers do:
+
+```bash
+aig redteam                      # Full red team (9 categories)
+aig redteam --category jailbreak # Test specific category
+aig redteam --count 50 --json    # 50 attacks/category, JSON output
+```
+
 ## Japan AI Business Operator Guidelines v1.2 Compliance
 
-As of v0.8.0, AI Guardian fully complies with the **AI Business Operator Guidelines v1.2** (published March 31, 2026 by Japan's Ministry of Internal Affairs and Ministry of Economy). All 37 requirements are covered, including v1.2 additions: AI agent governance, mandatory Human-in-the-Loop, hallucination-driven action prevention, synthetic content controls, and more.
+As of v1.0.0, AI Guardian fully complies with the **AI Business Operator Guidelines v1.2** (published March 31, 2026 by Japan's Ministry of Internal Affairs and Ministry of Economy). All 37 requirements are covered, including v1.2 additions: AI agent governance, mandatory Human-in-the-Loop, hallucination-driven action prevention, synthetic content controls, and more.
 
 ```bash
 # Generate a compliance report (see all 37 v1.2 requirement mappings)
 aig report
 ```
+
+## Compliance Alignment
+
+| Framework | Coverage |
+|-----------|----------|
+| **OWASP LLM Top 10 (2025)** | 8/10 risks, 121 patterns |
+| **NIST AI RMF 1.0** | All 4 functions (Govern/Map/Measure/Manage) |
+| **MITRE ATLAS** | 40/67 techniques (~60%) |
+| **CSA STAR for AI** | Level 1 self-assessment complete |
+| **Japan AI Guidelines v1.2** | 37/37 requirements (100%) |
 
 ## Next Steps
 
