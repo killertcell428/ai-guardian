@@ -1,4 +1,4 @@
-# Please set 'QIITA_TOKEN' secret to your repository
+# Qiita auto-publish: push to main → publish articles in public/
 name: Publish articles
 
 on:
@@ -6,6 +6,8 @@ on:
     branches:
       - main
       - master
+    paths:
+      - 'public/**'
   workflow_dispatch:
 
 permissions:
@@ -19,6 +21,8 @@ jobs:
   publish_articles:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
