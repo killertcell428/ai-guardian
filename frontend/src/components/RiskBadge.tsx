@@ -6,10 +6,10 @@ interface Props {
 }
 
 const config: Record<string, { bg: string; text: string; label: string }> = {
-  low: { bg: "bg-green-100", text: "text-green-700", label: "Low" },
-  medium: { bg: "bg-yellow-100", text: "text-yellow-700", label: "Medium" },
-  high: { bg: "bg-orange-100", text: "text-orange-700", label: "High" },
-  critical: { bg: "bg-red-100", text: "text-red-700", label: "Critical" },
+  low:      { bg: "bg-gd-safe-bg",   text: "text-gd-safe",   label: "Low" },
+  medium:   { bg: "bg-gd-warn-bg",   text: "text-gd-warn",   label: "Medium" },
+  high:     { bg: "bg-gd-danger-bg",  text: "text-gd-danger",  label: "High" },
+  critical: { bg: "bg-gd-danger-bg",  text: "text-gd-danger",  label: "Critical" },
 };
 
 export default function RiskBadge({ level, score }: Props) {
@@ -17,13 +17,13 @@ export default function RiskBadge({ level, score }: Props) {
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold",
-        c.bg,
-        c.text
+        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px]",
+        c.bg, c.text
       )}
+      style={{ fontWeight: 520 }}
     >
       {c.label}
-      {score !== undefined && <span className="opacity-70">({score})</span>}
+      {score !== undefined && <span className="opacity-60">({score})</span>}
     </span>
   );
 }

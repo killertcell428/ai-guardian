@@ -79,18 +79,19 @@ export default function TeamPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{t.title}</h1>
+        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>{t.title}</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setLang(lang === "en" ? "ja" : "en")}
-            className="text-xs px-2 py-1 rounded border border-slate-300 text-slate-500 hover:bg-slate-50"
+            className="text-xs px-2 py-1 rounded border border-gd-standard text-gd-text-muted hover:bg-gd-elevated"
           >
             {lang === "en" ? "日本語" : "English"}
           </button>
           <button
             onClick={() => setShowInvite(true)}
             disabled={atLimit}
-            className="px-4 py-2 bg-sky-600 text-white text-sm rounded-lg font-medium hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-gd-accent text-white text-sm rounded-lg hover:bg-gd-accent-hover shadow-gd-inset disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            style={{ fontWeight: 480 }}
           >
             {t.invite}
           </button>
@@ -99,17 +100,17 @@ export default function TeamPage() {
 
       {/* Seats indicator */}
       {usage && (
-        <div className="text-sm text-slate-500">
-          <span className="font-semibold text-slate-700">{usage.team_size}</span>
+        <div className="text-sm text-gd-text-muted">
+          <span className="text-gd-text-secondary" style={{ fontWeight: 540 }}>{usage.team_size}</span>
           {" / "}
           {usage.team_limit ?? "Unlimited"} {t.seats}
         </div>
       )}
 
       {atLimit && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 text-sm text-yellow-800">
+        <div className="bg-gd-warn-bg border border-gd-subtle rounded-lg px-4 py-3 text-sm text-gd-warn">
           {t.atLimit}{" "}
-          <a href="/billing" className="underline font-medium">
+          <a href="/billing" className="underline" style={{ fontWeight: 480 }}>
             Upgrade
           </a>
         </div>
@@ -117,43 +118,43 @@ export default function TeamPage() {
 
       {/* Invite form */}
       {showInvite && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+        <div className="bg-gd-surface border border-gd-subtle rounded-xl p-6 shadow-gd-card space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-sm text-red-700">
+            <div className="bg-gd-danger-bg border border-gd-subtle rounded-lg px-4 py-2 text-sm text-gd-danger">
               {error}
             </div>
           )}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-slate-500 mb-1">{t.name}</label>
+              <label className="block text-xs text-gd-text-muted mb-1">{t.name}</label>
               <input
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                className="w-full px-3 py-2 bg-gd-input border border-gd-standard rounded-lg text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
                 value={inviteName}
                 onChange={(e) => setInviteName(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">{t.email}</label>
+              <label className="block text-xs text-gd-text-muted mb-1">{t.email}</label>
               <input
                 type="email"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                className="w-full px-3 py-2 bg-gd-input border border-gd-standard rounded-lg text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">{t.password}</label>
+              <label className="block text-xs text-gd-text-muted mb-1">{t.password}</label>
               <input
                 type="password"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                className="w-full px-3 py-2 bg-gd-input border border-gd-standard rounded-lg text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
                 value={invitePassword}
                 onChange={(e) => setInvitePassword(e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">{t.role}</label>
+              <label className="block text-xs text-gd-text-muted mb-1">{t.role}</label>
               <select
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                className="w-full px-3 py-2 bg-gd-input border border-gd-standard rounded-lg text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
               >
@@ -165,13 +166,14 @@ export default function TeamPage() {
           <div className="flex gap-2">
             <button
               onClick={handleInvite}
-              className="px-4 py-2 bg-sky-600 text-white text-sm rounded-lg font-medium hover:bg-sky-700"
+              className="px-4 py-2 bg-gd-accent text-white text-sm rounded-lg hover:bg-gd-accent-hover shadow-gd-inset"
+              style={{ fontWeight: 480 }}
             >
               {t.send}
             </button>
             <button
               onClick={() => setShowInvite(false)}
-              className="px-4 py-2 text-slate-600 text-sm rounded-lg hover:bg-slate-100"
+              className="px-4 py-2 text-gd-text-secondary text-sm rounded-lg hover:bg-gd-elevated"
             >
               {t.cancel}
             </button>
@@ -180,52 +182,54 @@ export default function TeamPage() {
       )}
 
       {/* Members table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-gd-surface border border-gd-subtle rounded-xl shadow-gd-card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50">
-              <th className="text-left px-4 py-3 font-medium text-slate-600">Name</th>
-              <th className="text-left px-4 py-3 font-medium text-slate-600">Email</th>
-              <th className="text-left px-4 py-3 font-medium text-slate-600">Role</th>
-              <th className="text-left px-4 py-3 font-medium text-slate-600">Status</th>
+            <tr className="border-b border-gd-subtle bg-gd-elevated">
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Name</th>
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Email</th>
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Role</th>
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Status</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
                   Loading...
                 </td>
               </tr>
             ) : members.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
                   No team members yet
                 </td>
               </tr>
             ) : (
               members.map((m) => (
-                <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-slate-900">{m.full_name}</td>
-                  <td className="px-4 py-3 text-slate-600">{m.email}</td>
+                <tr key={m.id} className="border-b border-[rgba(255,255,255,0.04)] hover:bg-gd-elevated">
+                  <td className="px-4 py-3 text-gd-text-primary" style={{ fontWeight: 480 }}>{m.full_name}</td>
+                  <td className="px-4 py-3 text-gd-text-secondary">{m.email}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded text-xs ${
                         m.role === "admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-slate-100 text-slate-600"
+                          ? "bg-purple-900/30 text-purple-400"
+                          : "bg-gd-elevated text-gd-text-secondary"
                       }`}
+                      style={{ fontWeight: 480 }}
                     >
                       {m.role}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded text-xs ${
                         m.is_active
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-gd-safe-bg text-gd-safe"
+                          : "bg-gd-danger-bg text-gd-danger"
                       }`}
+                      style={{ fontWeight: 480 }}
                     >
                       {m.is_active ? "Active" : "Inactive"}
                     </span>

@@ -65,7 +65,15 @@ OSS Core（無料・永久）
 ### マーケティング
 - [ ] Qiita/Zenn で週 1 記事ペース継続
 - [ ] Twitter/X で週 3〜5 投稿ペース継続
-- [ ] Product Hunt 準備（5月ローンチ想定）
+- [ ] **Product Hunt ローンチ（5/13 水曜 予定）** ← 詳細は `content/product_hunt_strategy.md`
+  - ⚠️ Coming Soon ページは廃止済み（2025-08）。Maker 信頼構築 + 外部チャネルで代替
+  - [ ] Phase A: PH アカウント & Draft 作成、毎日コメント活動（〜4/20）
+  - [ ] Phase B: 外部チャネル種まき & 支援者 50-100名 獲得（4/14〜4/28）
+  - [ ] ギャラリー画像 5枚 + OG image PNG + デモ動画（〜4/21）
+  - [ ] ローンチコピー最終レビュー & 支援者事前連絡（〜4/28）
+  - [ ] LP 改善 & 全アセット PH アップロード（〜5/5）
+  - [ ] Go/NoGo 判断（5/5）→ 基準未達なら 5/20 or 5/27 に延期
+  - [ ] ローンチ実行 12:01 AM PT & 全 SNS 段階的展開（5/13）
 - [ ] AI系 Meetup での 5分 LT 登壇
 - [ ] LangChain/LlamaIndex Discord でシェア
 - [x] ~~全日本AIハッカソン 2026（4/25）~~ → 不参加（取消）
@@ -93,7 +101,7 @@ OSS Core（無料・永久）
 **ゴール**: 1,000 スター・5,000 PyPI DL/月・SaaS β版リリース・初課金
 
 ### マーケティング
-- [ ] Product Hunt Launch（英語圏拡大）
+- [x] ~~Product Hunt Launch~~ → Phase 1 に前倒し（5/13 ローンチ予定）
 - [ ] Lablab.ai x Anthropic Hackathon（5/26〜6/2）参加
 - [ ] DevNetwork Hackathon（5/11〜28）参加
 - [ ] 企業導入事例 1本作成（自社 or 知人企業）
@@ -197,10 +205,51 @@ OSS Core（無料・永久）
 7. Awesome list PR 送信（3リスト）
 8. AI Meetup LT 登壇申し込み
 
-### 🟡 来月（Phase 1 本格着手）
-9. Product Hunt 準備開始（5月ローンチ想定）
-10. Qiita/Zenn 週1記事ペース
-12. メールリスト → β招待フロー構築
+### 🔴 今すぐ（今週 4/6〜）
+9. **PH アカウント作成 & Product Draft 登録**（〜4/8）
+10. **PH で毎日 2-3件にコメント開始**（4/6〜 継続）
+
+### 🟡 今月〜来月（Phase 1: PH ローンチ中心）
+11. **Maker 信頼構築: PH コミュニティ参加**（〜4/20、目標: 20+コメント）
+12. **ギャラリー画像 5枚 + OG image + デモ動画**（〜4/21）
+13. **外部チャネル種まき & 支援者 50-100名 獲得**（4/14〜4/28）
+14. **ローンチコピー最終レビュー & 支援者事前連絡**（〜4/28）
+15. **LP 改善 & 全アセット PH アップロード**（〜5/5）
+16. **Go/NoGo 判断**（5/5）
+17. **Product Hunt ローンチ 12:01 AM PT**（5/13 水）
+18. Qiita/Zenn 週1記事ペース（PH前に3本は出したい）
+19. メールリスト → β招待フロー構築
+
+---
+
+---
+
+## 自動開発ループ（Research → Dev → Content）
+
+2026-04-03 より、以下の半自動ループで AI Guardian を継続的に強化する。
+
+```
+月曜 09:00 JST — Research Scout    → content/research_backlog/
+水曜 09:00 JST — Feature Dev       → パターン追加・テスト・CHANGELOG
+金曜 09:00 JST — Content Writer    → content/articles/ ドラフト + content/ph_comments/ PHコメント
+人間レビュー   — 記事確認・投稿・PHコメント投稿・SNS展開
+```
+
+| トリガー名 | トリガーID | スケジュール | 出力 |
+|-----------|-----------|------------|------|
+| `aig-research-scout` | `trig_017oPfYD5zp4hy25sYM1gPvw` | 毎週月曜 00:00 UTC | content/research_backlog/ |
+| `aig-feature-dev` | `trig_01DhcJ8X6TLdJrGD8V4bX6M2` | 毎週水曜 00:00 UTC | パターン追加・テスト |
+| `aig-content-writer` | `trig_01Tqos8yAwkigrH4DiXaxsz4` | 毎週金曜 00:00 UTC | content/articles/ + content/ph_comments/ |
+
+詳細: [docs/DEV_LOOP.md](docs/DEV_LOOP.md)
+
+### KPI
+| 指標 | 目標 |
+|------|------|
+| 週次リサーチ実行率 | 90%+ |
+| 月間新パターン追加数 | 4-8個 |
+| 月間記事投稿数 | 2-4本 |
+| ベンチマーク精度維持 | 100% |
 
 ---
 

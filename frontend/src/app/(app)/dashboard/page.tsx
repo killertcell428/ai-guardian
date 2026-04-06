@@ -26,6 +26,16 @@ interface Stats {
   safeRate: string;
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-gd-elevated border border-gd-subtle rounded-lg px-3 py-2 shadow-gd-elevated">
+      <p className="text-xs text-gd-text-primary" style={{ fontWeight: 520 }}>{label}</p>
+      <p className="text-xs text-gd-accent mt-0.5">{payload[0].value}</p>
+    </div>
+  );
+};
+
 export default function DashboardPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [usage, setUsage] = useState<UsageStats | null>(null);
@@ -57,37 +67,35 @@ export default function DashboardPage() {
       blocked,
       queued,
       allowed,
-      blockRate: total > 0 ? ((blocked / total) * 100).toFixed(1) + "%" : "—",
-      safeRate: total > 0 ? ((allowed / total) * 100).toFixed(1) + "%" : "—",
+      blockRate: total > 0 ? ((blocked / total) * 100).toFixed(1) + "%" : "\u2014",
+      safeRate: total > 0 ? ((allowed / total) * 100).toFixed(1) + "%" : "\u2014",
     };
   })();
 
-  // Event breakdown
   const eventCounts: Record<string, number> = {};
   for (const log of logs) {
     eventCounts[log.event_type] = (eventCounts[log.event_type] ?? 0) + 1;
   }
-  const eventLabels: Record<string, string> = ja ? {
-    "request.allowed": "許可",
-    "request.blocked": "ブロック",
-    "request.queued": "レビュー待ち",
-    "response.blocked": "出力ブロック",
-    "review.approved": "承認",
-    "review.rejected": "却下",
-    "review.escalated": "エスカレ",
-    "review.timed_out": "タイムアウト",
-  } : {};
+  const eventLabels: Record<string, string> = ja
+    ? {
+        "request.allowed": "\u8a31\u53ef",
+        "request.blocked": "\u30d6\u30ed\u30c3\u30af",
+        "request.queued": "\u30ec\u30d3\u30e5\u30fc\u5f85\u3061",
+        "response.blocked": "\u51fa\u529b\u30d6\u30ed\u30c3\u30af",
+        "review.approved": "\u627f\u8a8d",
+        "review.rejected": "\u5374\u4e0b",
+        "review.escalated": "\u30a8\u30b9\u30ab\u30ec",
+        "review.timed_out": "\u30bf\u30a4\u30e0\u30a2\u30a6\u30c8",
+      }
+    : {};
   const barData = Object.entries(eventCounts).map(([name, count]) => ({
     name: eventLabels[name] ?? name.replace("request.", "").replace("review.", "rev."),
     count,
   }));
 
-  // Severity pie
-  const severityLabels: Record<string, string> = ja ? {
-    info: "情報",
-    warning: "警告",
-    critical: "重大",
-  } : {};
+  const severityLabels: Record<string, string> = ja
+    ? { info: "\u60c5\u5831", warning: "\u8b66\u544a", critical: "\u91cd\u5927" }
+    : {};
   const severityCounts: Record<string, number> = {};
   for (const log of logs) {
     severityCounts[log.severity] = (severityCounts[log.severity] ?? 0) + 1;
@@ -96,12 +104,14 @@ export default function DashboardPage() {
     name: severityLabels[name] ?? name,
     value,
   }));
-  const PIE_COLORS = ["#22c55e", "#eab308", "#ef4444"];
+  const PIE_COLORS = ["#27a644", "#e5a820", "#ef4444"];
 
   if (loading) {
     return (
       <div className="p-8">
-        <p className="text-slate-500">{ja ? "読み込み中..." : "Loading dashboard..."}</p>
+        <p className="text-gd-text-muted text-sm">
+          {ja ? "\u8aad\u307f\u8fbc\u307f\u4e2d..." : "Loading dashboard..."}
+        </p>
       </div>
     );
   }
@@ -110,56 +120,104 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            {ja ? "ダッシュボード" : "Dashboard"}
+          <h1
+            className="text-2xl text-gd-text-primary tracking-tight"
+            style={{ fontWeight: 580, letterSpacing: "-0.6px" }}
+          >
+            {ja ? "\u30c0\u30c3\u30b7\u30e5\u30dc\u30fc\u30c9" : "Dashboard"}
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-gd-text-muted text-sm mt-1">
             {ja
-              ? "すべてのAIリクエストは監視下にあります"
-              : "Security filter overview — all AI requests are monitored"}
+              ? "\u3059\u3079\u3066\u306eAI\u30ea\u30af\u30a8\u30b9\u30c8\u306f\u76e3\u8996\u4e0b\u306b\u3042\u308a\u307e\u3059"
+              : "Security filter overview \u2014 all AI requests are monitored"}
           </p>
         </div>
-        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
-          <button onClick={() => setLang("en")} className={`px-2 py-1 rounded text-xs font-medium transition-colors ${lang === "en" ? "bg-white shadow text-slate-900" : "text-slate-500"}`}>EN</button>
-          <button onClick={() => setLang("ja")} className={`px-2 py-1 rounded text-xs font-medium transition-colors ${lang === "ja" ? "bg-white shadow text-slate-900" : "text-slate-500"}`}>JA</button>
+        <div className="flex items-center gap-0.5 bg-gd-surface border border-gd-subtle rounded-lg p-0.5">
+          <button
+            onClick={() => setLang("en")}
+            className={`px-2.5 py-1 rounded text-xs transition-all ${
+              lang === "en"
+                ? "bg-gd-accent-glow text-gd-text-primary"
+                : "text-gd-text-muted hover:text-gd-text-secondary"
+            }`}
+            style={{ fontWeight: lang === "en" ? 520 : 440 }}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLang("ja")}
+            className={`px-2.5 py-1 rounded text-xs transition-all ${
+              lang === "ja"
+                ? "bg-gd-accent-glow text-gd-text-primary"
+                : "text-gd-text-muted hover:text-gd-text-secondary"
+            }`}
+            style={{ fontWeight: lang === "ja" ? 520 : 440 }}
+          >
+            JA
+          </button>
         </div>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title={ja ? "AI利用の安全率" : "AI Safety Rate"}
+          title={ja ? "AI\u5229\u7528\u306e\u5b89\u5168\u7387" : "AI Safety Rate"}
           value={stats.safeRate}
-          subtitle={ja ? `${stats.total}件中${stats.allowed}件が安全に処理` : `${stats.allowed} of ${stats.total} requests safe`}
+          subtitle={
+            ja
+              ? `${stats.total}\u4ef6\u4e2d${stats.allowed}\u4ef6\u304c\u5b89\u5168\u306b\u51e6\u7406`
+              : `${stats.allowed} of ${stats.total} requests safe`
+          }
           color="green"
         />
         <StatCard
-          title={ja ? "脅威をブロック" : "Threats Blocked"}
+          title={ja ? "\u8105\u5a01\u3092\u30d6\u30ed\u30c3\u30af" : "Threats Blocked"}
           value={stats.blocked}
-          subtitle={ja ? `ブロック率 ${stats.blockRate}` : `${stats.blockRate} block rate`}
+          subtitle={
+            ja
+              ? `\u30d6\u30ed\u30c3\u30af\u7387 ${stats.blockRate}`
+              : `${stats.blockRate} block rate`
+          }
           color="red"
         />
         <StatCard
-          title={ja ? "あなたの判断を待っています" : "Pending Review"}
+          title={ja ? "\u3042\u306a\u305f\u306e\u5224\u65ad\u3092\u5f85\u3063\u3066\u3044\u307e\u3059" : "Pending Review"}
           value={stats.queued}
           color="yellow"
         />
         <StatCard
-          title={ja ? "安全に通過" : "Allowed"}
+          title={ja ? "\u5b89\u5168\u306b\u901a\u904e" : "Allowed"}
           value={stats.allowed}
         />
       </div>
 
       {/* Plan usage */}
       {usage && usage.plan !== "free" && (
-        <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-center justify-between">
+        <div className="bg-gd-surface border border-gd-subtle rounded-xl px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-lg">💳</span>
+            <div className="w-8 h-8 rounded-lg bg-gd-accent-glow flex items-center justify-center">
+              <svg
+                className="w-4 h-4 text-gd-accent"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.8}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                />
+              </svg>
+            </div>
             <div>
-              <p className="text-sm font-semibold text-slate-800 capitalize">
+              <p
+                className="text-sm text-gd-text-primary capitalize"
+                style={{ fontWeight: 540 }}
+              >
                 {usage.plan} Plan
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-gd-text-muted">
                 {usage.monthly_requests_used.toLocaleString()}
                 {usage.monthly_requests_limit
                   ? ` / ${usage.monthly_requests_limit.toLocaleString()} requests`
@@ -169,17 +227,20 @@ export default function DashboardPage() {
           </div>
           {usage.monthly_requests_limit && (
             <div className="w-32">
-              <div className="w-full bg-slate-100 rounded-full h-2">
+              <div className="w-full bg-gd-elevated rounded-full h-1.5">
                 <div
-                  className={`h-2 rounded-full ${
+                  className={`h-1.5 rounded-full transition-all ${
                     usage.monthly_requests_used / usage.monthly_requests_limit >= 0.9
-                      ? "bg-red-500"
+                      ? "bg-gd-danger"
                       : usage.monthly_requests_used / usage.monthly_requests_limit >= 0.8
-                      ? "bg-yellow-500"
-                      : "bg-sky-500"
+                      ? "bg-gd-warn"
+                      : "bg-gd-accent"
                   }`}
                   style={{
-                    width: `${Math.min(100, (usage.monthly_requests_used / usage.monthly_requests_limit) * 100)}%`,
+                    width: `${Math.min(
+                      100,
+                      (usage.monthly_requests_used / usage.monthly_requests_limit) * 100
+                    )}%`,
                   }}
                 />
               </div>
@@ -189,15 +250,29 @@ export default function DashboardPage() {
       )}
 
       {/* Governance message */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 flex items-center gap-3">
-        <span className="text-xl">🛡️</span>
+      <div className="bg-gd-info-bg border border-gd-subtle rounded-xl px-5 py-4 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-gd-accent-glow flex-shrink-0 flex items-center justify-center">
+          <svg
+            className="w-4 h-4 text-gd-accent"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            />
+          </svg>
+        </div>
         <div>
-          <p className="text-sm font-semibold text-blue-800">
-            {ja ? "AI Guardian が稼働中" : "AI Guardian Active"}
+          <p className="text-sm text-gd-info" style={{ fontWeight: 540 }}>
+            {ja ? "AI Guardian \u304c\u7a3c\u50cd\u4e2d" : "AI Guardian Active"}
           </p>
-          <p className="text-xs text-blue-600 mt-0.5">
+          <p className="text-xs text-gd-text-secondary mt-0.5">
             {ja
-              ? "すべてのAIリクエストは自動スキャンされ、リスクに応じて許可・レビュー・ブロックされます。判断の最終責任は常に人間にあります。"
+              ? "\u3059\u3079\u3066\u306eAI\u30ea\u30af\u30a8\u30b9\u30c8\u306f\u81ea\u52d5\u30b9\u30ad\u30e3\u30f3\u3055\u308c\u3001\u30ea\u30b9\u30af\u306b\u5fdc\u3058\u3066\u8a31\u53ef\u30fb\u30ec\u30d3\u30e5\u30fc\u30fb\u30d6\u30ed\u30c3\u30af\u3055\u308c\u307e\u3059\u3002\u5224\u65ad\u306e\u6700\u7d42\u8cac\u4efb\u306f\u5e38\u306b\u4eba\u9593\u306b\u3042\u308a\u307e\u3059\u3002"
               : "All AI requests are automatically scanned and routed based on risk. Final decisions always rest with your team."}
           </p>
         </div>
@@ -205,28 +280,40 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-slate-700 mb-4">
-            {ja ? "イベント内訳" : "Event Breakdown"}
+        <div className="bg-gd-surface rounded-xl border border-gd-subtle p-6 shadow-gd-card">
+          <h2
+            className="text-sm text-gd-text-secondary mb-4"
+            style={{ fontWeight: 540 }}
+          >
+            {ja ? "\u30a4\u30d9\u30f3\u30c8\u5185\u8a33" : "Event Breakdown"}
           </h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={barData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255,255,255,0.06)"
+              />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 11, fill: "#6b6580" }}
+              />
+              <YAxis tick={{ fontSize: 11, fill: "#6b6580" }} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="count" fill="#7c6af6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-slate-700 mb-4">
-            {ja ? "重要度分布" : "Severity Distribution"}
+        <div className="bg-gd-surface rounded-xl border border-gd-subtle p-6 shadow-gd-card">
+          <h2
+            className="text-sm text-gd-text-secondary mb-4"
+            style={{ fontWeight: 540 }}
+          >
+            {ja ? "\u91cd\u8981\u5ea6\u5206\u5e03" : "Severity Distribution"}
           </h2>
           {pieData.length === 0 ? (
-            <div className="flex items-center justify-center h-[220px] text-slate-400 text-sm">
-              {ja ? "データがありません" : "No data yet"}
+            <div className="flex items-center justify-center h-[220px] text-gd-text-muted text-sm">
+              {ja ? "\u30c7\u30fc\u30bf\u304c\u3042\u308a\u307e\u305b\u3093" : "No data yet"}
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
@@ -238,6 +325,7 @@ export default function DashboardPage() {
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
+                  strokeWidth={0}
                   label={({ name, percent }) =>
                     `${name} ${(percent * 100).toFixed(0)}%`
                   }
@@ -246,7 +334,9 @@ export default function DashboardPage() {
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Legend />
+                <Legend
+                  wrapperStyle={{ fontSize: "11px", color: "#a8a3b8" }}
+                />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -254,39 +344,47 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent events */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h2 className="text-sm font-semibold text-slate-700">
-            {ja ? "最近のイベント" : "Recent Events"}
+      <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card">
+        <div className="px-6 py-4 border-b border-gd-subtle">
+          <h2
+            className="text-sm text-gd-text-secondary"
+            style={{ fontWeight: 540 }}
+          >
+            {ja ? "\u6700\u8fd1\u306e\u30a4\u30d9\u30f3\u30c8" : "Recent Events"}
           </h2>
         </div>
-        <div className="divide-y divide-slate-50">
+        <div className="divide-y divide-[rgba(255,255,255,0.04)]">
           {logs.slice(0, 10).map((log) => (
-            <div key={log.id} className="px-6 py-3 flex items-start gap-4">
+            <div
+              key={log.id}
+              className="px-6 py-3 flex items-start gap-4 hover:bg-gd-hover transition-colors"
+            >
               <span
-                className={`mt-0.5 h-2 w-2 rounded-full flex-shrink-0 ${
+                className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${
                   log.severity === "critical"
-                    ? "bg-red-500"
+                    ? "bg-gd-danger"
                     : log.severity === "warning"
-                    ? "bg-yellow-400"
-                    : "bg-green-400"
+                    ? "bg-gd-warn"
+                    : "bg-gd-safe"
                 }`}
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-slate-800 truncate">{log.summary}</p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-sm text-gd-text-primary truncate">
+                  {log.summary}
+                </p>
+                <p className="text-xs text-gd-text-dim mt-0.5">
                   {eventLabels[log.event_type] ?? log.event_type}
                 </p>
               </div>
-              <time className="text-xs text-slate-400 flex-shrink-0">
+              <time className="text-xs text-gd-text-dim flex-shrink-0 font-mono">
                 {new Date(log.created_at).toLocaleTimeString()}
               </time>
             </div>
           ))}
           {logs.length === 0 && (
-            <div className="px-6 py-8 text-center text-slate-400 text-sm">
+            <div className="px-6 py-8 text-center text-gd-text-muted text-sm">
               {ja
-                ? "イベントはまだありません。Playgroundからプロンプトを送信してみてください。"
+                ? "\u30a4\u30d9\u30f3\u30c8\u306f\u307e\u3060\u3042\u308a\u307e\u305b\u3093\u3002Playground\u304b\u3089\u30d7\u30ed\u30f3\u30d7\u30c8\u3092\u9001\u4fe1\u3057\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002"
                 : "No events yet. Send a request through the Playground to get started."}
             </div>
           )}

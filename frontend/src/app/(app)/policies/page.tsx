@@ -115,14 +115,14 @@ export default function PoliciesPage() {
   }
 
   if (loading) {
-    return <div className="p-8 text-slate-400 text-sm">Loading...</div>;
+    return <div className="p-8 text-gd-text-muted text-sm">Loading...</div>;
   }
 
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Policies</h1>
-        <p className="text-slate-500 text-sm mt-1">Configure risk thresholds and custom detection rules</p>
+        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Policies</h1>
+        <p className="text-gd-text-muted text-sm mt-1">Configure risk thresholds and custom detection rules</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -132,18 +132,18 @@ export default function PoliciesPage() {
             <button
               key={p.id}
               onClick={() => setSelected(p)}
-              className={`w-full text-left bg-white rounded-xl border p-4 shadow-sm hover:border-sky-300 transition-colors ${
-                selected?.id === p.id ? "border-sky-500 ring-1 ring-sky-200" : "border-slate-200"
+              className={`w-full text-left bg-gd-surface rounded-xl border p-4 shadow-gd-card hover:border-gd-accent transition-colors ${
+                selected?.id === p.id ? "border-gd-accent ring-1 ring-gd-accent" : "border-gd-subtle"
               }`}
             >
               <div className="flex items-center justify-between">
-                <p className="font-medium text-slate-800 text-sm">{p.name}</p>
-                <span className={`px-2 py-0.5 rounded-full text-xs ${p.is_active ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                <p className="text-gd-text-primary text-sm" style={{ fontWeight: 480 }}>{p.name}</p>
+                <span className={`px-2 py-0.5 rounded-full text-xs ${p.is_active ? "bg-gd-safe-bg text-gd-safe" : "bg-gd-elevated text-gd-text-muted"}`}>
                   {p.is_active ? "Active" : "Inactive"}
                 </span>
               </div>
-              {p.description && <p className="text-xs text-slate-400 mt-1 truncate">{p.description}</p>}
-              <div className="flex gap-3 mt-2 text-xs text-slate-500">
+              {p.description && <p className="text-xs text-gd-text-muted mt-1 truncate">{p.description}</p>}
+              <div className="flex gap-3 mt-2 text-xs text-gd-text-muted">
                 <span>Allow ≤{p.auto_allow_threshold}</span>
                 <span>Block ≥{p.auto_block_threshold}</span>
                 <span>SLA {p.review_sla_minutes}m</span>
@@ -152,7 +152,7 @@ export default function PoliciesPage() {
             </button>
           ))}
           {policies.length === 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 p-6 text-center text-slate-400 text-sm">
+            <div className="bg-gd-surface rounded-xl border border-gd-subtle p-6 text-center text-gd-text-muted text-sm">
               No policies configured
             </div>
           )}
@@ -162,36 +162,36 @@ export default function PoliciesPage() {
         {selected && (
           <div className="lg:col-span-2 space-y-6">
             {/* Thresholds */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
-              <h2 className="font-semibold text-slate-800">{selected.name}</h2>
+            <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 space-y-6">
+              <h2 className="text-gd-text-primary" style={{ fontWeight: 540 }}>{selected.name}</h2>
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="text-xs font-medium text-slate-600">Auto-Allow Threshold (0-100)</span>
-                  <p className="text-xs text-slate-400 mb-1">Requests scoring ≤ this are automatically allowed</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>Auto-Allow Threshold (0-100)</span>
+                  <p className="text-xs text-gd-text-muted mb-1">Requests scoring ≤ this are automatically allowed</p>
                   <input type="number" min={0} max={100} value={selected.auto_allow_threshold}
                     onChange={(e) => setSelected({ ...selected, auto_allow_threshold: Number(e.target.value) })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
+                    className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-medium text-slate-600">Auto-Block Threshold (0-100)</span>
-                  <p className="text-xs text-slate-400 mb-1">Requests scoring ≥ this are automatically blocked</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>Auto-Block Threshold (0-100)</span>
+                  <p className="text-xs text-gd-text-muted mb-1">Requests scoring ≥ this are automatically blocked</p>
                   <input type="number" min={0} max={100} value={selected.auto_block_threshold}
                     onChange={(e) => setSelected({ ...selected, auto_block_threshold: Number(e.target.value) })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
+                    className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-medium text-slate-600">Review SLA (minutes)</span>
-                  <p className="text-xs text-slate-400 mb-1">Time allowed for human review</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>Review SLA (minutes)</span>
+                  <p className="text-xs text-gd-text-muted mb-1">Time allowed for human review</p>
                   <input type="number" min={1} max={1440} value={selected.review_sla_minutes}
                     onChange={(e) => setSelected({ ...selected, review_sla_minutes: Number(e.target.value) })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
+                    className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-medium text-slate-600">SLA Fallback</span>
-                  <p className="text-xs text-slate-400 mb-1">Action when review times out</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>SLA Fallback</span>
+                  <p className="text-xs text-gd-text-muted mb-1">Action when review times out</p>
                   <select value={selected.sla_fallback}
                     onChange={(e) => setSelected({ ...selected, sla_fallback: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                    className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus">
                     <option value="block">Block (Fail-Close)</option>
                     <option value="allow">Allow (Fail-Open)</option>
                     <option value="escalate">Escalate</option>
@@ -201,29 +201,31 @@ export default function PoliciesPage() {
 
               {/* Risk zone visualization */}
               <div>
-                <p className="text-xs font-medium text-slate-600 mb-2">Risk Zone Visualization</p>
-                <div className="flex rounded-lg overflow-hidden h-6 text-xs font-medium">
-                  <div className="bg-green-500 flex items-center justify-center text-white" style={{ width: `${selected.auto_allow_threshold}%`, minWidth: 40 }}>Allow</div>
-                  <div className="bg-yellow-400 flex items-center justify-center text-white" style={{ width: `${selected.auto_block_threshold - selected.auto_allow_threshold}%`, minWidth: 40 }}>Review</div>
-                  <div className="bg-red-500 flex items-center justify-center text-white flex-1">Block</div>
+                <p className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 480 }}>Risk Zone Visualization</p>
+                <div className="flex rounded-lg overflow-hidden h-6 text-xs" style={{ fontWeight: 480 }}>
+                  <div className="bg-gd-safe-bg text-gd-safe flex items-center justify-center" style={{ width: `${selected.auto_allow_threshold}%`, minWidth: 40 }}>Allow</div>
+                  <div className="bg-gd-warn-bg text-gd-warn flex items-center justify-center" style={{ width: `${selected.auto_block_threshold - selected.auto_allow_threshold}%`, minWidth: 40 }}>Review</div>
+                  <div className="bg-gd-danger-bg text-gd-danger flex items-center justify-center flex-1">Block</div>
                 </div>
-                <div className="flex justify-between text-xs text-slate-400 mt-1">
+                <div className="flex justify-between text-xs text-gd-text-muted mt-1">
                   <span>0</span><span>{selected.auto_allow_threshold}</span><span>{selected.auto_block_threshold}</span><span>100</span>
                 </div>
               </div>
             </div>
 
             {/* Custom Rules */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-slate-800">Custom Rules ({selected.custom_rules.length})</h3>
+                <h3 className="text-gd-text-primary" style={{ fontWeight: 540 }}>Custom Rules ({selected.custom_rules.length})</h3>
                 <div className="flex gap-2">
                   <button onClick={() => setShowTemplates(!showTemplates)}
-                    className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                    className="px-3 py-1.5 text-xs bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg hover:bg-gd-elevated transition-colors"
+                    style={{ fontWeight: 480 }}>
                     {showTemplates ? "Hide Templates" : "Templates"}
                   </button>
                   <button onClick={() => setShowRuleBuilder(!showRuleBuilder)}
-                    className="px-3 py-1.5 text-xs font-medium bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors">
+                    className="px-3 py-1.5 text-xs bg-gd-accent text-white rounded-lg hover:bg-gd-accent-hover shadow-gd-inset transition-colors"
+                    style={{ fontWeight: 480 }}>
                     + Add Rule
                   </button>
                 </div>
@@ -231,13 +233,13 @@ export default function PoliciesPage() {
 
               {/* Rule Templates */}
               {showTemplates && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-sky-50 rounded-lg border border-sky-200">
-                  <p className="col-span-full text-xs font-medium text-sky-700 mb-1">Quick-add compliance templates:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-gd-info-bg rounded-lg border border-gd-subtle">
+                  <p className="col-span-full text-xs text-gd-accent mb-1" style={{ fontWeight: 480 }}>Quick-add compliance templates:</p>
                   {RULE_TEMPLATES.map((tmpl, i) => (
                     <button key={i} onClick={() => addTemplate(tmpl)}
-                      className="text-left p-2 bg-white rounded-lg border border-sky-100 hover:border-sky-300 transition-colors text-xs">
-                      <p className="font-medium text-slate-700">{tmpl.name}</p>
-                      <p className="text-slate-400 mt-0.5">+{tmpl.score_delta} points</p>
+                      className="text-left p-2 bg-gd-surface rounded-lg border border-gd-subtle hover:border-gd-accent transition-colors text-xs">
+                      <p className="text-gd-text-secondary" style={{ fontWeight: 480 }}>{tmpl.name}</p>
+                      <p className="text-gd-text-muted mt-0.5">+{tmpl.score_delta} points</p>
                     </button>
                   ))}
                 </div>
@@ -245,48 +247,48 @@ export default function PoliciesPage() {
 
               {/* Rule Builder */}
               {showRuleBuilder && (
-                <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
-                  <p className="text-xs font-semibold text-slate-700">New Custom Rule</p>
+                <div className="p-4 bg-gd-elevated rounded-lg border border-gd-subtle space-y-3">
+                  <p className="text-xs text-gd-text-secondary" style={{ fontWeight: 540 }}>New Custom Rule</p>
                   <div className="grid grid-cols-2 gap-3">
                     <input type="text" placeholder="Rule name" value={newRule.name}
                       onChange={(e) => setNewRule({ ...newRule, name: e.target.value })}
-                      className="col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
+                      className="col-span-2 bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                     <input type="text" placeholder="Regex pattern (e.g., secret_project_\w+)" value={newRule.pattern}
                       onChange={(e) => { setNewRule({ ...newRule, pattern: e.target.value }); setRegexError(""); setTestResult(null); }}
-                      className={`col-span-2 border rounded-lg px-3 py-2 text-sm font-mono ${regexError ? "border-red-300" : "border-slate-200"}`} />
-                    {regexError && <p className="col-span-2 text-xs text-red-500">{regexError}</p>}
+                      className={`col-span-2 bg-gd-input border rounded-lg px-3 py-2 text-sm font-mono text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus ${regexError ? "border-gd-danger" : "border-gd-standard"}`} />
+                    {regexError && <p className="col-span-2 text-xs text-gd-danger">{regexError}</p>}
                     <label className="block">
-                      <span className="text-xs text-slate-600">Score Delta</span>
+                      <span className="text-xs text-gd-text-secondary">Score Delta</span>
                       <input type="number" min={1} max={100} value={newRule.score_delta}
                         onChange={(e) => setNewRule({ ...newRule, score_delta: Number(e.target.value) })}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" />
+                        className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                     </label>
                     <div className="flex items-end">
-                      <label className="flex items-center gap-2 text-sm text-slate-600">
+                      <label className="flex items-center gap-2 text-sm text-gd-text-secondary">
                         <input type="checkbox" checked={newRule.enabled}
                           onChange={(e) => setNewRule({ ...newRule, enabled: e.target.checked })}
-                          className="rounded border-slate-300" />
+                          className="rounded border-gd-standard" />
                         Enabled
                       </label>
                     </div>
                   </div>
 
                   {/* Regex Tester */}
-                  <div className="border-t border-slate-200 pt-3">
-                    <p className="text-xs font-semibold text-slate-600 mb-2">Test your pattern:</p>
+                  <div className="border-t border-gd-subtle pt-3">
+                    <p className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 540 }}>Test your pattern:</p>
                     <div className="flex gap-2">
                       <input type="text" placeholder="Enter test text..." value={testText}
                         onChange={(e) => { setTestText(e.target.value); setTestResult(null); }}
-                        className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm" />
+                        className="flex-1 bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                       <button onClick={testRegex}
-                        className="px-4 py-2 bg-slate-700 text-white rounded-lg text-sm hover:bg-slate-600 transition-colors">
+                        className="px-4 py-2 bg-gd-deep text-gd-text-dim rounded-lg text-sm hover:bg-gd-elevated transition-colors">
                         Test
                       </button>
                     </div>
                     {testResult && (
-                      <div className={`mt-2 p-2 rounded-lg text-xs ${testResult.matches ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-600 border border-red-200"}`}>
+                      <div className={`mt-2 p-2 rounded-lg text-xs ${testResult.matches ? "bg-gd-safe-bg text-gd-safe border border-gd-subtle" : "bg-gd-danger-bg text-gd-danger border border-gd-subtle"}`}>
                         {testResult.matches
-                          ? <span>Match found: <code className="font-mono bg-green-100 px-1 rounded">{testResult.matchedText}</code></span>
+                          ? <span>Match found: <code className="font-mono bg-gd-safe-bg px-1 rounded">{testResult.matchedText}</code></span>
                           : "No match found"}
                       </div>
                     )}
@@ -294,11 +296,12 @@ export default function PoliciesPage() {
 
                   <div className="flex gap-2 pt-2">
                     <button onClick={addRule} disabled={!newRule.name || !newRule.pattern}
-                      className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm font-medium hover:bg-sky-700 disabled:opacity-50 transition-colors">
+                      className="px-4 py-2 bg-gd-accent text-white rounded-lg text-sm hover:bg-gd-accent-hover shadow-gd-inset disabled:opacity-50 transition-colors"
+                      style={{ fontWeight: 480 }}>
                       Add Rule
                     </button>
                     <button onClick={() => { setShowRuleBuilder(false); setTestResult(null); setRegexError(""); }}
-                      className="px-4 py-2 text-slate-600 text-sm hover:bg-slate-100 rounded-lg transition-colors">
+                      className="px-4 py-2 text-gd-text-secondary text-sm hover:bg-gd-elevated rounded-lg transition-colors">
                       Cancel
                     </button>
                   </div>
@@ -307,20 +310,20 @@ export default function PoliciesPage() {
 
               {/* Existing rules */}
               {selected.custom_rules.length === 0 ? (
-                <p className="text-xs text-slate-400">No custom rules. Click &quot;+ Add Rule&quot; or use a template.</p>
+                <p className="text-xs text-gd-text-muted">No custom rules. Click &quot;+ Add Rule&quot; or use a template.</p>
               ) : (
                 <div className="space-y-2">
                   {selected.custom_rules.map((rule) => (
-                    <div key={rule.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg group">
+                    <div key={rule.id} className="flex items-center gap-3 p-3 bg-gd-elevated rounded-lg group">
                       <button onClick={() => toggleRule(rule.id)}
-                        className={`h-4 w-4 rounded-full flex-shrink-0 border-2 transition-colors ${rule.enabled ? "bg-green-500 border-green-500" : "bg-white border-slate-300"}`} />
+                        className={`h-4 w-4 rounded-full flex-shrink-0 border-2 transition-colors ${rule.enabled ? "bg-gd-safe border-gd-safe" : "bg-gd-surface border-gd-standard"}`} />
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium ${rule.enabled ? "text-slate-700" : "text-slate-400 line-through"}`}>{rule.name}</p>
-                        <code className="text-xs text-slate-400 truncate block font-mono">{rule.pattern}</code>
+                        <p className={`text-sm ${rule.enabled ? "text-gd-text-secondary" : "text-gd-text-muted line-through"}`} style={{ fontWeight: 480 }}>{rule.name}</p>
+                        <code className="text-xs text-gd-text-muted truncate block font-mono">{rule.pattern}</code>
                       </div>
-                      <span className="text-xs text-slate-500 flex-shrink-0 font-medium">+{rule.score_delta}</span>
+                      <span className="text-xs text-gd-text-muted flex-shrink-0" style={{ fontWeight: 480 }}>+{rule.score_delta}</span>
                       <button onClick={() => removeRule(rule.id)}
-                        className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 text-xs transition-opacity">
+                        className="opacity-0 group-hover:opacity-100 text-gd-danger hover:text-gd-danger text-xs transition-opacity">
                         Remove
                       </button>
                     </div>
@@ -330,7 +333,8 @@ export default function PoliciesPage() {
             </div>
 
             <button onClick={savePolicy} disabled={saving}
-              className="px-6 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition-colors">
+              className="px-6 py-2 bg-gd-accent hover:bg-gd-accent-hover text-white rounded-lg text-sm shadow-gd-inset disabled:opacity-50 transition-colors"
+              style={{ fontWeight: 480 }}>
               {saving ? "Saving..." : "Save All Changes"}
             </button>
           </div>

@@ -50,8 +50,8 @@ export default function ReviewQueuePage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Review Queue</h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Review Queue</h1>
+          <p className="text-gd-text-muted text-sm mt-1">
             Human-in-the-Loop: review flagged requests
           </p>
         </div>
@@ -61,11 +61,12 @@ export default function ReviewQueuePage() {
               <button
                 key={s}
                 onClick={() => { setStatusFilter(s); setSelected(null); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs transition-colors ${
                   statusFilter === s
-                    ? "bg-sky-600 text-white"
-                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    ? "bg-gd-accent text-white shadow-gd-inset"
+                    : "bg-gd-hover border border-gd-subtle text-gd-text-secondary hover:bg-gd-elevated"
                 }`}
+                style={{ fontWeight: 480 }}
               >
                 {s}
               </button>
@@ -78,9 +79,9 @@ export default function ReviewQueuePage() {
         {/* Queue list */}
         <div className="lg:col-span-1 space-y-3">
           {loading ? (
-            <p className="text-slate-400 text-sm">Loading...</p>
+            <p className="text-gd-text-muted text-sm">Loading...</p>
           ) : items.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400 text-sm">
+            <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-8 text-center text-gd-text-muted text-sm">
               No {statusFilter} items
             </div>
           ) : (
@@ -96,10 +97,10 @@ export default function ReviewQueuePage() {
                 <button
                   key={item.id}
                   onClick={() => { setSelected(item); setNote(""); }}
-                  className={`w-full text-left bg-white rounded-xl border shadow-sm p-4 hover:border-sky-300 transition-colors ${
+                  className={`w-full text-left bg-gd-surface rounded-xl border shadow-gd-card p-4 hover:border-gd-accent transition-colors ${
                     selected?.id === item.id
-                      ? "border-sky-500 ring-1 ring-sky-200"
-                      : "border-slate-200"
+                      ? "border-gd-accent ring-1 ring-gd-accent"
+                      : "border-gd-subtle"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
@@ -109,32 +110,33 @@ export default function ReviewQueuePage() {
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <span className={`text-xs font-medium ${isOverdue ? "text-red-600" : "text-slate-400"}`}>
+                      <span className={`text-xs ${isOverdue ? "text-gd-danger" : "text-gd-text-muted"}`} style={{ fontWeight: 480 }}>
                         {isOverdue ? "OVERDUE " : ""}
                         SLA: {formatDistanceToNow(deadline, { addSuffix: true })}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        className={`px-2 py-0.5 rounded-full text-xs ${
                           item.status === "pending"
-                            ? "bg-yellow-100 text-yellow-700"
+                            ? "bg-gd-warn-bg text-gd-warn"
                             : item.status === "approved"
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-gd-safe-bg text-gd-safe"
                             : item.status === "rejected"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-slate-100 text-slate-600"
+                            ? "bg-gd-danger-bg text-gd-danger"
+                            : "bg-gd-elevated text-gd-text-secondary"
                         }`}
+                        style={{ fontWeight: 540 }}
                       >
                         {item.status}
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-700 line-clamp-2 mt-1">
+                  <p className="text-sm text-gd-text-secondary line-clamp-2 mt-1">
                     {prompt || `Request ${item.request_id.slice(0, 8)}...`}
                   </p>
                   {detail && detail.input_matched_rules.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {detail.input_matched_rules.map((r) => (
-                        <span key={r.rule_id} className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-600 border border-red-200">
+                        <span key={r.rule_id} className="text-[10px] px-1.5 py-0.5 rounded bg-gd-danger-bg text-gd-danger border border-gd-subtle">
                           {r.rule_name}
                         </span>
                       ))}
@@ -147,11 +149,11 @@ export default function ReviewQueuePage() {
         </div>
 
         {/* Decision panel */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-fit">
+        <div className="lg:col-span-2 bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 h-fit">
           {selected ? (
             <div className="space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-slate-800 text-lg">Review Decision</h2>
+                <h2 className="text-gd-text-primary text-lg" style={{ fontWeight: 540 }}>Review Decision</h2>
                 {selected.request_detail && (
                   <RiskBadge
                     level={selected.request_detail.input_risk_level}
@@ -163,8 +165,8 @@ export default function ReviewQueuePage() {
               {/* Prompt content */}
               {userPrompt && (
                 <div>
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase mb-2">User Prompt</h3>
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm font-mono text-slate-800 whitespace-pre-wrap">
+                  <h3 className="text-xs text-gd-text-muted uppercase mb-2" style={{ fontWeight: 540 }}>User Prompt</h3>
+                  <div className="bg-gd-elevated border border-gd-subtle rounded-lg p-4 text-sm font-mono text-gd-text-primary whitespace-pre-wrap">
                     {userPrompt}
                   </div>
                 </div>
@@ -173,15 +175,15 @@ export default function ReviewQueuePage() {
               {/* Matched Rules */}
               {selected.request_detail && selected.request_detail.input_matched_rules.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase mb-2">Matched Threat Rules</h3>
+                  <h3 className="text-xs text-gd-text-muted uppercase mb-2" style={{ fontWeight: 540 }}>Matched Threat Rules</h3>
                   <div className="space-y-2">
                     {selected.request_detail.input_matched_rules.map((rule) => (
-                      <div key={rule.rule_id} className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                      <div key={rule.rule_id} className="flex items-center justify-between bg-gd-danger-bg border border-gd-subtle rounded-lg px-3 py-2">
                         <div>
-                          <span className="text-sm font-medium text-red-700">{rule.rule_name}</span>
-                          <span className="text-xs text-red-500 ml-2">({rule.category})</span>
+                          <span className="text-sm text-gd-danger" style={{ fontWeight: 480 }}>{rule.rule_name}</span>
+                          <span className="text-xs text-gd-danger ml-2">({rule.category})</span>
                         </div>
-                        <span className="text-xs font-mono font-bold text-red-600">+{rule.score_delta}</span>
+                        <span className="text-xs font-mono text-gd-danger" style={{ fontWeight: 580 }}>+{rule.score_delta}</span>
                       </div>
                     ))}
                   </div>
@@ -189,10 +191,10 @@ export default function ReviewQueuePage() {
               )}
 
               {/* Meta info */}
-              <div className="text-xs text-slate-500 space-y-1 border-t border-slate-100 pt-3">
-                <p><span className="font-medium">Model:</span> {selected.request_detail?.model ?? "—"}</p>
-                <p><span className="font-medium">SLA Deadline:</span> {new Date(selected.sla_deadline).toLocaleString()}</p>
-                <p><span className="font-medium">Client IP:</span> {selected.request_detail?.client_ip ?? "—"}</p>
+              <div className="text-xs text-gd-text-muted space-y-1 border-t border-gd-subtle pt-3">
+                <p><span style={{ fontWeight: 480 }}>Model:</span> {selected.request_detail?.model ?? "—"}</p>
+                <p><span style={{ fontWeight: 480 }}>SLA Deadline:</span> {new Date(selected.sla_deadline).toLocaleString()}</p>
+                <p><span style={{ fontWeight: 480 }}>Client IP:</span> {selected.request_detail?.client_ip ?? "—"}</p>
               </div>
 
               {/* Decision buttons */}
@@ -202,27 +204,30 @@ export default function ReviewQueuePage() {
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Add a review note (optional)..."
-                    className="w-full border border-slate-200 rounded-lg p-3 text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                    className="w-full bg-gd-input border border-gd-standard rounded-lg p-3 text-sm text-gd-text-primary placeholder-gd-text-dim resize-none h-20 focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
                   />
                   <div className="flex gap-3">
                     <button
                       onClick={() => decide("approve")}
                       disabled={submitting}
-                      className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
+                      className="flex-1 py-2.5 bg-gd-safe-bg hover:bg-gd-elevated text-gd-safe border border-gd-subtle rounded-lg text-sm disabled:opacity-50 transition-colors"
+                      style={{ fontWeight: 540 }}
                     >
                       Approve
                     </button>
                     <button
                       onClick={() => decide("reject")}
                       disabled={submitting}
-                      className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
+                      className="flex-1 py-2.5 bg-gd-danger-bg hover:bg-gd-elevated text-gd-danger border border-gd-subtle rounded-lg text-sm disabled:opacity-50 transition-colors"
+                      style={{ fontWeight: 540 }}
                     >
                       Reject
                     </button>
                     <button
                       onClick={() => decide("escalate")}
                       disabled={submitting}
-                      className="flex-1 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
+                      className="flex-1 py-2.5 bg-gd-warn-bg hover:bg-gd-elevated text-gd-warn border border-gd-subtle rounded-lg text-sm disabled:opacity-50 transition-colors"
+                      style={{ fontWeight: 540 }}
                     >
                       Escalate
                     </button>
@@ -230,8 +235,8 @@ export default function ReviewQueuePage() {
                 </>
               )}
               {selected.status !== "pending" && (
-                <p className="text-sm text-slate-500">
-                  This item has been <span className="font-medium">{selected.status}</span>.
+                <p className="text-sm text-gd-text-muted">
+                  This item has been <span style={{ fontWeight: 480 }}>{selected.status}</span>.
                   {selected.reviewer_note && (
                     <span className="block mt-1 italic">Note: {selected.reviewer_note}</span>
                   )}
@@ -240,8 +245,8 @@ export default function ReviewQueuePage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-slate-400 text-sm">Select an item from the queue to review</p>
-              <p className="text-slate-300 text-xs mt-1">You'll see the full prompt, matched rules, and risk score</p>
+              <p className="text-gd-text-muted text-sm">Select an item from the queue to review</p>
+              <p className="text-gd-text-dim text-xs mt-1">You'll see the full prompt, matched rules, and risk score</p>
             </div>
           )}
         </div>

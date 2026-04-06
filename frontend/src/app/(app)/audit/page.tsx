@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { auditApi, type AuditLog } from "@/lib/api";
 
 const SEVERITY_BADGE: Record<string, string> = {
-  info: "bg-blue-100 text-blue-700",
-  warning: "bg-yellow-100 text-yellow-700",
-  critical: "bg-red-100 text-red-700",
+  info: "bg-gd-info-bg text-gd-accent",
+  warning: "bg-gd-warn-bg text-gd-warn",
+  critical: "bg-gd-danger-bg text-gd-danger",
 };
 
 export default function AuditPage() {
@@ -38,8 +38,8 @@ export default function AuditPage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Audit Logs</h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Audit Logs</h1>
+        <p className="text-gd-text-muted text-sm mt-1">
           Immutable record of all filter decisions and review actions
         </p>
       </div>
@@ -54,7 +54,7 @@ export default function AuditPage() {
             setEventFilter(e.target.value);
             setPage(0);
           }}
-          className="border border-slate-200 rounded-lg px-3 py-2 text-sm w-56 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className="bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm w-56 text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
         />
         <select
           value={severityFilter}
@@ -62,7 +62,7 @@ export default function AuditPage() {
             setSeverityFilter(e.target.value);
             setPage(0);
           }}
-          className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className="bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
         >
           <option value="">All severities</option>
           <option value="info">Info</option>
@@ -75,65 +75,66 @@ export default function AuditPage() {
             setSeverityFilter("");
             setPage(0);
           }}
-          className="px-3 py-2 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600"
+          className="px-3 py-2 text-sm border border-gd-subtle rounded-lg hover:bg-gd-elevated text-gd-text-secondary"
         >
           Clear
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200">
+          <thead className="bg-gd-elevated border-b border-gd-subtle">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
                 Time
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
                 Event
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
                 Severity
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
                 Summary
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-[rgba(255,255,255,0.04)]">
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
                   Loading...
                 </td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
                   No logs found
                 </td>
               </tr>
             ) : (
               logs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
+                <tr key={log.id} className="hover:bg-gd-elevated transition-colors">
+                  <td className="px-4 py-3 text-xs text-gd-text-muted whitespace-nowrap">
                     {new Date(log.created_at).toLocaleString()}
                   </td>
                   <td className="px-4 py-3">
-                    <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">
+                    <code className="text-xs bg-gd-elevated px-1.5 py-0.5 rounded text-gd-text-secondary">
                       {log.event_type}
                     </code>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                        SEVERITY_BADGE[log.severity] ?? "bg-slate-100 text-slate-600"
+                      className={`px-2 py-0.5 rounded-full text-xs ${
+                        SEVERITY_BADGE[log.severity] ?? "bg-gd-elevated text-gd-text-secondary"
                       }`}
+                      style={{ fontWeight: 540 }}
                     >
                       {log.severity}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-slate-700 max-w-sm truncate">
+                  <td className="px-4 py-3 text-gd-text-secondary max-w-sm truncate">
                     {log.summary}
                   </td>
                 </tr>
@@ -143,22 +144,22 @@ export default function AuditPage() {
         </table>
 
         {/* Pagination */}
-        <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-xs text-slate-400">
+        <div className="px-4 py-3 border-t border-gd-subtle flex items-center justify-between">
+          <p className="text-xs text-gd-text-muted">
             Showing {page * PER_PAGE + 1}–{page * PER_PAGE + logs.length}
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50"
+              className="px-3 py-1.5 text-xs border border-gd-subtle rounded-lg disabled:opacity-40 hover:bg-gd-elevated text-gd-text-secondary"
             >
               Previous
             </button>
             <button
               onClick={() => setPage((p) => p + 1)}
               disabled={logs.length < PER_PAGE}
-              className="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50"
+              className="px-3 py-1.5 text-xs border border-gd-subtle rounded-lg disabled:opacity-40 hover:bg-gd-elevated text-gd-text-secondary"
             >
               Next
             </button>

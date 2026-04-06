@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { billingApi, SubscriptionStatus, UsageStats } from "@/lib/api";
 
 const STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-800",
-  trialing: "bg-sky-100 text-sky-800",
-  past_due: "bg-red-100 text-red-800",
-  canceled: "bg-slate-100 text-slate-600",
-  none: "bg-slate-100 text-slate-600",
+  active: "bg-gd-safe-bg text-gd-safe",
+  trialing: "bg-gd-info-bg text-gd-accent",
+  past_due: "bg-gd-danger-bg text-gd-danger",
+  canceled: "bg-gd-elevated text-gd-text-secondary",
+  none: "bg-gd-elevated text-gd-text-secondary",
 };
 
 export default function BillingPage() {
@@ -52,7 +52,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-slate-500">Loading billing info...</p>
+        <p className="text-gd-text-muted">Loading billing info...</p>
       </div>
     );
   }
@@ -110,41 +110,42 @@ export default function BillingPage() {
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{t.title}</h1>
+        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>{t.title}</h1>
         <button
           onClick={() => setLang(lang === "en" ? "ja" : "en")}
-          className="text-xs px-2 py-1 rounded border border-slate-300 text-slate-500 hover:bg-slate-50"
+          className="text-xs px-2 py-1 rounded border border-gd-standard text-gd-text-muted hover:bg-gd-elevated"
         >
           {lang === "en" ? "日本語" : "English"}
         </button>
       </div>
 
       {/* Plan & Status */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div className="bg-gd-surface border border-gd-subtle rounded-xl p-6 shadow-gd-card">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500">{t.plan}</p>
-            <p className="text-3xl font-bold text-slate-900 capitalize mt-1">
+            <p className="text-sm text-gd-text-muted">{t.plan}</p>
+            <p className="text-3xl text-gd-text-primary capitalize mt-1" style={{ fontWeight: 580 }}>
               {sub?.plan || "free"}
             </p>
           </div>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            className={`px-3 py-1 rounded-full text-xs ${
               STATUS_COLORS[sub?.status || "none"]
             }`}
+            style={{ fontWeight: 540 }}
           >
             {sub?.status || "none"}
           </span>
         </div>
 
         {trialDaysLeft !== null && sub?.status === "trialing" && (
-          <div className="mt-3 text-sm text-sky-700 bg-sky-50 border border-sky-200 rounded-lg px-4 py-2">
+          <div className="mt-3 text-sm text-gd-accent bg-gd-info-bg border border-gd-subtle rounded-lg px-4 py-2">
             {t.trialEnds} <strong>{trialDaysLeft}</strong> {t.days}
           </div>
         )}
 
         {sub?.status === "past_due" && (
-          <div className="mt-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+          <div className="mt-3 text-sm text-gd-danger bg-gd-danger-bg border border-gd-subtle rounded-lg px-4 py-2">
             Payment failed. Please update your payment method.
           </div>
         )}
@@ -152,12 +153,12 @@ export default function BillingPage() {
 
       {/* Usage */}
       {usage && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-5">
+        <div className="bg-gd-surface border border-gd-subtle rounded-xl p-6 shadow-gd-card space-y-5">
           {/* Requests */}
           <div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-500">{t.usage}</span>
-              <span className="font-medium text-slate-700">
+              <span className="text-gd-text-muted">{t.usage}</span>
+              <span className="text-gd-text-secondary" style={{ fontWeight: 480 }}>
                 {usage.monthly_requests_used.toLocaleString()}
                 {usage.monthly_requests_limit
                   ? ` ${t.ofLimit} ${usage.monthly_requests_limit.toLocaleString()} ${t.requests}`
@@ -165,14 +166,14 @@ export default function BillingPage() {
               </span>
             </div>
             {usage.monthly_requests_limit && (
-              <div className="mt-2 w-full bg-slate-100 rounded-full h-3">
+              <div className="mt-2 w-full bg-gd-elevated rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all ${
                     requestPct >= 90
-                      ? "bg-red-500"
+                      ? "bg-gd-danger"
                       : requestPct >= 80
-                      ? "bg-yellow-500"
-                      : "bg-sky-500"
+                      ? "bg-gd-warn"
+                      : "bg-gd-accent"
                   }`}
                   style={{ width: `${requestPct}%` }}
                 />
@@ -182,8 +183,8 @@ export default function BillingPage() {
 
           {/* Team */}
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-500">{t.team}</span>
-            <span className="font-medium text-slate-700">
+            <span className="text-gd-text-muted">{t.team}</span>
+            <span className="text-gd-text-secondary" style={{ fontWeight: 480 }}>
               {usage.team_size} {t.ofLimit}{" "}
               {usage.team_limit ? `${usage.team_limit} ${t.users}` : t.unlimited}
             </span>
@@ -191,8 +192,8 @@ export default function BillingPage() {
 
           {/* Retention */}
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-500">{t.retention}</span>
-            <span className="font-medium text-slate-700">
+            <span className="text-gd-text-muted">{t.retention}</span>
+            <span className="text-gd-text-secondary" style={{ fontWeight: 480 }}>
               {usage.retention_days ? `${usage.retention_days} days` : t.unlimited}
             </span>
           </div>
@@ -202,24 +203,24 @@ export default function BillingPage() {
       {/* Actions */}
       <div className="space-y-3">
         {sub?.plan === "free" || sub?.plan === "pro" ? (
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <h2 className="font-semibold text-slate-800 mb-4">{t.upgrade}</h2>
+          <div className="bg-gd-surface border border-gd-subtle rounded-xl p-6 shadow-gd-card">
+            <h2 className="text-gd-text-primary mb-4" style={{ fontWeight: 540 }}>{t.upgrade}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {sub?.plan === "free" && (
                 <button
                   onClick={() => handleUpgrade("pro")}
-                  className="p-4 border-2 border-sky-200 rounded-xl text-left hover:border-sky-400 transition-colors"
+                  className="p-4 border-2 border-gd-subtle rounded-xl text-left hover:border-gd-accent transition-colors"
                 >
-                  <p className="font-semibold text-slate-900">Pro</p>
-                  <p className="text-xs text-slate-500 mt-1">{t.proDesc}</p>
+                  <p className="text-gd-text-primary" style={{ fontWeight: 540 }}>Pro</p>
+                  <p className="text-xs text-gd-text-muted mt-1">{t.proDesc}</p>
                 </button>
               )}
               <button
                 onClick={() => handleUpgrade("business")}
-                className="p-4 border-2 border-purple-200 rounded-xl text-left hover:border-purple-400 transition-colors"
+                className="p-4 border-2 border-gd-subtle rounded-xl text-left hover:border-purple-400 transition-colors"
               >
-                <p className="font-semibold text-slate-900">Business</p>
-                <p className="text-xs text-slate-500 mt-1">{t.bizDesc}</p>
+                <p className="text-gd-text-primary" style={{ fontWeight: 540 }}>Business</p>
+                <p className="text-xs text-gd-text-muted mt-1">{t.bizDesc}</p>
               </button>
             </div>
           </div>
@@ -228,7 +229,8 @@ export default function BillingPage() {
         {sub?.stripe_customer_id !== undefined && sub?.plan !== "free" && (
           <button
             onClick={handleManage}
-            className="w-full py-3 px-4 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors"
+            className="w-full py-3 px-4 bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg text-sm hover:bg-gd-elevated transition-colors"
+            style={{ fontWeight: 480 }}
           >
             {t.manage}
           </button>

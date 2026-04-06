@@ -1,3 +1,5 @@
+import clsx from "clsx";
+
 interface Props {
   title: string;
   value: string | number;
@@ -5,19 +7,29 @@ interface Props {
   color?: "default" | "red" | "yellow" | "green";
 }
 
-const colors = {
-  default: "border-slate-200",
-  red: "border-red-400 bg-red-50",
-  yellow: "border-yellow-400 bg-yellow-50",
-  green: "border-green-400 bg-green-50",
+const accentBorder: Record<string, string> = {
+  default: "border-l-gd-text-dim",
+  red: "border-l-gd-danger",
+  yellow: "border-l-gd-warn",
+  green: "border-l-gd-safe",
 };
 
 export default function StatCard({ title, value, subtitle, color = "default" }: Props) {
   return (
-    <div className={`bg-white rounded-xl border-2 ${colors[color]} p-5 shadow-sm`}>
-      <p className="text-sm text-slate-500 font-medium">{title}</p>
-      <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
-      {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+    <div
+      className={clsx(
+        "bg-gd-surface border border-gd-subtle rounded-xl p-5 shadow-gd-card",
+        "border-l-[3px]",
+        accentBorder[color]
+      )}
+    >
+      <p className="text-xs text-gd-text-muted" style={{ fontWeight: 480 }}>{title}</p>
+      <p className="text-2xl text-gd-text-primary mt-1.5 tracking-tight" style={{ fontWeight: 580 }}>
+        {value}
+      </p>
+      {subtitle && (
+        <p className="text-[11px] text-gd-text-dim mt-1">{subtitle}</p>
+      )}
     </div>
   );
 }

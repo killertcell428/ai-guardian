@@ -62,3 +62,58 @@
 - 投稿URL: https://x.com/Charles_389_no/status/2038890030547222535
 - 紹介記事: https://zenn.dev/sharu389no/articles/e07c926d87ac57
 - 内容: 📝 Zennに記事を書きました！ AIエージェント導入で「セキュリティは？」と聞かれて止まっている人へ。操作ログ・危険操作ブロック・監査レポートで技術的に答える方法をまとめました🛡️ #Zenn #AIセキュリティ #ClaudeCode
+
+## 2026-04-01 (aig-article-draft スケジュールタスク)
+- テーマ: AIエージェントのセキュリティ設計（権限設計・2026年Q1インシデント分析・コーディングエージェント実践ガイド）
+- 選定理由: 2026年Q1にMeta暴走エージェント、PleaseFix脆弱性、CVE-2026-21852など重大インシデントが連続。Bessemer VPレポートで「エージェントの失敗は権限の問題」と指摘。タイムリーかつ実践的。
+
+### 記事投稿
+- **Qiita（実践・How-to寄り）**: https://qiita.com/sharu389no/items/bf624db3a3b47f8e23bc
+  - タイトル: Claude CodeやCursorを安全に使うために——AIコーディングエージェントの実践セキュリティガイド【2026年Q1版】
+  - タグ: Security, AI, LLM, ClaudeCode, Python
+  - 投稿日時: 2026-04-01
+  - ステータス: ✅ 公開済み
+  - MDファイル: articles/20260401_coding_agent_security_qiita.md
+
+- **Zenn（深掘り・アーキテクチャ解説寄り）**: https://zenn.dev/sharu389no/articles/f2d81d194e89db
+  - タイトル: AIエージェントの暴走は「モデルの問題」ではなく「権限の問題」——2026年Q1のインシデントから考えるエージェントセキュリティ設計
+  - トピック: security, llm, aiagent, owasp / カテゴリ: Tech
+  - ステータス: ⚠️ 下書き保存済み（ユーザー指示により公開保留）
+  - MDファイル: articles/20260401_agent_authority_failure_zenn.md
+
+## 2026-04-01
+- 型: デモ型（通常投稿）
+- 投稿URL: https://x.com/Charles_389_no/status/2039165234498449823
+- 内容: aig-guardian v0.4.0出た!
+
+Anthropic SDK統合、PII検出強化、FastAPI/Django対応。AIエージェントの入出力を守るOSS防御レイヤー
+
+pip install aig-guardian
+
+#AIセキュリティ #個人開発
+
+## 2026-04-03
+- 型: 時事ネタ型（通常投稿）
+- 投稿URL: https://x.com/Charles_389_no/status/2040001087705657484
+- 内容: 📋 AI事業者ガイドラインv1.1が3月末に正式公表。
+
+「プロンプトインジェクション対策」が事業者の責務として明示された。
+
+AI Guardianはこの要件に対応するOSS防御レイヤー🛡️
+
+対応マッピング表をREADMEに公開中
+https://github.com/killertcell428/ai-guardian
+
+#AIセキュリティ #個人開発
+
+## 2026-04-06
+- 型: 実用ヒント型（通常投稿）
+- 投稿URL: https://x.com/Charles_389_no/status/2040973143876198906
+- 内容: 🗡️ Gandalfに勝てますか？
+
+AIの「守り方」を学ぶ最高のゲーム。プロンプトインジェクション耐性のデモで、攻撃パターンを知ると防御設計が分かる🔐
+
+AI Guardianの検知ルールもこうした攻撃手法がベース。
+
+→ https://gandalf.lakera.ai
+#AIセキュリティ #ClaudeCode #個人開発

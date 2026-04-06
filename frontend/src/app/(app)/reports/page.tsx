@@ -28,7 +28,8 @@ interface ReportData {
   compliance_summary: {
     owasp_llm_top_10: Array<{ id: string; name: string; status: string; detail: string }>;
     owasp_coverage_rate: string;
-    cwe_coverage: Array<{ id: string; name: string; patterns: number }>;
+    owasp_coverage: string[];
+    cwe_coverage: Array<{ id: string; name: string; patterns: number } | string>;
     human_review_rate: number;
     audit_trail: string;
   };
@@ -100,21 +101,21 @@ export default function ReportsPage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Compliance Reports</h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Compliance Reports</h1>
+        <p className="text-gd-text-muted text-sm mt-1">
           Generate audit reports for SOC2, ISO 27001, and OWASP compliance
         </p>
       </div>
 
       {/* Controls */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
+      <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 mb-6">
         <div className="flex flex-wrap items-end gap-4">
           <label className="block">
-            <span className="text-xs font-medium text-slate-600">Report Period</span>
+            <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>Report Period</span>
             <select
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
-              className="block mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm"
+              className="block mt-1 bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
             >
               <option value={7}>Last 7 days</option>
               <option value={30}>Last 30 days</option>
@@ -126,28 +127,32 @@ export default function ReportsPage() {
           <button
             onClick={() => generateReport("json")}
             disabled={loading}
-            className="px-5 py-2 bg-sky-600 text-white rounded-lg text-sm font-medium hover:bg-sky-700 disabled:opacity-50 transition-colors"
+            className="px-5 py-2 bg-gd-accent text-white rounded-lg text-sm hover:bg-gd-accent-hover shadow-gd-inset disabled:opacity-50 transition-colors"
+            style={{ fontWeight: 480 }}
           >
             {loading ? "Generating..." : "Generate Report"}
           </button>
           <button
             onClick={() => generateReport("csv")}
             disabled={loading}
-            className="px-5 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            className="px-5 py-2 bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg text-sm hover:bg-gd-elevated disabled:opacity-50 transition-colors"
+            style={{ fontWeight: 480 }}
           >
             Download CSV
           </button>
           <button
             onClick={() => downloadFile("pdf")}
             disabled={loading}
-            className="px-5 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            className="px-5 py-2 bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg text-sm hover:bg-gd-elevated disabled:opacity-50 transition-colors"
+            style={{ fontWeight: 480 }}
           >
             Download PDF
           </button>
           <button
             onClick={() => downloadFile("excel")}
             disabled={loading}
-            className="px-5 py-2 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            className="px-5 py-2 bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg text-sm hover:bg-gd-elevated disabled:opacity-50 transition-colors"
+            style={{ fontWeight: 480 }}
           >
             Download Excel
           </button>
@@ -158,9 +163,9 @@ export default function ReportsPage() {
       {report && (
         <div className="space-y-6">
           {/* Executive Summary */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 className="font-semibold text-slate-800 mb-4">Executive Summary</h2>
-            <div className="text-xs text-slate-400 mb-4">
+          <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6">
+            <h2 className="text-gd-text-primary mb-4" style={{ fontWeight: 540 }}>Executive Summary</h2>
+            <div className="text-xs text-gd-text-muted mb-4">
               {report.report_metadata.date_from.slice(0, 10)} — {report.report_metadata.date_to.slice(0, 10)}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -177,55 +182,55 @@ export default function ReportsPage() {
           </div>
 
           {/* Risk Distribution */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 className="font-semibold text-slate-800 mb-4">Risk Level Distribution</h2>
+          <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6">
+            <h2 className="text-gd-text-primary mb-4" style={{ fontWeight: 540 }}>Risk Level Distribution</h2>
             <div className="grid grid-cols-4 gap-3">
               {["low", "medium", "high", "critical"].map((level) => (
                 <div key={level} className={`p-3 rounded-lg text-center ${
-                  level === "low" ? "bg-green-50 text-green-700" :
-                  level === "medium" ? "bg-yellow-50 text-yellow-700" :
-                  level === "high" ? "bg-orange-50 text-orange-700" :
-                  "bg-red-50 text-red-700"
+                  level === "low" ? "bg-gd-safe-bg text-gd-safe" :
+                  level === "medium" ? "bg-gd-warn-bg text-gd-warn" :
+                  level === "high" ? "bg-gd-warn-bg text-gd-warn" :
+                  "bg-gd-danger-bg text-gd-danger"
                 }`}>
-                  <p className="text-2xl font-bold">{report.risk_distribution[level] || 0}</p>
-                  <p className="text-xs font-medium capitalize mt-1">{level}</p>
+                  <p className="text-2xl" style={{ fontWeight: 580 }}>{report.risk_distribution[level] || 0}</p>
+                  <p className="text-xs capitalize mt-1" style={{ fontWeight: 480 }}>{level}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Compliance Coverage */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 className="font-semibold text-slate-800 mb-4">Compliance Coverage</h2>
+          <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6">
+            <h2 className="text-gd-text-primary mb-4" style={{ fontWeight: 540 }}>Compliance Coverage</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-xs font-semibold text-slate-600 mb-2">OWASP LLM Top 10</h3>
+                <h3 className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 540 }}>OWASP LLM Top 10</h3>
                 <div className="space-y-1.5">
                   {report.compliance_summary.owasp_coverage.map((item, i) => (
-                    <div key={i} className="flex items-start gap-2 text-xs text-slate-600">
-                      <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
+                    <div key={i} className="flex items-start gap-2 text-xs text-gd-text-secondary">
+                      <span className="text-gd-safe mt-0.5 flex-shrink-0">&#10003;</span>
                       <span>{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <h3 className="text-xs font-semibold text-slate-600 mb-2">CWE/SANS Coverage</h3>
+                <h3 className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 540 }}>CWE/SANS Coverage</h3>
                 <div className="space-y-1.5">
                   {report.compliance_summary.cwe_coverage.map((item, i) => (
-                    <div key={i} className="flex items-start gap-2 text-xs text-slate-600">
-                      <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
+                    <div key={i} className="flex items-start gap-2 text-xs text-gd-text-secondary">
+                      <span className="text-gd-safe mt-0.5 flex-shrink-0">&#10003;</span>
                       <span>{item}</span>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 space-y-1.5">
-                  <div className="flex items-start gap-2 text-xs text-slate-600">
-                    <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
+                  <div className="flex items-start gap-2 text-xs text-gd-text-secondary">
+                    <span className="text-gd-safe mt-0.5 flex-shrink-0">&#10003;</span>
                     <span>Human Review Rate: {report.compliance_summary.human_review_rate}%</span>
                   </div>
-                  <div className="flex items-start gap-2 text-xs text-slate-600">
-                    <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
+                  <div className="flex items-start gap-2 text-xs text-gd-text-secondary">
+                    <span className="text-gd-safe mt-0.5 flex-shrink-0">&#10003;</span>
                     <span>Audit Trail: {report.compliance_summary.audit_trail}</span>
                   </div>
                 </div>
@@ -237,19 +242,19 @@ export default function ReportsPage() {
 
           {/* Japan Compliance */}
           {report.japan_compliance && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 className="font-semibold text-slate-800 mb-4">Japan AI Regulation Compliance</h2>
+            <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6">
+              <h2 className="text-gd-text-primary mb-4" style={{ fontWeight: 540 }}>Japan AI Regulation Compliance</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(report.japan_compliance).map(([key, data]) => (
-                  <div key={key} className="border border-slate-200 rounded-lg p-4">
+                  <div key={key} className="border border-gd-subtle rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-semibold text-slate-700">{key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</h3>
-                      <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">{data.status}</span>
+                      <h3 className="text-sm text-gd-text-secondary" style={{ fontWeight: 540 }}>{key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                      <span className="px-2 py-0.5 bg-gd-safe-bg text-gd-safe rounded-full text-xs" style={{ fontWeight: 480 }}>{data.status}</span>
                     </div>
                     <ul className="space-y-1">
                       {data.details.map((detail, i) => (
-                        <li key={i} className="text-xs text-slate-500 flex items-start gap-1.5">
-                          <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span>
+                        <li key={i} className="text-xs text-gd-text-muted flex items-start gap-1.5">
+                          <span className="text-gd-safe mt-0.5 flex-shrink-0">&#10003;</span>
                           {detail}
                         </li>
                       ))}
@@ -263,7 +268,7 @@ export default function ReportsPage() {
       )}
 
       {!report && !loading && (
-        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400 text-sm">
+        <div className="bg-gd-surface rounded-xl border border-gd-subtle p-12 text-center text-gd-text-muted text-sm">
           Click &quot;Generate Report&quot; to create a compliance report for the selected period.
         </div>
       )}
@@ -272,11 +277,11 @@ export default function ReportsPage() {
 }
 
 function MetricCard({ label, value, color }: { label: string; value: number | string; color?: string }) {
-  const colorClasses = color === "green" ? "text-green-600" : color === "red" ? "text-red-600" : color === "yellow" ? "text-yellow-600" : "text-slate-800";
+  const colorClasses = color === "green" ? "text-gd-safe" : color === "red" ? "text-gd-danger" : color === "yellow" ? "text-gd-warn" : "text-gd-text-primary";
   return (
-    <div className="bg-slate-50 rounded-lg p-3">
-      <p className={`text-xl font-bold ${colorClasses}`}>{value}</p>
-      <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+    <div className="bg-gd-elevated rounded-lg p-3">
+      <p className={`text-xl ${colorClasses}`} style={{ fontWeight: 580 }}>{value}</p>
+      <p className="text-xs text-gd-text-muted mt-0.5">{label}</p>
     </div>
   );
 }

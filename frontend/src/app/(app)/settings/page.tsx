@@ -28,18 +28,18 @@ export default function SettingsPage() {
   return (
     <div className="p-8 max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Settings</h1>
+        <p className="text-gd-text-muted text-sm mt-1">
           Tenant settings and API key management
         </p>
       </div>
 
       {/* API Key section */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-slate-800">Proxy API Key</h2>
-        <p className="text-sm text-slate-500">
+      <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 space-y-4">
+        <h2 className="text-gd-text-primary" style={{ fontWeight: 540 }}>Proxy API Key</h2>
+        <p className="text-sm text-gd-text-muted">
           Use this key to authenticate requests to the AI Guardian proxy at{" "}
-          <code className="bg-slate-100 px-1 rounded text-xs">
+          <code className="bg-gd-elevated px-1 rounded text-xs">
             POST /api/v1/proxy/chat/completions
           </code>
           . Pass it as a Bearer token in the Authorization header.
@@ -47,10 +47,10 @@ export default function SettingsPage() {
 
         {apiKey ? (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <code className="text-sm text-green-800 break-all">{apiKey}</code>
+            <div className="flex items-center gap-2 p-3 bg-gd-safe-bg border border-gd-subtle rounded-lg">
+              <code className="text-sm text-gd-safe break-all">{apiKey}</code>
             </div>
-            <p className="text-xs text-red-600 font-medium">
+            <p className="text-xs text-gd-danger" style={{ fontWeight: 480 }}>
               This key will not be shown again. Copy it now.
             </p>
           </div>
@@ -58,7 +58,8 @@ export default function SettingsPage() {
           <button
             onClick={generateKey}
             disabled={generating}
-            className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+            className="px-4 py-2 bg-gd-accent hover:bg-gd-accent-hover text-white rounded-lg text-sm shadow-gd-inset disabled:opacity-50"
+            style={{ fontWeight: 480 }}
           >
             {generating ? "Generating..." : "Generate New API Key"}
           </button>
@@ -66,12 +67,12 @@ export default function SettingsPage() {
       </div>
 
       {/* Proxy usage */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4 mt-4">
-        <h2 className="font-semibold text-slate-800">Proxy Usage</h2>
-        <p className="text-sm text-slate-500">
+      <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 space-y-4 mt-4">
+        <h2 className="text-gd-text-primary" style={{ fontWeight: 540 }}>Proxy Usage</h2>
+        <p className="text-sm text-gd-text-muted">
           Replace your existing OpenAI base URL with the AI Guardian proxy:
         </p>
-        <pre className="bg-slate-900 text-green-400 rounded-lg p-4 text-xs overflow-x-auto">
+        <pre className="bg-gd-deep text-green-400 rounded-lg p-4 text-xs overflow-x-auto">
 {`# Python example
 import openai
 client = openai.OpenAI(
@@ -87,15 +88,15 @@ response = client.chat.completions.create(
       </div>
 
       {/* Slack Integration */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4 mt-4">
-        <h2 className="font-semibold text-slate-800">Slack Notifications</h2>
-        <p className="text-sm text-slate-500">
+      <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 space-y-4 mt-4">
+        <h2 className="text-gd-text-primary" style={{ fontWeight: 540 }}>Slack Notifications</h2>
+        <p className="text-sm text-gd-text-muted">
           Get real-time alerts in Slack when threats are blocked. Paste your{" "}
           <a
             href="https://api.slack.com/messaging/webhooks"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sky-600 underline"
+            className="text-gd-accent underline"
           >
             Incoming Webhook URL
           </a>{" "}
@@ -129,11 +130,12 @@ response = client.chat.completions.create(
             name="slack_url"
             type="url"
             placeholder="https://hooks.slack.com/services/..."
-            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm"
+            className="flex-1 px-3 py-2 bg-gd-input border border-gd-standard rounded-lg text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-medium"
+            className="px-4 py-2 bg-gd-accent hover:bg-gd-accent-hover text-white rounded-lg text-sm shadow-gd-inset"
+            style={{ fontWeight: 480 }}
           >
             Save
           </button>
@@ -147,7 +149,7 @@ response = client.chat.completions.create(
             authApi.logout();
             window.location.href = "/login";
           }}
-          className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50"
+          className="px-4 py-2 bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg text-sm hover:bg-gd-elevated"
         >
           Log Out
         </button>
