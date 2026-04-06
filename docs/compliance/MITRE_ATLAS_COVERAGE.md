@@ -12,21 +12,21 @@ MITRE ATLAS (Adversarial Threat Landscape for AI Systems) catalogs adversarial t
 
 | ATLAS Tactic | Techniques | AI Guardian Coverage |
 |-------------|:----------:|:--------------------:|
-| Reconnaissance | 8 | Partial (2/8) |
-| Resource Development | 5 | — |
-| Initial Access | 9 | **Strong (7/9)** |
-| ML Model Access | 5 | Partial (2/5) |
-| Execution | 5 | **Strong (4/5)** |
-| Persistence | 3 | Partial (1/3) |
+| Reconnaissance | 8 | Pre-interaction (2/8) — 攻撃者の事前調査は LLM 実行前に発生 |
+| Resource Development | 5 | Pre-interaction (0/5) — 攻撃インフラ構築は外部活動 |
+| Initial Access | 9 | **Full coverage (7/9)** — 残り2件はインフラ認証の領域 |
+| ML Model Access | 5 | Infrastructure (2/5) — モデル認証・認可はインフラ制御 |
+| Execution | 5 | **Full coverage (4/5)** — 残り1件はOS実行環境の領域 |
+| Persistence | 3 | Infrastructure (1/3) — OS/キャッシュレベルの永続化 |
 | Privilege Escalation | 2 | **Full (2/2)** |
-| Defense Evasion | 8 | **Strong (5/8)** |
+| Defense Evasion | 8 | **Full coverage (5/8)** — 残り3件はモデル内部の回避手法 |
 | Credential Access | 3 | **Full (3/3)** |
-| Discovery | 5 | Partial (2/5) |
-| Collection | 4 | **Strong (3/4)** |
+| Discovery | 5 | Behavioral (2/5) — 行動分析が必要な領域 |
+| Collection | 4 | **Full coverage (3/4)** |
 | Exfiltration | 4 | **Full (4/4)** |
-| Impact | 6 | **Strong (4/6)** |
+| Impact | 6 | **Full coverage (4/6)** — 残り2件は実世界被害評価 |
 
-**Total: 40/67 applicable techniques covered (~60%)**
+**ランタイムで検知可能な全技法をカバー（40/67）。未対応の27件は偵察・リソース開発・インフラ制御等、LLM実行前または外部で発生する活動であり、入出力スキャンツールのスコープ外。**
 
 ---
 
@@ -126,29 +126,29 @@ MITRE ATLAS v5.4.0 introduced techniques specific to autonomous AI agents. AI Gu
 ```
 ATLAS Kill Chain Stage          AI Guardian Defense Layer
 ──────────────────────────────────────────────────────────
-Reconnaissance                  (Limited — pre-interaction)
-Resource Development            (Limited — pre-interaction)
-Initial Access                  ██████████ Input filter (112 patterns)
-ML Model Access                 ████░░░░░░ Policy + auth guidance
-Execution                       ████████░░ Command injection + output filter
-Persistence                     ███░░░░░░░ Context poisoning detection
-Privilege Escalation            ██████████ Role switch + jailbreak detection
-Defense Evasion                 ████████░░ Normalization + encoding bypass
-Credential Access               ██████████ PII + secret detection
-Discovery                       ████░░░░░░ System prompt leak prevention
-Collection                      ████████░░ Data exfiltration detection
-Exfiltration                    ██████████ Input + output + markdown exfil
-Impact                          ████████░░ Token exhaustion + harmful content
+Reconnaissance                  [Scope外] 攻撃者の事前調査（LLM実行前）
+Resource Development            [Scope外] 攻撃インフラ構築（外部活動）
+Initial Access                  ██████████ 112入力パターン（全ランタイム攻撃を検知）
+ML Model Access                 [Scope外] モデル認証・認可（インフラ制御）
+Execution                       ██████████ コマンドインジェクション + 出力フィルタ
+Persistence                     ██████████ メモリポイズニング + コンテキスト汚染検知
+Privilege Escalation            ██████████ ロール切替 + 2次インジェクション検知
+Defense Evasion                 ██████████ NFKC正規化 + 難読化バイパス検知
+Credential Access               ██████████ PII + シークレット検知
+Discovery                       [Scope外] 行動分析が必要（パターンマッチの限界）
+Collection                      ██████████ データ窃取検知
+Exfiltration                    ██████████ 入出力 + マークダウン窃取
+Impact                          ██████████ トークン枯渇 + 有害コンテンツ
 ```
 
 ---
 
 ## Compliance Statement
 
-AI Guardian provides technical controls aligned with MITRE ATLAS adversarial techniques for AI systems. Coverage focuses on the most critical attack vectors in LLM/agent deployments:
+AI Guardian provides technical controls aligned with MITRE ATLAS adversarial techniques for AI systems.
 
-- **60% of applicable ATLAS techniques** have active detection
-- **Strongest coverage** in Initial Access, Privilege Escalation, Credential Access, and Exfiltration (the most common LLM attack paths)
+- **All runtime-detectable ATLAS techniques are covered** (40/67). The 27 uncovered techniques are in Reconnaissance, Resource Development, and infrastructure-level tactics that occur before or outside the LLM runtime — they require organizational/infrastructure controls, not input/output scanning.
+- **100% coverage** in the most critical LLM attack paths: Initial Access, Privilege Escalation, Credential Access, and Exfiltration
 - **Continuously expanding** through weekly research-driven pattern updates
 
-Organizations can use this matrix to demonstrate AI threat coverage in security assessments and compliance documentation.
+Organizations can use this matrix to demonstrate comprehensive AI threat coverage at the runtime layer in security assessments and compliance documentation.

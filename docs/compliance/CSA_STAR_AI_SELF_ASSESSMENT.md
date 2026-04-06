@@ -17,11 +17,11 @@ This document serves as AI Guardian's self-assessment against the AICM control d
 |---------------|:--------:|:----------------:|
 | AI Governance & Accountability | 8 | Implemented |
 | Data Governance | 6 | Implemented |
-| AI Model Development & Training | 5 | Partially Applicable |
+| AI Model Development & Training | 5 | N/A (detection tool, not an AI model) |
 | AI Security | 10 | **Fully Implemented** |
 | AI Privacy | 6 | Implemented |
 | Transparency & Explainability | 7 | Implemented |
-| Fairness & Bias | 4 | Partially Applicable |
+| Fairness & Bias | 4 | N/A (detection tool, not an AI model) |
 | Reliability & Robustness | 6 | **Fully Implemented** |
 | Third-Party & Supply Chain | 4 | Implemented |
 | Incident Management | 5 | Implemented |
@@ -58,8 +58,8 @@ This document serves as AI Guardian's self-assessment against the AICM control d
 
 | Control | Status | Evidence |
 |---------|:------:|----------|
-| Model development lifecycle | Partially Applicable | AI Guardian is a detection tool, not an AI model. Pattern development follows research → implement → test → benchmark lifecycle |
-| Training data management | Partially Applicable | Semantic similarity corpus (56 attack phrases) is curated and versioned. No ML training involved |
+| Model development lifecycle | N/A (detection tool, not an AI model) | AI Guardian is a detection tool, not an AI model. Pattern development follows research → implement → test → benchmark lifecycle |
+| Training data management | N/A (detection tool, not an AI model) | Semantic similarity corpus (56 attack phrases) is curated and versioned. No ML training involved |
 | Model validation & testing | **Fully Implemented** | Built-in adversarial benchmark: 79 attacks, 26 safe inputs, 12 categories. 100% precision, 0% false positive rate |
 | Version control | **Fully Implemented** | Git-based versioning. Semantic versioning (v0.x.y). CHANGELOG maintained. PyPI releases |
 | Reproducibility | **Fully Implemented** | `aig benchmark --json` produces reproducible results. All patterns are deterministic (regex + stdlib) |
@@ -106,7 +106,7 @@ This document serves as AI Guardian's self-assessment against the AICM control d
 
 | Control | Status | Evidence |
 |---------|:------:|----------|
-| Bias assessment | Partially Applicable | AI Guardian is a rule-based detection system (no ML), minimizing bias risk. Pattern design reviewed for cultural sensitivity |
+| Bias assessment | N/A (detection tool, not an AI model) | AI Guardian is a rule-based detection system (no ML), minimizing bias risk. Pattern design reviewed for cultural sensitivity |
 | Multilingual fairness | Implemented | Equal detection capability across 4 languages (EN, JA, KO, ZH). Same pattern categories and scoring thresholds across all languages |
 | False positive mitigation | **Fully Implemented** | Signal word verification prevents false positives. Benchmark: 0/26 safe inputs flagged (0% FP rate). Diminishing returns scoring prevents over-flagging |
 | Regular fairness review | Implemented | Benchmark includes diverse safe inputs across languages. FP rate tracked per release |

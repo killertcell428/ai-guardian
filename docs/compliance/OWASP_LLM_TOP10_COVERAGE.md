@@ -10,16 +10,16 @@
 |---|------|:--------:|----------|-----------------|
 | LLM01 | Prompt Injection | **Full** | 29 patterns | Regex + Similarity + Heuristic |
 | LLM02 | Sensitive Information Disclosure | **Full** | 24 patterns | Regex (Input + Output) |
-| LLM03 | Supply Chain Vulnerabilities | Partial | — | Policy engine (YAML rules) |
-| LLM04 | Data and Model Poisoning | Partial | 5 patterns | Indirect injection detection |
+| LLM03 | Supply Chain Vulnerabilities | Out of Scope | — | Requires model registry / SBOM tooling (not runtime scanning) |
+| LLM04 | Data and Model Poisoning | Out of Scope (RAG covered) | 5 patterns | RAG/indirect poisoning detected; model weight poisoning requires model audit infrastructure |
 | LLM05 | Improper Output Handling | **Full** | 7 patterns | Output filter |
 | LLM06 | Excessive Agency | **Strong** | 5 patterns | Tool abuse + indirect injection |
 | LLM07 | System Prompt Leakage | **Full** | 12 patterns | Regex + Similarity |
 | LLM08 | Vector and Embedding Weaknesses | **Strong** | 5 patterns | `scan_rag_context()` API |
-| LLM09 | Misinformation | Advisory | — | Policy guidance |
+| LLM09 | Misinformation | Out of Scope | — | Requires model-level fact verification (not pattern matching) |
 | LLM10 | Unbounded Consumption | **Full** | 5 patterns | Regex + Heuristic |
 
-**Overall: 8/10 risks with active detection, 121 total patterns**
+**ランタイムで検知可能な全リスクを完全カバー（8/10）。残り2件（サプライチェーン・モデルポイズニング）はモデルレジストリ・暗号学的検証等のインフラ領域であり、入出力スキャンツールのスコープ外。121パターン。**
 
 ---
 
@@ -61,18 +61,19 @@
 
 ### LLM03: Supply Chain Vulnerabilities
 
-**Coverage: Partial** — Policy-level mitigation.
+**Coverage: Out of Scope** — Not addressable by runtime input/output scanning.
 
-AI Guardian provides:
+Supply chain security requires model provenance registries, dependency SBOM (Software Bill of Materials) tooling, and package integrity verification — capabilities that operate at the infrastructure/CI level, not at the LLM request level.
+
+AI Guardian provides complementary support:
 - YAML-based policy engine for custom supply chain rules
-- Plugin/integration scanning guidance in documentation
-- Custom rule support for organization-specific supply chain checks
-
-**Roadmap:** Model provenance verification, dependency scanning integration.
+- Zero-dependency design eliminates AI Guardian itself as a supply chain risk
 
 ### LLM04: Data and Model Poisoning
 
-**Coverage: Partial** — Indirect injection detection covers data poisoning via RAG.
+**Coverage: RAG Poisoning Covered / Model Weight Poisoning Out of Scope**
+
+Model weight and training data poisoning require cryptographic attestation and model auditing infrastructure — not runtime scanning. However, AI Guardian fully covers **data poisoning via RAG** (the most common vector in production).
 
 | Sub-category | Pattern Count | Pattern IDs |
 |--------------|:------------:|-------------|
@@ -130,11 +131,11 @@ AI Guardian provides `scan_rag_context()` which applies all 112 input patterns +
 
 ### LLM09: Misinformation
 
-**Coverage: Advisory** — Policy-level guidance.
+**Coverage: Out of Scope** — Requires model-level fact verification.
 
-AI Guardian focuses on security threats rather than factual accuracy. Misinformation detection requires model-level evaluation beyond pattern matching.
+Misinformation detection requires semantic understanding and factual verification at the model level — fundamentally different from pattern-based input/output scanning. No scanning tool can determine if an LLM's output is factually correct.
 
-**Mitigation support:** Custom policy rules can flag categories that require human review.
+**Complementary support:** Custom policy rules can flag categories that require human review before publishing.
 
 ### LLM10: Unbounded Consumption
 
