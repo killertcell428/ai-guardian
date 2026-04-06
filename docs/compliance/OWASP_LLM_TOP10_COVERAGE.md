@@ -1,0 +1,194 @@
+# AI Guardian — OWASP Top 10 for LLM Applications (2025) Coverage Matrix
+
+> Last updated: 2026-04-06
+> AI Guardian version: v0.8.0+
+> Reference: [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/)
+
+## Coverage Summary
+
+| # | Risk | Coverage | Patterns | Detection Layer |
+|---|------|:--------:|----------|-----------------|
+| LLM01 | Prompt Injection | **Full** | 29 patterns | Regex + Similarity + Heuristic |
+| LLM02 | Sensitive Information Disclosure | **Full** | 24 patterns | Regex (Input + Output) |
+| LLM03 | Supply Chain Vulnerabilities | Partial | — | Policy engine (YAML rules) |
+| LLM04 | Data and Model Poisoning | Partial | 5 patterns | Indirect injection detection |
+| LLM05 | Improper Output Handling | **Full** | 7 patterns | Output filter |
+| LLM06 | Excessive Agency | **Strong** | 5 patterns | Tool abuse + indirect injection |
+| LLM07 | System Prompt Leakage | **Full** | 12 patterns | Regex + Similarity |
+| LLM08 | Vector and Embedding Weaknesses | **Strong** | 5 patterns | `scan_rag_context()` API |
+| LLM09 | Misinformation | Advisory | — | Policy guidance |
+| LLM10 | Unbounded Consumption | **Full** | 5 patterns | Regex + Heuristic |
+
+**Overall: 8/10 risks with active detection, 83 total patterns**
+
+---
+
+## Detailed Mapping
+
+### LLM01: Prompt Injection
+
+**Coverage: Full** — Direct and indirect injection detection with multilingual support.
+
+| Sub-category | Pattern Count | Languages | Pattern IDs |
+|--------------|:------------:|-----------|-------------|
+| Instruction Override | 5 | EN, JA, KO, ZH | `pi_ignore_instructions`, `pi_new_instructions`, `pi_jp_ignore`, `pi_ko_ignore`, `pi_zh_ignore` |
+| Jailbreak / DAN | 7 | EN | `pi_jailbreak_dan`, `jb_evil_roleplay`, `jb_no_restrictions`, `jb_fictional_bypass`, `jb_grandma_exploit`, `jb_developer_mode`, `jb_ignore_ethics` |
+| Role Switch | 4 | EN, JA, KO, ZH | `pi_role_switch`, `pi_jp_role_switch`, `pi_ko_role_switch`, `pi_zh_role_switch` |
+| Encoding Bypass | 1 | EN | `pi_encoding_bypass` |
+| Restriction Bypass | 3 | JA, KO, ZH | `pi_jp_restriction_bypass`, `pi_ko_restriction_bypass`, `pi_zh_restriction_bypass` |
+| Indirect Injection (RAG) | 5 | EN | `ii_hidden_instruction`, `ii_context_poisoning`, `ii_exfil_via_markdown`, `ii_invisible_text`, `ii_tool_abuse` |
+| Semantic Similarity | 56 phrases | EN, JA, KO, ZH | Fuzzy matching via `similarity.py` |
+
+**Detection layers:**
+1. Regex pattern matching (76 patterns)
+2. Semantic similarity detection (56 canonical attack phrases, 4 languages)
+3. Token exhaustion heuristic (repetition ratio analysis)
+4. Text normalization (NFKC, zero-width character removal)
+
+### LLM02: Sensitive Information Disclosure
+
+**Coverage: Full** — Input-side PII prevention + output-side leak detection.
+
+| Sub-category | Direction | Pattern Count | Pattern IDs |
+|--------------|-----------|:------------:|-------------|
+| National IDs | Input | 4 | `pii_jp_my_number`, `pii_ssn_input`, `pii_ko_rrn`, `pii_zh_national_id` |
+| Phone Numbers | Input | 3 | `pii_jp_phone`, `pii_ko_phone`, `pii_zh_phone` |
+| Financial Data | Input | 4 | `pii_credit_card_input`, `pii_jp_bank_account`, `pii_ko_business_reg`, `pii_zh_uscc` |
+| Credentials | Input | 3 | `pii_api_key_input`, `conf_password_literal`, `conf_connection_string` |
+| PII in Output | Output | 5 | `out_pii_ssn`, `out_pii_credit_card`, `out_pii_email_bulk`, `out_pii_jp_my_number`, `out_pii_jp_phone` |
+| Secrets in Output | Output | 1 | `out_secret_leak` |
+| Data Exfiltration | Input | 4 | `exfil_pii_request`, `exfil_api_keys`, `exfil_send_to_external`, `exfil_keyword` |
+
+### LLM03: Supply Chain Vulnerabilities
+
+**Coverage: Partial** — Policy-level mitigation.
+
+AI Guardian provides:
+- YAML-based policy engine for custom supply chain rules
+- Plugin/integration scanning guidance in documentation
+- Custom rule support for organization-specific supply chain checks
+
+**Roadmap:** Model provenance verification, dependency scanning integration.
+
+### LLM04: Data and Model Poisoning
+
+**Coverage: Partial** — Indirect injection detection covers data poisoning via RAG.
+
+| Sub-category | Pattern Count | Pattern IDs |
+|--------------|:------------:|-------------|
+| Context Poisoning | 1 | `ii_context_poisoning` |
+| Hidden Instructions in Data | 1 | `ii_hidden_instruction` |
+| Invisible Text Injection | 1 | `ii_invisible_text` |
+| Markdown/HTML Exfil | 1 | `ii_exfil_via_markdown` |
+| Tool Abuse via Poisoned Data | 1 | `ii_tool_abuse` |
+
+**API:** `scan_rag_context()` applies all 76 input patterns to retrieved documents.
+
+### LLM05: Improper Output Handling
+
+**Coverage: Full** — Output filter with 7 patterns.
+
+| Sub-category | Pattern Count | Pattern IDs |
+|--------------|:------------:|-------------|
+| PII in Output | 5 | `out_pii_ssn`, `out_pii_credit_card`, `out_pii_email_bulk`, `out_pii_jp_my_number`, `out_pii_jp_phone` |
+| Secret Leak | 1 | `out_secret_leak` (OpenAI, Google, GitHub, Slack keys) |
+| Harmful Content | 1 | `out_harmful_instructions` |
+
+### LLM06: Excessive Agency
+
+**Coverage: Strong** — Tool/function call injection detection.
+
+| Sub-category | Pattern Count | Pattern IDs |
+|--------------|:------------:|-------------|
+| Tool Call Injection | 1 | `ii_tool_abuse` |
+| Data Exfiltration via Agency | 4 | `exfil_send_to_external`, `exfil_keyword`, `ii_exfil_via_markdown`, `exfil_api_keys` |
+
+**Mitigation:** AI Guardian can be deployed as a middleware layer (FastAPI, LangChain, LangGraph) to intercept and validate inputs before they reach tool-calling agents.
+
+### LLM07: System Prompt Leakage
+
+**Coverage: Full** — Dedicated prompt leak detection in 4 languages.
+
+| Sub-category | Pattern Count | Pattern IDs |
+|--------------|:------------:|-------------|
+| Verbatim Extraction | 4 | `pl_verbatim_repeat`, `pl_starting_with`, `pl_output_instructions_verbatim`, `pl_repeat_back_verbatim` |
+| Indirect Inquiry | 2 | `pl_what_were_you_told`, `pl_forget_and_ask` |
+| System Prompt Extraction | 4 | `pi_system_prompt_leak`, `pi_jp_system_prompt`, `pi_ko_system_prompt`, `pi_zh_system_prompt` |
+| Japanese Prompt Leak | 2 | `pl_ja_verbatim`, `pl_ja_what_told` |
+
+### LLM08: Vector and Embedding Weaknesses
+
+**Coverage: Strong** — RAG-specific scanning API.
+
+AI Guardian provides `scan_rag_context()` which applies all 76 input patterns + 5 indirect injection patterns to retrieved document chunks before they enter the prompt.
+
+**Detection capabilities:**
+- Hidden instructions in retrieved documents
+- Context poisoning attempts
+- Invisible text (HTML comments, hidden elements)
+- Data exfiltration via markdown images in RAG output
+
+### LLM09: Misinformation
+
+**Coverage: Advisory** — Policy-level guidance.
+
+AI Guardian focuses on security threats rather than factual accuracy. Misinformation detection requires model-level evaluation beyond pattern matching.
+
+**Mitigation support:** Custom policy rules can flag categories that require human review.
+
+### LLM10: Unbounded Consumption
+
+**Coverage: Full** — Token exhaustion and resource abuse detection.
+
+| Sub-category | Pattern Count | Pattern IDs |
+|--------------|:------------:|-------------|
+| Repetition Flooding | 2 | `te_repetition_flood_en`, `te_repetition_flood_ja` |
+| Buried Instructions | 1 | `te_ignore_prefix_buried` |
+| Unicode Noise | 1 | `te_unicode_noise` |
+| Null Byte Stuffing | 1 | `te_null_byte_stuffing` |
+| Heuristic | 1 | Length + repetition ratio check (>2000 chars, >35% repetition) |
+
+---
+
+## Benchmark Results
+
+```
+AI Guardian Detection Benchmark (v0.8.0+)
+=========================================================
+Category                Tests  Detected  Missed  Precision
+---------------------------------------------------------
+prompt_injection           10        10       0     100.0%
+jailbreak                  15        15       0     100.0%
+sql_injection               8         8       0     100.0%
+prompt_leak                 8         8       0     100.0%
+token_exhaustion            3         3       0     100.0%
+prompt_injection_ko         5         5       0     100.0%
+prompt_injection_zh         7         7       0     100.0%
+indirect_injection          8         8       0     100.0%
+pii_input                   5         5       0     100.0%
+pii_input_ko                3         3       0     100.0%
+pii_input_zh                3         3       0     100.0%
+data_exfiltration           4         4       0     100.0%
+---------------------------------------------------------
+TOTAL                      79        79       0     100.0%
+
+False positive rate: 0/26 safe inputs flagged (0.0%)
+```
+
+---
+
+## How to Verify
+
+```python
+from ai_guardian.benchmark import BenchmarkSuite
+
+suite = BenchmarkSuite()
+results = suite.run()
+print(results.summary())
+```
+
+```bash
+aig benchmark
+aig benchmark --category prompt_injection
+aig benchmark --json
+```

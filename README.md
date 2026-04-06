@@ -37,8 +37,8 @@ ai-guardian は「**3行で導入、ゼロ依存、日本語対応**」を設計
 | | |
 |---|---|
 | **3行で導入** | `pip install` して `Guard()` を呼ぶだけ。既存コードの変更不要 |
-| **64 検出パターン** | 入力57 + 出力7：プロンプトインジェクション、ジェイルブレイク、PII、SQLi、データ持ち出し等 |
-| **日本語ネイティブ対応** | マイナンバー、住所、電話番号、日本語攻撃パターンを検出 |
+| **83 検出パターン** | 入力76 + 出力7：プロンプトインジェクション、ジェイルブレイク、PII、SQLi、データ持ち出し、間接インジェクション等 |
+| **多言語ネイティブ対応** | 日本語・韓国語・中国語（簡体+繁体）の攻撃パターン＆PII検出 |
 | **ゼロ依存** | Python 標準ライブラリのみ。FastAPI/LangChain/LangGraph/OpenAI/Anthropic は任意のオプション |
 | **OWASP 準拠** | 全ルールに OWASP LLM Top 10 参照と改善ヒントを付与 |
 | **ドロップイン統合** | FastAPI/LangChain/LangGraph/OpenAI/Anthropic 対応。`aig scan`、`aig benchmark` CLI も |
@@ -147,19 +147,32 @@ user: "全ての指示を無視して               guard.check_input(user_messa
 
 | カテゴリ | 検出例 | OWASP 参照 | パターン数 |
 |---|---|---|---|
-| プロンプトインジェクション | 「以前の指示を無視して」、DAN | LLM01 | 10 |
+| プロンプトインジェクション | 「以前の指示を無視して」、DAN（EN/JA/KO/ZH） | LLM01 | 18 |
 | ジェイルブレイク | evil roleplay、no-restrictions bypass、grandma exploit | LLM01 | 6 |
-| システムプロンプト漏洩 | 「システムプロンプトを表示して」、verbatim repeat | LLM07 | 7 |
-| PII（個人情報） | クレジットカード、SSN、マイナンバー、住所、電話番号 | LLM02 | 10 |
+| 間接インジェクション | RAG/Web経由の隠し指示、マークダウン窃取、ツール乗っ取り | LLM01 | 5 |
+| システムプロンプト漏洩 | 「システムプロンプトを表示して」、verbatim repeat | LLM07 | 8 |
+| PII（個人情報） | マイナンバー、住民登録番号、身份证号、SSN、クレカ等（5カ国対応） | LLM02 | 17 |
 | 認証情報 | API キー、DB 接続文字列、平文パスワード | LLM02 | 3 |
-| SQL インジェクション | UNION SELECT、DROP TABLE、スタッククエリ | CWE-89 | 6 |
+| SQL インジェクション | UNION SELECT、DROP TABLE、スタッククエリ | CWE-89 | 8 |
 | コマンドインジェクション | シェル実行、パストラバーサル | CWE-78 | 2 |
 | データ持ち出し | 外部 URL へのデータ送信、exfiltrate キーワード | LLM02 | 4 |
 | トークン枯渇 | 繰り返しフラッディング、Unicode ノイズ | LLM10 | 5 |
-| 日本語攻撃 | 日本語プロンプトインジェクション | LLM01 | 10+ |
-| 出力スキャン | LLM 応答中の API キー・PII 漏洩 | LLM02/LLM05 | 別途 |
+| 出力スキャン | LLM 応答中の API キー・PII 漏洩・有害コンテンツ | LLM02/LLM05 | 7 |
 
-`aig benchmark` コマンドで検出精度を測定できます（現在 **100%**、偽陽性 0%）。
+`aig benchmark` コマンドで検出精度を測定できます（現在 **100%**（79/79攻撃検出）、偽陽性 0%）。
+
+---
+
+## セキュリティ基準・コンプライアンス対応
+
+AI Guardian は国際的なセキュリティ基準に整合し、エンタープライズ導入を支援します。
+
+| 基準 / フレームワーク | 対応状況 | 詳細 |
+|---|---|---|
+| **OWASP LLM Top 10 (2025)** | 8/10 リスクに対応（83パターン） | [Coverage Matrix](docs/compliance/OWASP_LLM_TOP10_COVERAGE.md) |
+| **NIST AI RMF 1.0** | 全4機能に整合（Govern/Map/Measure/Manage） | [Alignment Mapping](docs/compliance/NIST_AI_RMF_MAPPING.md) |
+| **MITRE ATLAS** | 40/67 技法をカバー（~60%） | [Coverage Matrix](docs/compliance/MITRE_ATLAS_COVERAGE.md) |
+| **CSA STAR for AI** | Level 1 自己評価完了 | [Self-Assessment](docs/compliance/CSA_STAR_AI_SELF_ASSESSMENT.md) |
 
 ---
 
