@@ -226,7 +226,7 @@ export default function BillingPage() {
           </div>
         ) : null}
 
-        {sub?.stripe_customer_id !== undefined && sub?.plan !== "free" && (
+        {(sub as any)?.stripe_customer_id !== undefined && sub?.plan !== "free" && (
           <button
             onClick={handleManage}
             className="w-full py-3 px-4 bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg text-sm hover:bg-gd-elevated transition-colors"

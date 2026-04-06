@@ -220,7 +220,7 @@ export default function ReportsPage() {
                   {report.compliance_summary.cwe_coverage.map((item, i) => (
                     <div key={i} className="flex items-start gap-2 text-xs text-gd-text-secondary">
                       <span className="text-gd-safe mt-0.5 flex-shrink-0">&#10003;</span>
-                      <span>{item}</span>
+                      <span>{typeof item === "string" ? item : `${item.id} ${item.name}`}</span>
                     </div>
                   ))}
                 </div>
@@ -237,22 +237,20 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
-        </div>
-      )}
 
           {/* Japan Compliance */}
           {report.japan_compliance && (
             <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6">
               <h2 className="text-gd-text-primary mb-4" style={{ fontWeight: 540 }}>Japan AI Regulation Compliance</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(report.japan_compliance).map(([key, data]) => (
+                {Object.entries(report.japan_compliance).map(([key, data]: [string, any]) => (
                   <div key={key} className="border border-gd-subtle rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm text-gd-text-secondary" style={{ fontWeight: 540 }}>{key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                      <h3 className="text-sm text-gd-text-secondary" style={{ fontWeight: 540 }}>{key.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}</h3>
                       <span className="px-2 py-0.5 bg-gd-safe-bg text-gd-safe rounded-full text-xs" style={{ fontWeight: 480 }}>{data.status}</span>
                     </div>
                     <ul className="space-y-1">
-                      {data.details.map((detail, i) => (
+                      {data.details.map((detail: string, i: number) => (
                         <li key={i} className="text-xs text-gd-text-muted flex items-start gap-1.5">
                           <span className="text-gd-safe mt-0.5 flex-shrink-0">&#10003;</span>
                           {detail}

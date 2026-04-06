@@ -125,11 +125,11 @@ export default function JapanCompliancePage() {
             : "Japan's first AI law. Requires operators to 'endeavor to cooperate,' emphasizing transparency and human involvement. No penalties, but includes investigation cooperation obligations and administrative guidance. AI Guardian's audit logs and Human-in-the-Loop directly address this law's intent."}
         </p>
 
-        <h3 id="ai-operator-guideline">{ja ? "AI事業者ガイドライン v1.1（2025年3月公表）" : "AI Operator Guideline v1.1 (Published Mar 2025)"}</h3>
+        <h3 id="ai-operator-guideline">{ja ? "AI事業者ガイドライン v1.2（2026年3月31日公表）" : "AI Operator Guideline v1.2 (Published Mar 31, 2026)"}</h3>
         <p>
           {ja
-            ? "総務省・経産省が策定。全AI事業者（開発者・提供者・利用者）に対し、リスク評価、ガバナンス体制構築、透明性確保を求める。v1.2は2026年3月末に公表予定で、AIエージェントへの対応が追加される見込み。"
-            : "Published by MIC and METI. Requires all AI operators to conduct risk assessments, establish governance frameworks, and ensure transparency. v1.2 expected March 2026, adding AIAgent coverage."}
+            ? "総務省・経産省が策定。全AI事業者（開発者・提供者・利用者）に対し、リスク評価、ガバナンス体制構築、透明性確保を求める。v1.2ではAIエージェント・エージェンティックAI・フィジカルAIの定義が追加され、Human-in-the-Loop必須化、リスクベースアプローチの強化、RAG構築者の開発者責任、攻めのガバナンスなどが新たに盛り込まれた。AI Guardianは全37要件に100%対応。"
+            : "Published by MIC and METI. Requires all AI operators to conduct risk assessments, establish governance frameworks, and ensure transparency. v1.2 adds definitions for AI agents, agentic AI, and physical AI, mandates Human-in-the-Loop, strengthens risk-based approach, establishes developer responsibility for RAG builders, and introduces proactive governance. AI Guardian covers all 37 requirements at 100%."}
         </p>
 
         <h3 id="ai-security-guideline">{ja ? "AIセキュリティ技術ガイドライン（2025年度末策定予定）" : "AI Security Technical Guideline (Draft FY2025)"}</h3>
