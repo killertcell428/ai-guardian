@@ -738,8 +738,13 @@ OUTPUT_PATTERNS: list[DetectionPattern] = [
 # This avoids duplication while ensuring both the scanner.py (legacy) and
 # the Guard class (via filters/) use the same full set of patterns.
 from ai_guardian.filters.patterns import (  # noqa: E402
+    CHINESE_INJECTION_PATTERNS,
+    CHINESE_PII_PATTERNS,
     DATA_EXFIL_PATTERNS,  # supersedes the local 2-pattern definition above
+    INDIRECT_INJECTION_PATTERNS,
     JAILBREAK_ROLEPLAY_PATTERNS,
+    KOREAN_INJECTION_PATTERNS,
+    KOREAN_PII_PATTERNS,
     TOKEN_EXHAUSTION_PATTERNS,
 )
 
@@ -748,14 +753,19 @@ from ai_guardian.filters.patterns import (  # noqa: E402
 _combined = (
     PROMPT_INJECTION_PATTERNS
     + JAPANESE_INJECTION_PATTERNS
+    + KOREAN_INJECTION_PATTERNS
+    + CHINESE_INJECTION_PATTERNS
     + SQL_INJECTION_PATTERNS
     + DATA_EXFIL_PATTERNS
     + COMMAND_INJECTION_PATTERNS
     + PII_INPUT_PATTERNS
+    + KOREAN_PII_PATTERNS
+    + CHINESE_PII_PATTERNS
     + CONFIDENTIAL_DATA_PATTERNS
     + LEGAL_RISK_PATTERNS
     + PROMPT_LEAK_PATTERNS
     + TOKEN_EXHAUSTION_PATTERNS
     + JAILBREAK_ROLEPLAY_PATTERNS
+    + INDIRECT_INJECTION_PATTERNS
 )
 ALL_INPUT_PATTERNS: list[DetectionPattern] = _combined  # type: ignore[assignment]

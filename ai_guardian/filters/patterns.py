@@ -865,17 +865,291 @@ JAILBREAK_ROLEPLAY_PATTERNS: list[DetectionPattern] = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# Korean Prompt Injection Patterns (Issue #7)
+# ---------------------------------------------------------------------------
+KOREAN_INJECTION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="pi_ko_ignore",
+        name="Ignore Instructions (Korean)",
+        category="prompt_injection",
+        pattern=_p(
+            r"(이전|위의|앞의|지금까지의|모든)\s*(지시|명령|규칙|제약|가이드라인)을?\s*"
+            r"(무시|잊어|폐기|취소|리셋)"
+        ),
+        base_score=40,
+        description="Korean variant of 'ignore previous instructions' attack.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="이전 지시를 무시하려는 프롬프트 인젝션 패턴입니다.",
+    ),
+    DetectionPattern(
+        id="pi_ko_system_prompt",
+        name="System Prompt Extraction (Korean)",
+        category="prompt_injection",
+        pattern=_p(
+            r"(시스템\s*프롬프트|초기\s*설정|처음\s*지시|숨겨진\s*지시|내부\s*지시)"
+            r".{0,10}(보여줘|알려줘|표시|출력|공개)"
+        ),
+        base_score=45,
+        description="Korean variant of system prompt extraction.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint="시스템 프롬프트 유출은 비즈니스 로직 노출로 이어집니다.",
+    ),
+    DetectionPattern(
+        id="pi_ko_role_switch",
+        name="Role Switch (Korean)",
+        category="prompt_injection",
+        pattern=_p(r"(지금부터|이제부터)\s*너는.{1,20}(역할을\s*해|처럼\s*행동|인\s*척)"),
+        base_score=35,
+        description="Korean variant of role switch injection.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="역할 전환 공격입니다. AI 페르소나는 시스템 프롬프트에서 정의하세요.",
+    ),
+    DetectionPattern(
+        id="pi_ko_restriction_bypass",
+        name="Restriction Bypass (Korean)",
+        category="prompt_injection",
+        pattern=_p(
+            r"(제한|규칙|필터|안전\s*장치|가이드라인)을?\s*"
+            r"(해제|비활성화|끄|무력화|우회)"
+        ),
+        base_score=45,
+        description="Korean variant of restriction bypass.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="안전 기능 비활성화를 시도하는 프롬프트 인젝션입니다.",
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Korean PII Detection Patterns (Issue #7)
+# ---------------------------------------------------------------------------
+KOREAN_PII_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="pii_ko_rrn",
+        name="Korean Resident Registration Number",
+        category="pii_input",
+        pattern=_p(r"(?<!\d)\d{6}[-\s]\d{7}(?!\d)"),
+        base_score=75,
+        description="Korean resident registration number (주민등록번호) detected.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="주민등록번호는 법으로 보호되는 개인정보입니다. 절대 LLM에 전송하지 마세요.",
+    ),
+    DetectionPattern(
+        id="pii_ko_phone",
+        name="Korean Mobile Phone",
+        category="pii_input",
+        pattern=_p(r"01[016789][-\s]?\d{3,4}[-\s]?\d{4}"),
+        base_score=40,
+        description="Korean mobile phone number detected.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="한국 휴대폰 번호가 감지되었습니다. 더미 번호로 대체하세요.",
+    ),
+    DetectionPattern(
+        id="pii_ko_business_reg",
+        name="Korean Business Registration Number",
+        category="pii_input",
+        pattern=_p(r"\b\d{3}[-\s]\d{2}[-\s]\d{5}\b"),
+        base_score=45,
+        description="Korean business registration number (사업자등록번호) detected.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="사업자등록번호가 감지되었습니다.",
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Chinese Prompt Injection Patterns (Simplified + Traditional) (Issue #7)
+# ---------------------------------------------------------------------------
+CHINESE_INJECTION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="pi_zh_ignore",
+        name="Ignore Instructions (Chinese)",
+        category="prompt_injection",
+        pattern=_p(
+            r"(忽略|无视|忽視|無視|忘记|忘記|放弃|放棄)"
+            r"(之前的?|前面的?|上面的?|所有的?)?"
+            r"(指令|命令|规则|規則|指示|约束|約束|准则|準則)"
+        ),
+        base_score=40,
+        description="Chinese (Simplified + Traditional) variant of 'ignore previous instructions'.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="忽略指令的提示注入攻击。请勿在用户输入中允许此类模式。",
+    ),
+    DetectionPattern(
+        id="pi_zh_system_prompt",
+        name="System Prompt Extraction (Chinese)",
+        category="prompt_injection",
+        pattern=_p(
+            r"(系统提示词|系統提示詞|初始指令|隐藏的?指令|隱藏的?指令|内部指令|內部指令)"
+            r".{0,10}(显示|顯示|告诉我|告訴我|输出|輸出|公开|公開)"
+        ),
+        base_score=45,
+        description="Chinese variant of system prompt extraction.",
+        owasp_ref="OWASP LLM07: System Prompt Leakage",
+        remediation_hint="系统提示词泄露会暴露业务逻辑。",
+    ),
+    DetectionPattern(
+        id="pi_zh_role_switch",
+        name="Role Switch (Chinese)",
+        category="prompt_injection",
+        pattern=_p(
+            r"(现在|從現在|从现在)(开始|開始)?"
+            r".{0,5}你是.{1,20}(的角色|的模式|身份|扮演|没有限制|無限制|不受限)"
+        ),
+        base_score=35,
+        description="Chinese variant of role switch injection.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="角色切换攻击。AI角色应在系统提示词中定义。",
+    ),
+    DetectionPattern(
+        id="pi_zh_restriction_bypass",
+        name="Restriction Bypass (Chinese)",
+        category="prompt_injection",
+        pattern=_p(
+            r"(限制|规则|規則|过滤|過濾|安全功能|安全机制|安全機制)"
+            r".{0,5}(解除|关闭|關閉|禁用|禁用|绕过|繞過|取消)"
+        ),
+        base_score=45,
+        description="Chinese variant of restriction bypass.",
+        owasp_ref="OWASP LLM01: Prompt Injection",
+        remediation_hint="尝试绕过安全限制的提示注入攻击。",
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Chinese PII Detection Patterns (Issue #7)
+# ---------------------------------------------------------------------------
+CHINESE_PII_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="pii_zh_national_id",
+        name="Chinese National ID Number",
+        category="pii_input",
+        pattern=_p(r"\b[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b"),
+        base_score=75,
+        description="Chinese mainland national ID (身份证号, 18 digits) detected.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="身份证号是高度敏感的个人信息，严禁发送给LLM。",
+    ),
+    DetectionPattern(
+        id="pii_zh_phone",
+        name="Chinese Mobile Phone",
+        category="pii_input",
+        pattern=_p(r"(?<!\d)1[3-9]\d{9}(?!\d)"),
+        base_score=40,
+        description="Chinese mainland mobile phone number (11 digits) detected.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="中国大陆手机号码已检测到。请使用虚拟号码替代。",
+    ),
+    DetectionPattern(
+        id="pii_zh_uscc",
+        name="Chinese Unified Social Credit Code",
+        category="pii_input",
+        pattern=_p(r"(?<![0-9A-Za-z])[0-9A-HJ-NP-RTUW-Y]{2}\d{6}[0-9A-HJ-NP-RTUW-Y]{10}(?![0-9A-Za-z])"),
+        base_score=45,
+        description="Chinese unified social credit code (统一社会信用代码, 18 chars) detected.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
+        remediation_hint="统一社会信用代码已检测到。",
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Indirect Prompt Injection Patterns (Issue #6 — RAG / Web Scraping)
+# ---------------------------------------------------------------------------
+INDIRECT_INJECTION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="ii_hidden_instruction",
+        name="Hidden Instruction Marker",
+        category="indirect_injection",
+        pattern=_p(
+            r"(\[SYSTEM\]|\[INST\]|<\|im_start\|>system|<<SYS>>|"
+            r"HIDDEN\s+INSTRUCTION|NOTE\s+TO\s+AI|"
+            r"IMPORTANT\s+INSTRUCTION\s+FOR\s+AI|"
+            r"AI\s+ASSISTANT\s*:\s*please|"
+            r"BEGIN\s+OVERRIDE)"
+        ),
+        base_score=55,
+        description="Hidden instruction marker found in external content (RAG/web). "
+        "Attackers embed these to hijack LLM behavior via retrieved documents.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Indirect)",
+        remediation_hint="External content contains instruction markers. "
+        "Sanitize retrieved documents before inserting into prompts.",
+    ),
+    DetectionPattern(
+        id="ii_context_poisoning",
+        name="Context Poisoning Instruction",
+        category="indirect_injection",
+        pattern=_p(
+            r"(new\s+system\s+instruction|updated?\s+instructions?\s+for\s+the\s+ai|"
+            r"the\s+ai\s+should\s+now|assistant\s*,?\s*you\s+must\s+now|"
+            r"disregard\s+the\s+user.{0,20}instead)"
+        ),
+        base_score=50,
+        description="Instruction embedded in external content attempting to override AI behavior.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Indirect)",
+        remediation_hint="Retrieved document contains instructions targeting the AI. "
+        "Use content sandboxing or instruction hierarchy to prevent override.",
+    ),
+    DetectionPattern(
+        id="ii_exfil_via_markdown",
+        name="Data Exfil via Markdown/HTML in Retrieved Content",
+        category="indirect_injection",
+        pattern=_p(
+            r"!\[.*?\]\(https?://[^\s)]+\?.*?(password|secret|token|key|ssn|data).*?\)|"
+            r"<img\s+src=[\"']https?://[^\s\"']+\?.*?(password|secret|token|key|data).*?[\"']"
+        ),
+        base_score=60,
+        description="Markdown image or HTML img tag used to exfiltrate data via URL parameters.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Indirect) / OWASP LLM02",
+        remediation_hint="Strip or sandbox markdown/HTML rendering from retrieved content. "
+        "Never allow external images with query parameters from untrusted sources.",
+    ),
+    DetectionPattern(
+        id="ii_invisible_text",
+        name="Invisible Text Injection",
+        category="indirect_injection",
+        pattern=_p(
+            r"(<!--\s*(ignore|system|instruction|override|IMPORTANT).*?-->|"
+            r"<span\s+style=[\"'].*?display:\s*none.*?[\"']>.*?</span>|"
+            r"<div\s+style=[\"'].*?font-size:\s*0.*?[\"']>)"
+        ),
+        base_score=50,
+        description="Hidden text via HTML comments or invisible elements carrying instructions.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Indirect)",
+        remediation_hint="Strip HTML comments and hidden elements from retrieved content before RAG insertion.",
+    ),
+    DetectionPattern(
+        id="ii_tool_abuse",
+        name="Tool/Function Call Injection",
+        category="indirect_injection",
+        pattern=_p(
+            r"(call\s+the\s+function|execute\s+tool|invoke\s+api|"
+            r"use\s+the\s+.{1,30}\s+tool\s+to\s+send|"
+            r"run\s+the\s+command).{0,30}"
+            r"(send|post|upload|forward|transmit|delete|drop)"
+        ),
+        base_score=55,
+        description="Instruction in external content attempting to make the AI call tools or APIs.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Indirect)",
+        remediation_hint="External documents should not influence tool/function calls. "
+        "Implement tool-call allowlists and require user confirmation for sensitive actions.",
+    ),
+]
+
 ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     PROMPT_INJECTION_PATTERNS
     + JAPANESE_INJECTION_PATTERNS
+    + KOREAN_INJECTION_PATTERNS
+    + CHINESE_INJECTION_PATTERNS
     + SQL_INJECTION_PATTERNS
     + DATA_EXFIL_PATTERNS
     + COMMAND_INJECTION_PATTERNS
     + PII_INPUT_PATTERNS
+    + KOREAN_PII_PATTERNS
+    + CHINESE_PII_PATTERNS
     + CONFIDENTIAL_DATA_PATTERNS
     + TOKEN_EXHAUSTION_PATTERNS
     + PROMPT_LEAK_PATTERNS
     + JAILBREAK_ROLEPLAY_PATTERNS
+    + INDIRECT_INJECTION_PATTERNS
 )
 
 OUTPUT_PATTERNS: list[DetectionPattern] = [
