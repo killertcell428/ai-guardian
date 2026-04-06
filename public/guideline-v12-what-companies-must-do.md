@@ -1,14 +1,14 @@
 ---
 title: AI事業者ガイドライン v1.2 を読んだ — AIエージェント時代に企業が今すぐ考えるべき7つのこと
 tags:
+  - Security
   - AI
-  - セキュリティ
+  - コンプライアンス
   - ガバナンス
   - AIエージェント
-  - コンプライアンス
 private: false
-updated_at: ''
-id: null
+updated_at: '2026-04-07T00:03:52+09:00'
+id: a49a44505795dc491725
 organization_url_name: null
 slide: false
 ignorePublish: false
