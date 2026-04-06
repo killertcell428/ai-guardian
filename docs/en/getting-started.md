@@ -173,9 +173,9 @@ aig report
 
 | Framework | Coverage |
 |-----------|----------|
-| **OWASP LLM Top 10 (2025)** | 8/10 risks, 121 patterns |
+| **OWASP LLM Top 10 (2025)** | **All 8 runtime-detectable risks fully covered** (remaining 2 are model/supply chain scope) |
 | **NIST AI RMF 1.0** | All 4 functions (Govern/Map/Measure/Manage) |
-| **MITRE ATLAS** | 40/67 techniques (~60%) |
+| **MITRE ATLAS** | **40/67 techniques covered** (uncovered 27 are pre-interaction/infrastructure scope) |
 | **CSA STAR for AI** | Level 1 self-assessment complete |
 | **Japan AI Guidelines v1.2** | 37/37 requirements (100%) |
 
