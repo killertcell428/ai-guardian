@@ -1,14 +1,14 @@
 ---
 title: AI事業者ガイドライン v1.2 の37要件、全部読んでOSSで対応してみた
 tags:
+  - Security
   - AI
-  - セキュリティ
   - コンプライアンス
-  - AIエージェント
   - LLM
+  - AIエージェント
 private: false
-updated_at: ''
-id: null
+updated_at: '2026-04-06T23:59:48+09:00'
+id: 78e87cff490b6d656ed3
 organization_url_name: null
 slide: false
 ignorePublish: false
