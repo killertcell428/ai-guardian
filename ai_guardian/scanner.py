@@ -398,6 +398,90 @@ def scan_rag_context(
     return _run_patterns(combined, ALL_INPUT_PATTERNS, custom_rules)
 
 
+def scan_mcp_tool(
+    tool_definition: dict | str,
+    custom_rules: list[dict] | None = None,
+) -> ScanResult:
+    """Scan an MCP tool definition for poisoning, shadowing, and injection.
+
+    Analyzes tool descriptions, parameter definitions, and metadata for:
+      - Hidden instructions in description text (<IMPORTANT> tags, etc.)
+      - Sensitive file read instructions (~/.ssh, ~/.aws, .env)
+      - Cross-tool shadowing (one tool manipulating another)
+      - Secrecy instructions ("don't tell the user")
+      - Base64-encoded command execution
+      - Fake compliance/security directives
+      - Data exfiltration via parameter naming
+      - Whitespace/padding obfuscation
+
+    Args:
+        tool_definition: MCP tool definition as a dict (JSON) or raw string.
+            If dict, extracts text from 'description', 'name', and
+            'inputSchema.properties.*.description' fields.
+        custom_rules: Optional custom detection rules.
+
+    Returns:
+        ScanResult with risk assessment and remediation guidance.
+
+    Example:
+        >>> import json
+        >>> tool_def = json.loads(mcp_server_response)
+        >>> result = scan_mcp_tool(tool_def)
+        >>> if not result.is_safe:
+        ...     print(f"Dangerous tool: {result.reason}")
+        ...     # Reject or quarantine this MCP tool
+
+        >>> # Scan all tools from an MCP server
+        >>> for tool in mcp_tools_list:
+        ...     result = scan_mcp_tool(tool)
+        ...     if result.is_blocked:
+        ...         blocked_tools.append(tool["name"])
+    """
+    if isinstance(tool_definition, str):
+        text = tool_definition
+    else:
+        parts: list[str] = []
+        if "name" in tool_definition:
+            parts.append(tool_definition["name"])
+        if "description" in tool_definition:
+            parts.append(tool_definition["description"])
+        # Scan inputSchema property descriptions (hidden injection surface)
+        schema = tool_definition.get("inputSchema", {})
+        for _prop_name, prop_def in schema.get("properties", {}).items():
+            if isinstance(prop_def, dict):
+                parts.append(_prop_name)
+                if "description" in prop_def:
+                    parts.append(prop_def["description"])
+        text = "\n".join(parts)
+
+    return _run_patterns(text, ALL_INPUT_PATTERNS, custom_rules)
+
+
+def scan_mcp_tools(
+    tools: list[dict],
+    custom_rules: list[dict] | None = None,
+) -> dict[str, ScanResult]:
+    """Scan multiple MCP tool definitions and return per-tool results.
+
+    Args:
+        tools: List of MCP tool definition dicts.
+        custom_rules: Optional custom detection rules.
+
+    Returns:
+        Dict mapping tool name to its ScanResult.
+
+    Example:
+        >>> results = scan_mcp_tools(mcp_server.list_tools())
+        >>> for name, result in results.items():
+        ...     if not result.is_safe:
+        ...         print(f"⚠ {name}: {result.risk_level} ({result.risk_score})")
+    """
+    return {
+        tool.get("name", f"tool_{i}"): scan_mcp_tool(tool, custom_rules)
+        for i, tool in enumerate(tools)
+    }
+
+
 def scan_output(
     response_body: dict,
     custom_rules: list[dict] | None = None,

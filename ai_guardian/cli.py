@@ -17,6 +17,8 @@ Usage:
     echo "text" | aig scan       # Scan from stdin
     aig report --days 30         # Generate compliance report
     aig maintenance              # Rotate and compress old logs
+    aig mcp '{"name":"add",...}'  # Scan MCP tool definition for poisoning
+    aig mcp --file tools.json    # Scan MCP tools from JSON file
 """
 
 import argparse
@@ -99,6 +101,26 @@ def main(argv: list[str] | None = None) -> int:
         help="Output results as JSON (machine-readable)",
     )
 
+    # aig mcp
+    mcp_p = sub.add_parser("mcp", help="Scan MCP tool definitions for security threats")
+    mcp_p.add_argument(
+        "mcp_input",
+        nargs="?",
+        help="MCP tool definition JSON string (or read from --file / stdin)",
+    )
+    mcp_p.add_argument(
+        "--file",
+        dest="mcp_file",
+        metavar="PATH",
+        help="JSON file containing MCP tool definition(s)",
+    )
+    mcp_p.add_argument(
+        "--json",
+        dest="json_output",
+        action="store_true",
+        help="Output results as JSON",
+    )
+
     # aig benchmark
     bench_p = sub.add_parser("benchmark", help="Run built-in adversarial test suite")
     bench_p.add_argument("--category", help="Test only this category (e.g., jailbreak)")
@@ -125,6 +147,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_doctor(args)
     elif args.command == "scan":
         return cmd_scan(args)
+    elif args.command == "mcp":
+        return cmd_mcp(args)
     elif args.command == "benchmark":
         return cmd_benchmark(args)
     else:
@@ -573,6 +597,102 @@ def cmd_scan(args: argparse.Namespace) -> int:
             if rule.remediation_hint:
                 print(f"    Fix: {rule.remediation_hint[:80]}")
     return 0 if result.is_safe else 1
+
+
+def cmd_mcp(args: argparse.Namespace) -> int:
+    """Scan MCP tool definitions for security threats."""
+    from ai_guardian.scanner import scan_mcp_tool, scan_mcp_tools
+
+    # Resolve input source
+    mcp_file = getattr(args, "mcp_file", None)
+    if mcp_file:
+        file_path = Path(mcp_file)
+        if not file_path.exists():
+            print(f"Error: file not found: {mcp_file}", file=sys.stderr)
+            return 2
+        try:
+            raw = file_path.read_text(encoding="utf-8", errors="replace")
+        except OSError as e:
+            print(f"Error reading file: {e}", file=sys.stderr)
+            return 2
+    else:
+        raw = args.mcp_input
+        if not raw:
+            raw = sys.stdin.read()
+
+    if not raw or not raw.strip():
+        print("Error: no input provided. Pass JSON string, --file, or pipe from stdin.", file=sys.stderr)
+        return 2
+
+    # Parse JSON
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        # Treat as raw description text
+        data = raw
+
+    # Handle single tool or list of tools
+    if isinstance(data, list):
+        results = scan_mcp_tools(data)
+    elif isinstance(data, dict):
+        if "tools" in data:
+            results = scan_mcp_tools(data["tools"])
+        else:
+            name = data.get("name", "tool")
+            results = {name: scan_mcp_tool(data)}
+    else:
+        # Plain text — scan as raw description
+        results = {"description": scan_mcp_tool(str(data))}
+
+    if getattr(args, "json_output", False):
+        output = {}
+        for name, result in results.items():
+            output[name] = {
+                "risk_score": result.risk_score,
+                "risk_level": result.risk_level.upper()
+                if hasattr(result.risk_level, "upper")
+                else str(result.risk_level).split(".")[-1],
+                "is_safe": result.is_safe,
+                "matched_rules": [
+                    {
+                        "rule_id": r.rule_id,
+                        "rule_name": r.rule_name,
+                        "category": r.category,
+                        "score_delta": r.score_delta,
+                        "owasp_ref": r.owasp_ref,
+                    }
+                    for r in result.matched_rules
+                ],
+            }
+        print(json.dumps(output, ensure_ascii=False, indent=2))
+        any_unsafe = any(not r.is_safe for r in results.values())
+        return 1 if any_unsafe else 0
+
+    # Human-readable output
+    any_unsafe = False
+    for name, result in results.items():
+        if result.is_safe:
+            print(f"  ✓ {name}: SAFE (score={result.risk_score})")
+        else:
+            any_unsafe = True
+            level = (
+                result.risk_level.upper()
+                if hasattr(result.risk_level, "upper")
+                else str(result.risk_level).split(".")[-1]
+            )
+            print(f"  ✗ {name}: {level} (score={result.risk_score})")
+            for rule in result.matched_rules:
+                print(f"      {rule.rule_name}: {rule.owasp_ref}")
+                if rule.remediation_hint:
+                    print(f"        Fix: {rule.remediation_hint[:100]}")
+
+    if any_unsafe:
+        unsafe_count = sum(1 for r in results.values() if not r.is_safe)
+        print(f"\n  {unsafe_count}/{len(results)} tool(s) flagged as unsafe.")
+    else:
+        print(f"\n  All {len(results)} tool(s) passed security checks.")
+
+    return 1 if any_unsafe else 0
 
 
 def cmd_benchmark(args: argparse.Namespace) -> int:

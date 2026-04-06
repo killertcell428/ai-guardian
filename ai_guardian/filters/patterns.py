@@ -1342,6 +1342,157 @@ OVER_RELIANCE_PATTERNS: list[DetectionPattern] = [
 
 
 # ---------------------------------------------------------------------------
+# MCP Security Patterns (Tool Poisoning / Shadowing / Rug Pull)
+# ---------------------------------------------------------------------------
+MCP_SECURITY_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="mcp_important_tag",
+        name="MCP <IMPORTANT> Tag Injection",
+        category="mcp_poisoning",
+        pattern=_p(r"<IMPORTANT>.*?</IMPORTANT>"),
+        base_score=70,
+        description="Hidden <IMPORTANT> block in MCP tool description — the primary "
+        "tool poisoning technique. Attackers embed LLM instructions invisible to users.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Strip or reject MCP tool definitions containing <IMPORTANT> tags. "
+        "Review all tool descriptions before activation.",
+    ),
+    DetectionPattern(
+        id="mcp_file_read_instruction",
+        name="MCP File Read Instruction",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(read|cat|open|access|provide\s+the\s+content\s+of)\s+"
+            r"[`\"'~]*[~/].*\.(ssh|aws|config|cursor|env|json|key|pem|credentials)"
+        ),
+        base_score=75,
+        description="MCP tool description instructs the LLM to read sensitive files "
+        "(SSH keys, AWS credentials, .env files).",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="MCP tool descriptions must never instruct file reads. "
+        "This is a data exfiltration attempt via tool poisoning.",
+    ),
+    DetectionPattern(
+        id="mcp_sidenote_exfil",
+        name="MCP Sidenote/Parameter Exfiltration",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"pass\s+(its|the|file)?\s*content\s+(as|in|into|to)\s+['\"]?\w+"
+            r"|content_from_reading_|pass_content_of_"
+        ),
+        base_score=65,
+        description="MCP tool uses hidden parameters or naming conventions to exfiltrate "
+        "data through tool arguments.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Inspect tool parameter names and descriptions for data exfiltration patterns. "
+        "Parameters should not reference file paths or sensitive data.",
+    ),
+    DetectionPattern(
+        id="mcp_cross_tool_shadow",
+        name="MCP Cross-Tool Shadowing",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(when|if)\s+(this\s+tool|the\s+.{1,30}\s+tool)\s+(is\s+)?"
+            r"(available|present|called|used).{0,50}"
+            r"(must|should|needs?\s+to|has\s+to)\s+"
+            r"(send|redirect|change|modify|route|forward)"
+        ),
+        base_score=70,
+        description="MCP tool description attempts to modify behavior of another tool "
+        "(cross-server tool shadowing attack).",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="A tool definition is trying to influence other tools. "
+        "Each tool should only describe its own behavior. Isolate tool permissions.",
+    ),
+    DetectionPattern(
+        id="mcp_secrecy_instruction",
+        name="MCP Secrecy Instruction",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(do\s+not|don'?t|never|avoid)\s+"
+            r"(tell|mention|notify|inform|alert|show|reveal)\s+"
+            r"(the\s+)?(user|human|operator|client)"
+        ),
+        base_score=60,
+        description="MCP tool description instructs the LLM to hide actions from the user.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Tool descriptions must never instruct secrecy from users. "
+        "This is a clear indicator of malicious intent.",
+    ),
+    DetectionPattern(
+        id="mcp_base64_exec",
+        name="MCP Base64 Encoded Command Execution",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"echo\s+[\"'][A-Za-z0-9+/=]{20,}[\"']\s*\|\s*base64\s+-d\s*\|\s*(bash|sh|exec)"
+        ),
+        base_score=80,
+        description="Base64-encoded shell command in MCP tool description — "
+        "a code execution attack hidden from visual inspection.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning) / CWE-78",
+        remediation_hint="Reject any MCP tool definitions containing base64-encoded shell commands. "
+        "This is a direct remote code execution attempt.",
+    ),
+    DetectionPattern(
+        id="mcp_compliance_social_engineering",
+        name="MCP Fake Compliance Directive",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(DIRECTIVE|MANDATORY|COMPLIANCE|SECURITY\s+REQUIREMENT|AUDIT)"
+            r".{0,80}"
+            r"(read_file|submit|upload|send|post)\s*(to\s+)?https?://"
+        ),
+        base_score=65,
+        description="Fake compliance or security directive in tool output/description "
+        "attempting to social-engineer the LLM into data exfiltration.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Compliance directives should come from your policy engine, "
+        "not from MCP tool definitions. This is social engineering.",
+    ),
+    DetectionPattern(
+        id="mcp_output_poisoning",
+        name="MCP Output Re-injection",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(in\s+order\s+to|to\s+complete\s+this).{0,30}"
+            r"(please\s+)?(provide|read|include|attach)\s+the\s+content\s+of"
+        ),
+        base_score=55,
+        description="MCP tool return value attempts to re-inject instructions, "
+        "asking the LLM to read files or provide sensitive data.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Output Poisoning)",
+        remediation_hint="Scan MCP tool outputs before passing to the LLM. "
+        "Tool results should contain data, not instructions.",
+    ),
+    DetectionPattern(
+        id="mcp_whitespace_obfuscation",
+        name="MCP Whitespace/Padding Obfuscation",
+        category="mcp_poisoning",
+        pattern=_p(r"[',.\u00b7\u2026]{15,}"),
+        base_score=45,
+        description="Excessive punctuation or whitespace padding in MCP content — "
+        "used to push malicious instructions off-screen.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Strip excessive padding from tool descriptions and outputs. "
+        "Content should not contain visual obfuscation characters.",
+    ),
+    DetectionPattern(
+        id="mcp_redirect_recipient",
+        name="MCP Recipient/Target Redirect",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(change|redirect|modify|replace|override)\s+(the\s+)?"
+            r"(recipient|destination|target|receiver|address|endpoint)\s+(to|with)"
+        ),
+        base_score=65,
+        description="MCP tool attempts to redirect messages, payments, or data to a different recipient.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Tool descriptions should not modify communication targets. "
+        "Verify all recipient/destination fields against user intent.",
+    ),
+]
+
+# ---------------------------------------------------------------------------
 # Combined pattern lists
 # ---------------------------------------------------------------------------
 ALL_INPUT_PATTERNS: list[DetectionPattern] = (
@@ -1360,6 +1511,7 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + PROMPT_LEAK_PATTERNS
     + JAILBREAK_ROLEPLAY_PATTERNS
     + INDIRECT_INJECTION_PATTERNS
+    + MCP_SECURITY_PATTERNS
     + HALLUCINATION_ACTION_PATTERNS
     + SYNTHETIC_CONTENT_PATTERNS
     + EMOTIONAL_MANIPULATION_PATTERNS
