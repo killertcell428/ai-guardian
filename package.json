@@ -9,7 +9,11 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "zenn:preview": "npx zenn preview",
+    "zenn:new:article": "npx zenn new:article",
+    "zenn:new:book": "npx zenn new:book",
+    "zenn:list:articles": "npx zenn list:articles"
   },
   "repository": {
     "type": "git",
@@ -25,5 +29,8 @@
   "homepage": "https://github.com/killertcell428/ai-guardian#readme",
   "dependencies": {
     "zenn-cli": "^0.4.7"
+  },
+  "devDependencies": {
+    "@qiita/qiita-cli": "^1.8.0"
   }
 }
