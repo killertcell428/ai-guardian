@@ -60,7 +60,50 @@ class TestBuildComplianceItems:
     def test_covers_multiple_regulations(self):
         items = _build_compliance_items()
         regulations = {item.regulation for item in items}
-        assert len(regulations) >= 4  # At least 4 different regulations
+        assert len(regulations) >= 5  # At least 5 different regulations
+
+    def test_v12_guideline_present(self):
+        items = _build_compliance_items()
+        v12_items = [i for i in items if "v1.2" in i.regulation]
+        assert len(v12_items) >= 20  # v1.2 has 20+ requirements
+
+    def test_v12_agent_requirements(self):
+        items = _build_compliance_items()
+        agent_ids = {i.requirement_id for i in items if "AGENT" in i.requirement_id}
+        assert "GL-AGENT-01" in agent_ids
+        assert "GL-AGENT-02" in agent_ids
+
+    def test_v12_new_risk_categories(self):
+        items = _build_compliance_items()
+        ids = {i.requirement_id for i in items}
+        assert "GL-RISK-03" in ids  # ハルシネーション起因誤動作
+        assert "GL-RISK-04" in ids  # 合成コンテンツ
+        assert "GL-RISK-05" in ids  # AI過度依存
+        assert "GL-RISK-06" in ids  # 感情操作
+
+    def test_v12_hitl_mandatory(self):
+        items = _build_compliance_items()
+        ids = {i.requirement_id for i in items}
+        assert "GL-HUMAN-01" in ids
+        assert "GL-HUMAN-02" in ids  # 緊急停止
+        assert "GL-HUMAN-03" in ids  # 最小権限
+        assert "GL-HUMAN-04" in ids  # 継続的モニタリング
+
+    def test_v12_governance_requirements(self):
+        items = _build_compliance_items()
+        ids = {i.requirement_id for i in items}
+        assert "GL-GOV-01" in ids  # 攻めのガバナンス
+        assert "GL-GOV-02" in ids  # 活用の手引き
+        assert "GL-RESP-01" in ids  # RAG構築者責任
+        assert "GL-RESP-02" in ids  # RAG安全設計
+        assert "GL-POISON-01" in ids  # データ汚染対策
+
+    def test_no_v11_references(self):
+        items = _build_compliance_items()
+        for item in items:
+            assert "v1.1" not in item.regulation, (
+                f"{item.requirement_id} still references v1.1"
+            )
 
 
 class TestGetComplianceReport:

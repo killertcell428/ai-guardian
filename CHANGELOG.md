@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-04-06
+
+### Added
+- **AI事業��ガイドライン v1.2 完全対応** — 2026年3月31日公開の最新版に全37要件でマッピング完了（v1.1の25要件から大幅拡充）
+  - **AIエージェント管理** (GL-AGENT-01/02): AIエージェント・エージェンティックAI（マルチエージェント連携）の定義と安全設計要件を追加
+  - **Human-in-the-Loop 必須化** (GL-HUMAN-01〜04): 外部アクション実行時のHITL、緊急停止メカニズム、最小権限の原則、継続的モニタリング
+  - **新リスクカテゴリ** (GL-RISK-03〜06): ハルシネーション起因誤動作、合成コンテン���・フェイク情報、AI過度依存、感情操作
+  - **責任範囲の拡大** (GL-RESP-01/02): RAG構築者・ファインチューニング実施者の開発者責任、RAG・システムプロンプトの安全設計
+  - **攻めのガバナンス** (GL-GOV-01/02): プロアクティブなガバナンス基盤、中小企業向け段階的導入支援
+  - **データ汚染対策** (GL-POISON-01): データ汚染・悪意あるプロンプトインジェクション対策
+  - **トレーサビリティ強化** (GL-DATA-02): delegation_chainフィールドによるエージェント間委任追跡
+- **13 new detection patterns** for v1.2 risk categories (input 11 + output 2):
+  - `hallucination_action` category (3 patterns): `hal_unverified_action`, `hal_destructive_auto`, `hal_unverified_action_ja` — detects requests for autonomous actions without human verification
+  - `synthetic_content` category (4 patterns): `synth_deepfake_request`, `synth_fake_info`, `synth_deepfake_ja`, `synth_fake_info_ja` �� detects deepfake and fake information generation requests
+  - `emotional_manipulation` category (3 patterns): `emo_manipulate_user`, `emo_dark_pattern`, `emo_manipulate_ja` — detects emotional manipulation and dark pattern instructions
+  - `over_reliance` category (3 patterns): `over_rel_blind_trust`, `over_rel_no_human`, `over_rel_blind_trust_ja` — detects blind trust in AI and human removal from decision loops
+  - Output patterns: `out_emotional_manipulation`, `out_fabricated_citation` — detects emotional manipulation and fabricated citations in LLM responses
+- **15 new tests** for v1.2 compliance items and detection patterns
+
+### Changed
+- `compliance.py` — all references updated from v1.1 to v1.2; total requirements increased from 25 to 37
+- `patterns.py` (both canonical and legacy) — integrated 4 new pattern categories into `ALL_INPUT_PATTERNS`
+- Total detection patterns: 83 → 96+ (input 85+ / output 9)
+
+---
+
 ## [0.7.0] - 2026-03-31
 
 ### Added

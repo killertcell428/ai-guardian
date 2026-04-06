@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aig-guardian"
-version = "0.7.0"
+version = "0.8.0"
 description = "Zero-dependency LLM security middleware: prompt injection, jailbreak, PII detection with OWASP LLM Top 10 coverage. Integrates with FastAPI, LangChain, OpenAI, Anthropic."
 readme = "README.md"
 license = { file = "LICENSE" }

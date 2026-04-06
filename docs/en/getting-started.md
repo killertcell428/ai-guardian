@@ -116,6 +116,15 @@ guard = Guard(policy_file="policy_templates/healthcare.yaml")
 
 Available templates: `finance` / `healthcare` / `ecommerce` / `internal_tools` / `education` / `customer_support` / `developer_tools`
 
+## Japan AI Business Operator Guidelines v1.2 Compliance
+
+As of v0.8.0, AI Guardian fully complies with the **AI Business Operator Guidelines v1.2** (published March 31, 2026 by Japan's Ministry of Internal Affairs and Ministry of Economy). All 37 requirements are covered, including v1.2 additions: AI agent governance, mandatory Human-in-the-Loop, hallucination-driven action prevention, synthetic content controls, and more.
+
+```bash
+# Generate a compliance report (see all 37 v1.2 requirement mappings)
+aig report
+```
+
 ## Next Steps
 
 - [Configuration Reference](configuration.md) — thresholds, custom rules, YAML policies

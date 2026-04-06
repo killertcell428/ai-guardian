@@ -1134,6 +1134,216 @@ INDIRECT_INJECTION_PATTERNS: list[DetectionPattern] = [
     ),
 ]
 
+
+# ---------------------------------------------------------------------------
+# AI事業者ガイドライン v1.2 — New Risk Category Patterns
+# ---------------------------------------------------------------------------
+# v1.2 で新たに追加されたリスクカテゴリに対応する検知パターン群。
+# ハルシネーション起因の誤動作、合成コンテンツ生成、感情操作、AI過度依存を検出。
+# ---------------------------------------------------------------------------
+
+HALLUCINATION_ACTION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="hal_unverified_action",
+        name="Unverified Autonomous Action Request",
+        category="hallucination_action",
+        pattern=_p(
+            r"(without\s+(verif|confirm|check|ask|approv)|"
+            r"(skip|bypass|ignore)\s+(verification|confirmation|approval|review|human)|"
+            r"auto(matically)?\s+(execute|run|perform|delete|purchase|send|transfer|deploy)\s+.{0,40}\s+without)"
+        ),
+        base_score=55,
+        description="Request to perform actions without human verification — risk of hallucination-driven unintended actions.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-03 / OWASP LLM01",
+        remediation_hint="AIエージェントの自律的アクション（購入・削除・送信等）は必ず人間の確認を挟んでください。Human-in-the-Loopパターンの導入を推奨します。",
+    ),
+    DetectionPattern(
+        id="hal_destructive_auto",
+        name="Autonomous Destructive Operation",
+        category="hallucination_action",
+        pattern=_p(
+            r"(auto(matically)?\s+(delete|remove|drop|destroy|purge|wipe|erase|overwrite)\s+(all|every|entire|the\s+database|production))"
+        ),
+        base_score=80,
+        description="Automated destructive operation targeting broad scope — high risk of unintended data loss.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-03 / GL-HUMAN-02",
+        remediation_hint="破壊的操作の自動実行は禁止すべきです。緊急停止メカニズムと人間の承認フローを実装してください。",
+    ),
+    DetectionPattern(
+        id="hal_unverified_action_ja",
+        name="確認なし自律実行要求（日本語）",
+        category="hallucination_action",
+        pattern=_p(
+            r"(確認(なし|不要|せず|しない)で(実行|削除|送信|購入|転送|デプロイ)|"
+            r"(人間|ユーザー|上長|管理者)の(承認|確認|許可)(なし|不要|を(省略|スキップ))|"
+            r"自動(で|的に)(全て|すべて|全部)(削除|実行|送信))"
+        ),
+        base_score=55,
+        description="人間の確認なしに自律的アクションを要求する日本語パターン。",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-03 / GL-HUMAN-01",
+        remediation_hint="v1.2ではAIエージェントの外部アクション実行時にHuman-in-the-Loopが必須化されました。必ず人間の承認を挟んでください。",
+    ),
+]
+
+SYNTHETIC_CONTENT_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="synth_deepfake_request",
+        name="Deepfake / Synthetic Media Generation Request",
+        category="synthetic_content",
+        pattern=_p(
+            r"(generat|creat|mak|produc)e?\s+.{0,30}"
+            r"(deepfake|fake\s+(video|image|photo|voice|audio)|"
+            r"synthetic\s+(face|identity|video|voice|media)|"
+            r"face\s+swap|voice\s+clon)"
+        ),
+        base_score=60,
+        description="Request to generate deepfake or synthetic media content.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-04",
+        remediation_hint="ディープフェイク等の合成コンテンツ生成は倫理的・法的リスクがあります。利用目的の正当性を確認し、生成コンテンツには明確なラベル付けを行ってください。",
+    ),
+    DetectionPattern(
+        id="synth_fake_info",
+        name="Fake Information / Disinformation Generation",
+        category="synthetic_content",
+        pattern=_p(
+            r"(generat|creat|writ|compos)e?\s+.{0,30}"
+            r"(fake\s+(news|article|report|review|testimonial)|"
+            r"disinformation|misinformation|false\s+(narrative|claim|evidence)|"
+            r"fabricat(e|ed)\s+(evidence|data|results|statistics))"
+        ),
+        base_score=65,
+        description="Request to generate fake news, disinformation, or fabricated evidence.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-04",
+        remediation_hint="フェイク情報の生成はv1.2で明確にリスクとして挙げられています。正確な情報に基づくコンテンツ生成を行ってください。",
+    ),
+    DetectionPattern(
+        id="synth_deepfake_ja",
+        name="ディープフェイク生成要求（日本語）",
+        category="synthetic_content",
+        pattern=_p(
+            r"(ディープフェイク|フェイク(動画|画像|音声|写真)|"
+            r"偽(の|造)(動画|画像|音声|写真|身分|ID)|"
+            r"合成(顔|音声|メディア)|顔(交換|すり替え)|音声(クローン|複製))"
+        ),
+        base_score=60,
+        description="ディープフェイク・合成メディア生成要求の日本語パターン。",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-04",
+        remediation_hint="合成コンテンツの生成にはラベル付けと利用目的の明確化が必要です。",
+    ),
+    DetectionPattern(
+        id="synth_fake_info_ja",
+        name="フェイク情報生成要求（日本語）",
+        category="synthetic_content",
+        pattern=_p(
+            r"(フェイク(ニュース|記事|レビュー|口コミ)|"
+            r"偽(の|造)(ニュース|記事|レポート|データ|証拠|統計)|"
+            r"虚偽(の|情報|記事)|でっち上げ|捏造(する|して))"
+        ),
+        base_score=65,
+        description="フェイク情報・偽造データ生成要求の日本語パターン。",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-04",
+        remediation_hint="虚偽情報の生成はv1.2で明確なリスクです。事実に基づくコンテンツ生成を行ってください。",
+    ),
+]
+
+EMOTIONAL_MANIPULATION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="emo_manipulate_user",
+        name="Emotional Manipulation Instruction",
+        category="emotional_manipulation",
+        pattern=_p(
+            r"(manipulat|exploit|take\s+advantage\s+of|prey\s+on|leverage)\s+.{0,30}"
+            r"(emotion|fear|anxiety|loneliness|grief|vulnerability|insecurity|trust|"
+            r"psychological|mental\s+(state|health|weakness))"
+        ),
+        base_score=60,
+        description="Instruction to manipulate user emotions or exploit psychological vulnerabilities.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-06",
+        remediation_hint="v1.2ではアルゴリズムによる感情操作の防止が求められています。ユーザーの心理的脆弱性を悪用する出力を禁止してください。",
+    ),
+    DetectionPattern(
+        id="emo_dark_pattern",
+        name="Dark Pattern / Deceptive UX Instruction",
+        category="emotional_manipulation",
+        pattern=_p(
+            r"(dark\s+pattern|deceptive\s+(design|UX|interface)|"
+            r"trick\s+(user|them|customer)s?\s+into|"
+            r"pressure\s+(user|them|customer)s?\s+(to|into)|"
+            r"create\s+(urgency|scarcity|FOMO)\s+(to|for)\s+(sell|buy|convert|sign\s*up))"
+        ),
+        base_score=50,
+        description="Instruction to implement dark patterns or deceptive UX to manipulate users.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-06",
+        remediation_hint="ダークパターンや欺瞞的なUXの実装はユーザーの信頼を損ないます。透明で誠実なインターフェース設計を行ってください。",
+    ),
+    DetectionPattern(
+        id="emo_manipulate_ja",
+        name="感情操作指示（日本語）",
+        category="emotional_manipulation",
+        pattern=_p(
+            r"((感情|心理|不安|恐怖|孤独|悲しみ)を?(操作|利用|悪用|煽|つけ込)|"
+            r"(ユーザー|顧客|利用者)の(弱み|脆弱性|不安)に(つけ込|漬け込|乗じ)|"
+            r"(恐怖|不安|焦り)を(煽|あお)って(購入|契約|登録)|"
+            r"ダークパターン)"
+        ),
+        base_score=55,
+        description="感情操作・心理操作を指示する日本語パターン。",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-06",
+        remediation_hint="ユーザーの感情を操作するAI利用はv1.2で明確にリスクとされています。",
+    ),
+]
+
+OVER_RELIANCE_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="over_rel_blind_trust",
+        name="Blind Trust in AI Decision",
+        category="over_reliance",
+        pattern=_p(
+            r"(always\s+(trust|follow|obey|accept)\s+(the\s+)?AI('s)?|"
+            r"AI\s+(is\s+)?always\s+right|"
+            r"no\s+need\s+(to|for)\s+(verify|check|review|validate|question)\s+(the\s+)?AI|"
+            r"let\s+AI\s+(make|decide|handle)\s+.{0,20}\s+without\s+(human|oversight|review))"
+        ),
+        base_score=40,
+        description="Instruction promoting blind trust in AI decisions without human oversight.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-05 / GL-HUMAN-01",
+        remediation_hint="AIの出力は必ず人間が検証してください。v1.2ではAIへの過度依存防止と人間の主体的関与の維持が求められています。",
+    ),
+    DetectionPattern(
+        id="over_rel_no_human",
+        name="Remove Human from Decision Loop",
+        category="over_reliance",
+        pattern=_p(
+            r"(remov|eliminat|get\s+rid\s+of|bypass)\s+.{0,20}"
+            r"(human|manual|person|people|staff|employee)\s+.{0,20}"
+            r"(from\s+the\s+(loop|process|decision|workflow)|"
+            r"review|oversight|approval|judgment)"
+        ),
+        base_score=45,
+        description="Request to remove humans from the decision-making loop entirely.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-05 / GL-HUMAN-01",
+        remediation_hint="人間をプロセスから完全に排除することはv1.2のHuman-in-the-Loop必須化に反します。重要な判断には人間の関与を維持してください。",
+    ),
+    DetectionPattern(
+        id="over_rel_blind_trust_ja",
+        name="AI盲信指示（日本語）",
+        category="over_reliance",
+        pattern=_p(
+            r"(AIの(判断|回答|出力)を(そのまま|無条件で|鵜呑みに|盲目的に)(信|従|採用)|"
+            r"(人間|上長|管理者)の(確認|検証|レビュー|判断)(は)?(不要|いらない|必要ない)|"
+            r"AIに(全て|すべて|完全に)(任せ|委ね|判断させ|決めさせ))"
+        ),
+        base_score=40,
+        description="AIの判断を無条件に信頼する指示の日本語パターン。",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-05",
+        remediation_hint="AIへの過度依存はv1.2で明確なリスクです。人間の主体的関与を維持してください。",
+    ),
+]
+
+
+# ---------------------------------------------------------------------------
+# Combined pattern lists
+# ---------------------------------------------------------------------------
 ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     PROMPT_INJECTION_PATTERNS
     + JAPANESE_INJECTION_PATTERNS
@@ -1150,6 +1360,10 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + PROMPT_LEAK_PATTERNS
     + JAILBREAK_ROLEPLAY_PATTERNS
     + INDIRECT_INJECTION_PATTERNS
+    + HALLUCINATION_ACTION_PATTERNS
+    + SYNTHETIC_CONTENT_PATTERNS
+    + EMOTIONAL_MANIPULATION_PATTERNS
+    + OVER_RELIANCE_PATTERNS
 )
 
 OUTPUT_PATTERNS: list[DetectionPattern] = [
@@ -1228,5 +1442,33 @@ OUTPUT_PATTERNS: list[DetectionPattern] = [
         description="Japanese phone number detected in LLM output.",
         owasp_ref="OWASP LLM02: Sensitive Information Disclosure",
         remediation_hint="学習データまたは接続データソースに個人の電話番号が含まれていないか確認してください。",
+    ),
+    # --- v1.2 Output Patterns ---
+    DetectionPattern(
+        id="out_emotional_manipulation",
+        name="Emotional Manipulation in Output",
+        category="emotional_manipulation",
+        pattern=_p(
+            r"(you\s+(should|must)\s+(be\s+)?(afraid|scared|worried|terrified)\s+(of|about|that)|"
+            r"if\s+you\s+don't\s+.{0,30}(terrible|horrible|disaster|catastroph)|"
+            r"only\s+an?\s+(fool|idiot|stupid\s+person)\s+would)"
+        ),
+        base_score=50,
+        description="AI output attempting to manipulate user emotions through fear, urgency, or shaming.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-06 / OWASP LLM05",
+        remediation_hint="AIの出力がユーザーの感情を操作している可能性があります。中立的で事実に基づく応答を生成するようシステムプロンプトを調整してください。",
+    ),
+    DetectionPattern(
+        id="out_fabricated_citation",
+        name="Fabricated Citation / Source",
+        category="synthetic_content",
+        pattern=_p(
+            r"(according\s+to\s+.{0,60}(study|research|report|paper|survey)\s+(published|conducted|released)\s+.{0,30}"
+            r"(shows?|found|concluded|revealed|demonstrated)\s+that\s+.{0,100}\d+%)"
+        ),
+        base_score=35,
+        description="Potentially fabricated citation with specific statistics — hallucination risk.",
+        owasp_ref="AI事業者GL v1.2: GL-RISK-03 / GL-RISK-04",
+        remediation_hint="AIが生成した引用・統計データはハルシネーションの可能性があります。出典を必ず検証してください。",
     ),
 ]

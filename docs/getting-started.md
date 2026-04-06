@@ -114,6 +114,15 @@ guard = Guard(policy_file="policy_templates/healthcare.yaml")
 
 利用可能なテンプレート: `finance` / `healthcare` / `ecommerce` / `internal_tools` / `education` / `customer_support` / `developer_tools`
 
+## AI事業者ガイドライン v1.2 対応
+
+v0.8.0 より、2026年3月31日公開の **AI事業者ガイドライン v1.2** に完全対応しています。v1.2 で新たに追加されたAIエージェント管理、Human-in-the-Loop必須化、ハルシネーション起因誤動作対策、合成コンテンツ防止等の全37要件をカバーしています。
+
+```bash
+# コンプライアンスレポートの生成（v1.2 全37要件のマッピングを確認）
+aig report
+```
+
 ## 次のステップ
 
 - [設定リファレンス](configuration.md) — 閾値、カスタムルール、YAML ポリシー
