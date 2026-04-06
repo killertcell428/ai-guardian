@@ -1,7 +1,7 @@
 # AI Guardian — MCP Security Architecture
 
 > Last updated: 2026-04-06
-> AI Guardian version: v0.8.3+
+> AI Guardian version: v1.0.0
 > The **first and only** open-source MCP security scanner.
 
 ## Why MCP Is Vulnerable
@@ -27,7 +27,7 @@ MCP (Model Context Protocol) connects AI agents to external tools. Every connect
                     │  L1: Pattern Detection (10 MCP patterns) │
                     │  L2: Structural Analysis (schema scan)   │
                     │  L3: Behavioral Rules (cross-tool check) │
-                    │  L4: Existing 86+ patterns (reused)      │
+                    │  L4: Existing 112 patterns (reused)      │
                     │  L5: Policy Engine (block/review/allow)  │
                     │                                          │
                     └──────────────────────────────────────────┘
@@ -94,7 +94,7 @@ This means any text from an MCP server can influence the LLM's behavior, includi
 **AI Guardian detection:**
 - `scan_mcp_tool()` recursively scans all `inputSchema.properties.*.description` fields
 - `mcp_sidenote_exfil` catches parameter-name-as-instruction patterns
-- All 86+ existing patterns also apply to schema descriptions
+- All 112 existing patterns also apply to schema descriptions
 
 ### ③ Tool Output Re-injection
 
@@ -169,7 +169,7 @@ MCP Tool Definition
                     │
   ┌─────────────────▼───────────────────────┐
   │  Layer 3: General Pattern Match         │
-  │  86+ patterns (injection, exfil, PII..) │
+  │  112 patterns (injection, exfil, PII..) │
   │  → Catches attacks that reuse known     │
   │    techniques in MCP context            │
   └─────────────────┬───────────────────────┘
@@ -200,7 +200,7 @@ This means attacks hidden in any field are caught — not just the top-level des
 
 ### Principle: Reuse of Existing Defenses
 
-MCP attacks are fundamentally **prompt injection via a different channel**. AI Guardian's 86+ existing patterns (indirect injection, data exfiltration, command injection, PII detection) all apply to MCP content automatically. New attack techniques that aren't MCP-specific are already covered.
+MCP attacks are fundamentally **prompt injection via a different channel**. AI Guardian's 112 existing patterns (indirect injection, data exfiltration, command injection, PII detection) all apply to MCP content automatically. New attack techniques that aren't MCP-specific are already covered.
 
 ### Principle: Extensibility
 
@@ -296,7 +296,7 @@ def on_mcp_tools_list(tools):
 | `mcp_whitespace_obfuscation` | Whitespace Obfuscation | 45 | Evasion |
 | `mcp_redirect_recipient` | Recipient Redirect | 65 | Data manipulation |
 
-Plus all 86+ existing patterns are applied to MCP content automatically.
+Plus all 112 existing patterns are applied to MCP content automatically.
 
 ---
 
@@ -314,7 +314,7 @@ mcp_poisoning               8         8       0     100.0%
 
 New MCP attack vectors will emerge. AI Guardian is designed to handle them because:
 
-1. **Layered defense**: Even unknown MCP attacks that reuse prompt injection, data exfiltration, or command injection techniques are caught by the 86+ existing patterns
+1. **Layered defense**: Even unknown MCP attacks that reuse prompt injection, data exfiltration, or command injection techniques are caught by the 112 existing patterns
 2. **Extensible pattern engine**: New MCP-specific patterns can be added in minutes
 3. **Weekly research scout**: Automated monitoring for new MCP CVEs and attack techniques
 4. **Structural scanning**: New fields added to the MCP spec will be scanned automatically when `scan_mcp_tool()` is updated to extract them

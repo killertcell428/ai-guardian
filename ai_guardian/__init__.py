@@ -24,6 +24,8 @@ from ai_guardian.scanner import (
     ScanResult,
     sanitize,
     scan,
+    scan_mcp_tool,
+    scan_mcp_tools,
     scan_messages,
     scan_output,
     scan_rag_context,
@@ -43,8 +45,10 @@ __all__ = [
     "scan_output",
     "scan_messages",
     "scan_rag_context",
+    "scan_mcp_tool",
+    "scan_mcp_tools",
     "sanitize",
     # Similarity / semantic layer
     "check_similarity",
 ]
-__version__ = "0.7.0"
+__version__ = "1.0.0"

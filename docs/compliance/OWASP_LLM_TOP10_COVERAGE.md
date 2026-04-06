@@ -1,7 +1,7 @@
 # AI Guardian — OWASP Top 10 for LLM Applications (2025) Coverage Matrix
 
 > Last updated: 2026-04-06
-> AI Guardian version: v0.8.0+
+> AI Guardian version: v1.0.0
 > Reference: [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/)
 
 ## Coverage Summary
@@ -19,7 +19,7 @@
 | LLM09 | Misinformation | Advisory | — | Policy guidance |
 | LLM10 | Unbounded Consumption | **Full** | 5 patterns | Regex + Heuristic |
 
-**Overall: 8/10 risks with active detection, 83 total patterns**
+**Overall: 8/10 risks with active detection, 121 total patterns**
 
 ---
 
@@ -40,7 +40,7 @@
 | Semantic Similarity | 56 phrases | EN, JA, KO, ZH | Fuzzy matching via `similarity.py` |
 
 **Detection layers:**
-1. Regex pattern matching (76 patterns)
+1. Regex pattern matching (112 patterns)
 2. Semantic similarity detection (56 canonical attack phrases, 4 languages)
 3. Token exhaustion heuristic (repetition ratio analysis)
 4. Text normalization (NFKC, zero-width character removal)
@@ -82,7 +82,7 @@ AI Guardian provides:
 | Markdown/HTML Exfil | 1 | `ii_exfil_via_markdown` |
 | Tool Abuse via Poisoned Data | 1 | `ii_tool_abuse` |
 
-**API:** `scan_rag_context()` applies all 76 input patterns to retrieved documents.
+**API:** `scan_rag_context()` applies all 112 input patterns to retrieved documents.
 
 ### LLM05: Improper Output Handling
 
@@ -120,7 +120,7 @@ AI Guardian provides:
 
 **Coverage: Strong** — RAG-specific scanning API.
 
-AI Guardian provides `scan_rag_context()` which applies all 76 input patterns + 5 indirect injection patterns to retrieved document chunks before they enter the prompt.
+AI Guardian provides `scan_rag_context()` which applies all 112 input patterns + 5 indirect injection patterns to retrieved document chunks before they enter the prompt.
 
 **Detection capabilities:**
 - Hidden instructions in retrieved documents
@@ -153,7 +153,7 @@ AI Guardian focuses on security threats rather than factual accuracy. Misinforma
 ## Benchmark Results
 
 ```
-AI Guardian Detection Benchmark (v0.8.0+)
+AI Guardian Detection Benchmark (v1.0.0)
 =========================================================
 Category                Tests  Detected  Missed  Precision
 ---------------------------------------------------------
@@ -164,13 +164,17 @@ prompt_leak                 8         8       0     100.0%
 token_exhaustion            3         3       0     100.0%
 prompt_injection_ko         5         5       0     100.0%
 prompt_injection_zh         7         7       0     100.0%
+encoding_bypass             3         3       0     100.0%
+memory_poisoning            4         4       0     100.0%
+second_order_injection      4         4       0     100.0%
+mcp_poisoning               8         8       0     100.0%
 indirect_injection          8         8       0     100.0%
 pii_input                   5         5       0     100.0%
 pii_input_ko                3         3       0     100.0%
 pii_input_zh                3         3       0     100.0%
 data_exfiltration           4         4       0     100.0%
 ---------------------------------------------------------
-TOTAL                      79        79       0     100.0%
+TOTAL                      98        98       0     100.0%
 
 False positive rate: 0/26 safe inputs flagged (0.0%)
 ```

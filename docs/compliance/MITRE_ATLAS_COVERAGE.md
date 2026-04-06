@@ -1,12 +1,12 @@
 # AI Guardian — MITRE ATLAS Coverage Matrix
 
 > Last updated: 2026-04-06
-> AI Guardian version: v0.8.0+
+> AI Guardian version: v1.0.0
 > Reference: [MITRE ATLAS v5.4.0](https://atlas.mitre.org/)
 
 ## Overview
 
-MITRE ATLAS (Adversarial Threat Landscape for AI Systems) catalogs adversarial tactics and techniques against AI systems. This document maps AI Guardian's 83 detection patterns to relevant ATLAS techniques, demonstrating coverage of real-world AI attack vectors.
+MITRE ATLAS (Adversarial Threat Landscape for AI Systems) catalogs adversarial tactics and techniques against AI systems. This document maps AI Guardian's 121 detection patterns to relevant ATLAS techniques, demonstrating coverage of real-world AI attack vectors.
 
 ## Coverage Summary
 
@@ -128,7 +128,7 @@ ATLAS Kill Chain Stage          AI Guardian Defense Layer
 ──────────────────────────────────────────────────────────
 Reconnaissance                  (Limited — pre-interaction)
 Resource Development            (Limited — pre-interaction)
-Initial Access                  ██████████ Input filter (76 patterns)
+Initial Access                  ██████████ Input filter (112 patterns)
 ML Model Access                 ████░░░░░░ Policy + auth guidance
 Execution                       ████████░░ Command injection + output filter
 Persistence                     ███░░░░░░░ Context poisoning detection

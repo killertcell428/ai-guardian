@@ -1,7 +1,7 @@
 # AI Guardian — CSA STAR for AI Level 1 Self-Assessment
 
 > Last updated: 2026-04-06
-> AI Guardian version: v0.8.0+
+> AI Guardian version: v1.0.0
 > Reference: [CSA STAR for AI](https://cloudsecurityalliance.org/star/ai)
 > Framework: AI Controls Matrix (AICM) + AI Consensus Assessment Initiative Questionnaire (AI-CAIQ)
 
@@ -69,7 +69,7 @@ This document serves as AI Guardian's self-assessment against the AICM control d
 | Control | Status | Evidence |
 |---------|:------:|----------|
 | AI-specific threat modeling | **Fully Implemented** | 83 detection patterns mapped to OWASP LLM Top 10, MITRE ATLAS, and CWE. Covers prompt injection, jailbreak, data exfiltration, PII, command injection, SQL injection, token exhaustion, prompt leak, indirect injection |
-| Input validation for AI | **Fully Implemented** | 76 input patterns with 4-layer detection: regex → heuristic → similarity → policy |
+| Input validation for AI | **Fully Implemented** | 112 input patterns with 4-layer detection: regex → heuristic → similarity → policy |
 | Output validation for AI | **Fully Implemented** | 7 output patterns covering PII leak, secret leak, harmful content |
 | Adversarial attack defense | **Fully Implemented** | Text normalization (NFKC, zero-width removal), encoding bypass detection, token manipulation defense. Benchmark: 100% attack detection |
 | AI supply chain security | Implemented | Zero-dependency design (Python stdlib only). No external model downloads. No ML pipeline vulnerabilities |

@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-04-06
+
+### Added
+- **MCP Security Scanner** — first OSS MCP security tool with 10 patterns covering all 6 attack surfaces:
+  tool description poisoning, parameter schema injection, output re-injection, cross-tool shadowing,
+  rug pull mitigation, and sampling protocol hijack
+  - New APIs: `scan_mcp_tool()`, `scan_mcp_tools()`
+  - New CLI: `aig mcp` (JSON, file, stdin input)
+  - Architecture document: `docs/compliance/MCP_SECURITY_ARCHITECTURE.md`
+- **Encoding Bypass Detection** (5 patterns): base64, hex, emoji substitution, ROT13, hidden markdown/HTML
+- **Memory Poisoning Detection** (4 patterns): persistent injection, personality override, hidden rules (EN/JA)
+- **Second-Order Injection Detection** (4 patterns): agent privilege escalation, delegation bypass, context smuggling (EN/JA)
+- **Korean & Chinese Detection Patterns** (Issue #7): 4+3 KO patterns, 4+3 ZH patterns with semantic similarity
+- **Indirect Injection Detection** (Issue #6): 5 patterns for RAG/web scraping scenarios
+- **Automated Red Team** (`aig redteam`): template-based attack generation across 9 categories
+- **Latency Benchmark** (`aig benchmark --latency`): P50/P95/P99 timing, throughput measurement
+- **Compliance Framework Alignment Documents**:
+  - OWASP LLM Top 10 (2025) coverage matrix
+  - NIST AI RMF 1.0 alignment mapping
+  - MITRE ATLAS coverage matrix
+  - CSA STAR for AI Level 1 self-assessment
+
+### Changed
+- Total detection patterns: 83 → **121** (112 input + 9 output), 19 categories
+- Benchmark: 98/98 attacks detected (100%), 0/26 false positives (0%)
+- Red team: 95.6% block rate across 135 generated attacks
+- `pyproject.toml`: version 0.8.0 → 1.0.0, Development Status → Production/Stable
+- `__init__.py`: exports updated with `scan_mcp_tool`, `scan_mcp_tools`
+
+---
+
 ## [0.8.0] - 2026-04-06
 
 ### Added
@@ -27,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `compliance.py` — all references updated from v1.1 to v1.2; total requirements increased from 25 to 37
 - `patterns.py` (both canonical and legacy) — integrated 4 new pattern categories into `ALL_INPUT_PATTERNS`
-- Total detection patterns: 83 → 96+ (input 85+ / output 9)
+- Total detection patterns: 83 → 96+ (input 85+ / output 9) (further expanded to 121 in v1.0.0)
 
 ---
 

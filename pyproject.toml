@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aig-guardian"
-version = "0.8.0"
-description = "Zero-dependency LLM security middleware: prompt injection, jailbreak, PII detection with OWASP LLM Top 10 coverage. Integrates with FastAPI, LangChain, OpenAI, Anthropic."
+version = "1.0.0"
+description = "Zero-dependency AI agent security: 121 patterns for prompt injection, MCP tool poisoning, jailbreak, PII detection. OWASP LLM Top 10 + MITRE ATLAS coverage. Integrates with FastAPI, LangChain, OpenAI, Anthropic."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
@@ -13,10 +13,11 @@ keywords = [
     "llm", "security", "prompt-injection", "ai-safety",
     "pii", "jailbreak", "guardrails", "owasp",
     "ai-agent", "governance", "middleware", "fastapi",
-    "langchain", "openai", "anthropic",
+    "langchain", "openai", "anthropic", "mcp",
+    "mcp-security", "red-team", "mitre-atlas",
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
