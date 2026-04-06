@@ -121,9 +121,27 @@ def main(argv: list[str] | None = None) -> int:
         help="Output results as JSON",
     )
 
+    # aig redteam
+    red_p = sub.add_parser("redteam", help="Automated red team testing")
+    red_p.add_argument("--category", help="Test only this category")
+    red_p.add_argument(
+        "--count", type=int, default=10, help="Attacks per category (default: 10)"
+    )
+    red_p.add_argument("--seed", type=int, help="Random seed for reproducibility")
+    red_p.add_argument("--json", dest="json_output", action="store_true", help="Output as JSON")
+
     # aig benchmark
     bench_p = sub.add_parser("benchmark", help="Run built-in adversarial test suite")
     bench_p.add_argument("--category", help="Test only this category (e.g., jailbreak)")
+    bench_p.add_argument(
+        "--latency", action="store_true", help="Run latency benchmark (measure scan speed)"
+    )
+    bench_p.add_argument(
+        "--iterations",
+        type=int,
+        default=100,
+        help="Iterations per input for latency benchmark (default: 100)",
+    )
     bench_p.add_argument("--json", dest="json_output", action="store_true", help="Output as JSON")
     bench_p.add_argument(
         "--threshold", type=int, default=1, help="Minimum score to count as detected (default: 1)"
@@ -149,6 +167,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_scan(args)
     elif args.command == "mcp":
         return cmd_mcp(args)
+    elif args.command == "redteam":
+        return cmd_redteam(args)
     elif args.command == "benchmark":
         return cmd_benchmark(args)
     else:
@@ -599,6 +619,24 @@ def cmd_scan(args: argparse.Namespace) -> int:
     return 0 if result.is_safe else 1
 
 
+def cmd_redteam(args: argparse.Namespace) -> int:
+    """Run automated red team testing."""
+    from ai_guardian.redteam import RedTeamSuite
+
+    categories = [args.category] if getattr(args, "category", None) else None
+    count = getattr(args, "count", 10)
+    seed = getattr(args, "seed", None)
+    suite = RedTeamSuite(categories=categories, count_per_category=count, seed=seed)
+
+    if getattr(args, "json_output", False):
+        print(suite.run_json())
+        return 0
+
+    result = suite.run()
+    print(result.summary())
+    return 0 if result.overall_block_rate >= 90.0 else 1
+
+
 def cmd_mcp(args: argparse.Namespace) -> int:
     """Scan MCP tool definitions for security threats."""
     from ai_guardian.scanner import scan_mcp_tool, scan_mcp_tools
@@ -698,6 +736,17 @@ def cmd_mcp(args: argparse.Namespace) -> int:
 def cmd_benchmark(args: argparse.Namespace) -> int:
     """Run built-in adversarial benchmark suite."""
     from ai_guardian.benchmark import ATTACK_CORPUS, BenchmarkSuite
+
+    # Latency benchmark mode
+    if getattr(args, "latency", False):
+        iterations = getattr(args, "iterations", 100)
+        suite = BenchmarkSuite()
+        latency = suite.run_latency(iterations=iterations)
+        if getattr(args, "json_output", False):
+            print(json.dumps(latency.to_dict(), indent=2))
+        else:
+            print(latency.summary())
+        return 0
 
     categories = [args.category] if getattr(args, "category", None) else None
     threshold = getattr(args, "threshold", 1)

@@ -1493,6 +1493,208 @@ MCP_SECURITY_PATTERNS: list[DetectionPattern] = [
 ]
 
 # ---------------------------------------------------------------------------
+# Advanced Encoding / Obfuscation Bypass Patterns
+# ---------------------------------------------------------------------------
+ENCODING_BYPASS_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="enc_base64_instruction",
+        name="Base64-Encoded Instruction Payload",
+        category="encoding_bypass",
+        pattern=_p(
+            r"(decode|atob|base64\s*-d|b64decode)\s*\(?\s*[\"']"
+            r"[A-Za-z0-9+/=]{20,}[\"']"
+        ),
+        base_score=60,
+        description="Base64-encoded payload with explicit decode instruction.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="Decode and inspect base64 payloads before processing. "
+        "Legitimate inputs rarely contain encoded instructions.",
+    ),
+    DetectionPattern(
+        id="enc_hex_payload",
+        name="Hex-Encoded Instruction Payload",
+        category="encoding_bypass",
+        pattern=_p(r"(\\x[0-9a-fA-F]{2}){8,}"),
+        base_score=50,
+        description="Hex-encoded byte sequence that may contain hidden instructions.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="Decode hex sequences and scan the result for injection patterns.",
+    ),
+    DetectionPattern(
+        id="enc_emoji_substitution",
+        name="Emoji Substitution Attack",
+        category="encoding_bypass",
+        pattern=_p(
+            r"([\U0001f1e0-\U0001f1ff]{2,}|"  # flag emojis as separators
+            r"[\U0001f600-\U0001f64f].*?(ignore|system|prompt|hack|bypass|inject)"
+            r"|"
+            r"(ignore|system|prompt|hack|bypass|inject).*?[\U0001f600-\U0001f64f])"
+        ),
+        base_score=35,
+        description="Emoji characters used to break up or obfuscate attack keywords.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="Strip emoji characters before scanning for attacks. "
+        "AI Guardian's normalization layer handles this automatically.",
+    ),
+    DetectionPattern(
+        id="enc_rot13_instruction",
+        name="ROT13 / Caesar Cipher Instruction",
+        category="encoding_bypass",
+        pattern=_p(
+            r"(rot13|caesar|cipher|decode\s+this)\s*[:\-]?\s*[a-zA-Z\s]{10,}"
+        ),
+        base_score=40,
+        description="ROT13 or Caesar cipher used to encode attack instructions.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="Apply ROT13/Caesar decoding and scan the decoded text.",
+    ),
+    DetectionPattern(
+        id="enc_markdown_hidden",
+        name="Markdown/HTML Hidden Content",
+        category="encoding_bypass",
+        pattern=_p(
+            r"<details>.*?<summary>.*?</summary>.*?(ignore|system\s*prompt|inject)"
+            r"|"
+            r"\[//\]:\s*#\s*\(.*?(ignore|inject|system)"
+        ),
+        base_score=45,
+        description="Hidden content in HTML details tags or markdown comment syntax.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="Expand and inspect hidden HTML/markdown elements.",
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Memory Poisoning Patterns (Agent Memory / Conversation History Attacks)
+# ---------------------------------------------------------------------------
+MEMORY_POISONING_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="mem_persistent_instruction",
+        name="Persistent Memory Injection",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(remember|memorize|store|save|keep)\s+(this|the\s+following|that)\s+"
+            r"(for\s+)?(all\s+)?(future|subsequent|later|next)\s+"
+            r"(conversations?|sessions?|interactions?|responses?|requests?)"
+        ),
+        base_score=50,
+        description="Attempt to inject persistent instructions into agent memory that "
+        "will influence future conversations.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="Agent memory should only store user-approved content. "
+        "Scan memory writes for injection patterns before persistence.",
+    ),
+    DetectionPattern(
+        id="mem_override_personality",
+        name="Memory-Based Personality Override",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(from\s+now\s+on|going\s+forward|permanently|always)\s+"
+            r"(you\s+are|act\s+as|behave\s+as|respond\s+as|your\s+name\s+is)"
+        ),
+        base_score=45,
+        description="Attempt to permanently alter agent personality or identity via memory.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="Permanent personality changes should only come from system prompts, "
+        "not user inputs. Reject memory writes that alter agent identity.",
+    ),
+    DetectionPattern(
+        id="mem_hidden_rule",
+        name="Hidden Rule Injection via Memory",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(add|create|insert)\s+(a\s+)?(new\s+)?(hidden|secret|silent|invisible)\s+"
+            r"(rule|instruction|directive|policy|guideline)"
+        ),
+        base_score=55,
+        description="Attempt to create hidden rules in agent memory that alter behavior.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="All agent rules should be visible and auditable. "
+        "Reject any attempt to create 'hidden' or 'secret' rules.",
+    ),
+    DetectionPattern(
+        id="mem_jp_persistent",
+        name="Persistent Memory Injection (Japanese)",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(今後|これから|永久に|ずっと|常に).{0,20}"
+            r"(覚えて|記憶して|保存して|保持して).{0,20}"
+            r"(指示|ルール|設定|命令)"
+        ),
+        base_score=50,
+        description="Japanese persistent memory injection — attempt to store instructions for future sessions.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="エージェントのメモリに永続的な指示を注入しようとしています。",
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Second-Order Injection Patterns (Privilege Escalation via Multi-Agent)
+# ---------------------------------------------------------------------------
+SECOND_ORDER_INJECTION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="so_privilege_escalation",
+        name="Agent Privilege Escalation Request",
+        category="second_order_injection",
+        pattern=_p(
+            r"(tell|ask|instruct|command|direct)\s+(the\s+)?"
+            r"(other|next|main|parent|admin|supervisor|manager|higher)\s+"
+            r"(agent|assistant|ai|model|system)\s+(to|that)"
+        ),
+        base_score=55,
+        description="Attempt to use a lower-privilege agent to instruct a "
+        "higher-privilege agent (privilege escalation via delegation chain).",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="Validate that inter-agent messages don't contain "
+        "instruction overrides. Apply least-privilege principle to agent delegation.",
+    ),
+    DetectionPattern(
+        id="so_delegation_bypass",
+        name="Delegation Chain Bypass",
+        category="second_order_injection",
+        pattern=_p(
+            r"(when\s+you\s+)?(delegate|forward|pass|relay|send)\s+"
+            r"(this|the\s+following|my\s+request)\s+(to|through)\s+"
+            r"(another|the\s+next|a\s+different)\s+(agent|tool|service)"
+            r".{0,50}(include|append|add|inject|embed)"
+        ),
+        base_score=50,
+        description="Attempt to inject content into a delegation chain between agents.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="Sanitize all inter-agent messages. Each agent in "
+        "the delegation chain should independently validate inputs.",
+    ),
+    DetectionPattern(
+        id="so_context_smuggling",
+        name="Context Smuggling via Agent Output",
+        category="second_order_injection",
+        pattern=_p(
+            r"(include|embed|insert)\s+(the\s+following|this)\s+"
+            r"(in|into|within)\s+(your\s+)?(output|response|reply|result)"
+            r".{0,30}(so\s+that|for)\s+(the\s+)?(next|other|receiving)"
+        ),
+        base_score=50,
+        description="Attempt to smuggle instructions in one agent's output for another agent to execute.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="Scan agent outputs before passing to downstream agents. "
+        "Output should contain data, not instructions for other agents.",
+    ),
+    DetectionPattern(
+        id="so_jp_escalation",
+        name="Agent Privilege Escalation (Japanese)",
+        category="second_order_injection",
+        pattern=_p(
+            r"(別の|次の|上位の|管理者の|メインの)(エージェント|AI|アシスタント|システム)"
+            r".{0,20}(に伝えて|に指示して|に命令して|に頼んで)"
+        ),
+        base_score=55,
+        description="Japanese privilege escalation — using one agent to command another.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="エージェント間の権限昇格攻撃です。各エージェントは独立して入力を検証してください。",
+    ),
+]
+
+# ---------------------------------------------------------------------------
 # Combined pattern lists
 # ---------------------------------------------------------------------------
 ALL_INPUT_PATTERNS: list[DetectionPattern] = (
@@ -1512,6 +1714,9 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + JAILBREAK_ROLEPLAY_PATTERNS
     + INDIRECT_INJECTION_PATTERNS
     + MCP_SECURITY_PATTERNS
+    + ENCODING_BYPASS_PATTERNS
+    + MEMORY_POISONING_PATTERNS
+    + SECOND_ORDER_INJECTION_PATTERNS
     + HALLUCINATION_ACTION_PATTERNS
     + SYNTHETIC_CONTENT_PATTERNS
     + EMOTIONAL_MANIPULATION_PATTERNS
