@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { auditApi, type AuditLog } from "@/lib/api";
+import { getLang, saveLang } from "@/lib/lang";
+import LangToggle from "@/components/LangToggle";
 
 const SEVERITY_BADGE: Record<string, string> = {
   info: "bg-gd-info-bg text-gd-accent",
@@ -16,6 +18,19 @@ export default function AuditPage() {
   const [severityFilter, setSeverityFilter] = useState("");
   const [page, setPage] = useState(0);
   const PER_PAGE = 50;
+  const [lang, setLang] = useState<"en" | "ja">("ja");
+
+  useEffect(() => {
+    setLang(getLang());
+  }, []);
+
+  function changeLang(l: "en" | "ja") {
+    saveLang(l);
+    setLang(l);
+    window.dispatchEvent(new Event("aig-lang-change"));
+  }
+
+  const ja = lang === "ja";
 
   const load = () => {
     setLoading(true);
@@ -36,19 +51,22 @@ export default function AuditPage() {
   }, [eventFilter, severityFilter, page]);
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Audit Logs</h1>
-        <p className="text-gd-text-muted text-sm mt-1">
-          Immutable record of all filter decisions and review actions
-        </p>
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>{ja ? "監査ログ" : "Audit Logs"}</h1>
+          <p className="text-gd-text-muted text-sm mt-1">
+            {ja ? "すべてのフィルター判定とレビューアクションの改ざん不能な記録" : "Immutable record of all filter decisions and review actions"}
+          </p>
+        </div>
+        <LangToggle lang={lang} onChange={changeLang} />
       </div>
 
       {/* Filters */}
       <div className="flex gap-3 mb-4">
         <input
           type="text"
-          placeholder="Filter by event type..."
+          placeholder={ja ? "イベントタイプで絞り込み..." : "Filter by event type..."}
           value={eventFilter}
           onChange={(e) => {
             setEventFilter(e.target.value);
@@ -64,10 +82,10 @@ export default function AuditPage() {
           }}
           className="bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
         >
-          <option value="">All severities</option>
-          <option value="info">Info</option>
-          <option value="warning">Warning</option>
-          <option value="critical">Critical</option>
+          <option value="">{ja ? "すべての重要度" : "All severities"}</option>
+          <option value="info">{ja ? "情報" : "Info"}</option>
+          <option value="warning">{ja ? "警告" : "Warning"}</option>
+          <option value="critical">{ja ? "重大" : "Critical"}</option>
         </select>
         <button
           onClick={() => {
@@ -77,7 +95,7 @@ export default function AuditPage() {
           }}
           className="px-3 py-2 text-sm border border-gd-subtle rounded-lg hover:bg-gd-elevated text-gd-text-secondary"
         >
-          Clear
+          {ja ? "クリア" : "Clear"}
         </button>
       </div>
 
@@ -87,16 +105,16 @@ export default function AuditPage() {
           <thead className="bg-gd-elevated border-b border-gd-subtle">
             <tr>
               <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
-                Time
+                {ja ? "日時" : "Time"}
               </th>
               <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
-                Event
+                {ja ? "イベント" : "Event"}
               </th>
               <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
-                Severity
+                {ja ? "重要度" : "Severity"}
               </th>
               <th className="px-4 py-3 text-left text-xs text-gd-text-muted uppercase tracking-wide" style={{ fontWeight: 540 }}>
-                Summary
+                {ja ? "概要" : "Summary"}
               </th>
             </tr>
           </thead>
@@ -104,13 +122,13 @@ export default function AuditPage() {
             {loading ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
-                  Loading...
+                  {ja ? "読み込み中..." : "Loading..."}
                 </td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
-                  No logs found
+                  {ja ? "ログが見つかりません" : "No logs found"}
                 </td>
               </tr>
             ) : (
@@ -146,7 +164,7 @@ export default function AuditPage() {
         {/* Pagination */}
         <div className="px-4 py-3 border-t border-gd-subtle flex items-center justify-between">
           <p className="text-xs text-gd-text-muted">
-            Showing {page * PER_PAGE + 1}–{page * PER_PAGE + logs.length}
+            {ja ? `${page * PER_PAGE + 1}〜${page * PER_PAGE + logs.length} 件を表示` : `Showing ${page * PER_PAGE + 1}–${page * PER_PAGE + logs.length}`}
           </p>
           <div className="flex gap-2">
             <button
@@ -154,14 +172,14 @@ export default function AuditPage() {
               disabled={page === 0}
               className="px-3 py-1.5 text-xs border border-gd-subtle rounded-lg disabled:opacity-40 hover:bg-gd-elevated text-gd-text-secondary"
             >
-              Previous
+              {ja ? "前へ" : "Previous"}
             </button>
             <button
               onClick={() => setPage((p) => p + 1)}
               disabled={logs.length < PER_PAGE}
               className="px-3 py-1.5 text-xs border border-gd-subtle rounded-lg disabled:opacity-40 hover:bg-gd-elevated text-gd-text-secondary"
             >
-              Next
+              {ja ? "次へ" : "Next"}
             </button>
           </div>
         </div>

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import RiskBadge from "@/components/RiskBadge";
 import { reviewApi, type ReviewItem } from "@/lib/api";
+import { getLang, saveLang, type Lang } from "@/lib/lang";
+import LangToggle from "@/components/LangToggle";
 
 export default function ReviewQueuePage() {
   const [items, setItems] = useState<ReviewItem[]>([]);
@@ -12,6 +14,15 @@ export default function ReviewQueuePage() {
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [statusFilter, setStatusFilter] = useState("pending");
+  const [lang, setLang] = useState<Lang>("ja");
+
+  useEffect(() => { setLang(getLang()); }, []);
+  const changeLang = (l: Lang) => { setLang(l); saveLang(l); };
+  const ja = lang === "ja";
+
+  const statusLabels: Record<string, string> = ja
+    ? { pending: "保留", approved: "承認済", rejected: "却下", escalated: "エスカレ", timed_out: "タイムアウト" }
+    : { pending: "pending", approved: "approved", rejected: "rejected", escalated: "escalated", timed_out: "timed_out" };
 
   const load = () => {
     setLoading(true);
@@ -50,12 +61,12 @@ export default function ReviewQueuePage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Review Queue</h1>
+          <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>{ja ? "レビューキュー" : "Review Queue"}</h1>
           <p className="text-gd-text-muted text-sm mt-1">
-            Human-in-the-Loop: review flagged requests
+            {ja ? "ヒューマン・イン・ザ・ループ：フラグ付きリクエストのレビュー" : "Human-in-the-Loop: review flagged requests"}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           {["pending", "approved", "rejected", "escalated", "timed_out"].map(
             (s) => (
               <button
@@ -68,10 +79,11 @@ export default function ReviewQueuePage() {
                 }`}
                 style={{ fontWeight: 480 }}
               >
-                {s}
+                {statusLabels[s] ?? s}
               </button>
             )
           )}
+          <LangToggle lang={lang} onChange={changeLang} />
         </div>
       </div>
 
@@ -79,10 +91,10 @@ export default function ReviewQueuePage() {
         {/* Queue list */}
         <div className="lg:col-span-1 space-y-3">
           {loading ? (
-            <p className="text-gd-text-muted text-sm">Loading...</p>
+            <p className="text-gd-text-muted text-sm">{ja ? "読み込み中..." : "Loading..."}</p>
           ) : items.length === 0 ? (
             <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-8 text-center text-gd-text-muted text-sm">
-              No {statusFilter} items
+              {ja ? `${statusLabels[statusFilter]}のアイテムはありません` : `No ${statusFilter} items`}
             </div>
           ) : (
             items.map((item) => {
@@ -106,12 +118,12 @@ export default function ReviewQueuePage() {
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1 min-w-0">
                       {detail && (
-                        <RiskBadge level={detail.input_risk_level} score={detail.input_risk_score} />
+                        <RiskBadge level={detail.input_risk_level} score={detail.input_risk_score} lang={lang} />
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <span className={`text-xs ${isOverdue ? "text-gd-danger" : "text-gd-text-muted"}`} style={{ fontWeight: 480 }}>
-                        {isOverdue ? "OVERDUE " : ""}
+                        {isOverdue ? (ja ? "期限超過 " : "OVERDUE ") : ""}
                         SLA: {formatDistanceToNow(deadline, { addSuffix: true })}
                       </span>
                       <span
@@ -126,7 +138,7 @@ export default function ReviewQueuePage() {
                         }`}
                         style={{ fontWeight: 540 }}
                       >
-                        {item.status}
+                        {statusLabels[item.status] ?? item.status}
                       </span>
                     </div>
                   </div>
@@ -153,11 +165,12 @@ export default function ReviewQueuePage() {
           {selected ? (
             <div className="space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-gd-text-primary text-lg" style={{ fontWeight: 540 }}>Review Decision</h2>
+                <h2 className="text-gd-text-primary text-lg" style={{ fontWeight: 540 }}>{ja ? "レビュー判定" : "Review Decision"}</h2>
                 {selected.request_detail && (
                   <RiskBadge
                     level={selected.request_detail.input_risk_level}
                     score={selected.request_detail.input_risk_score}
+                    lang={lang}
                   />
                 )}
               </div>
@@ -165,7 +178,7 @@ export default function ReviewQueuePage() {
               {/* Prompt content */}
               {userPrompt && (
                 <div>
-                  <h3 className="text-xs text-gd-text-muted uppercase mb-2" style={{ fontWeight: 540 }}>User Prompt</h3>
+                  <h3 className="text-xs text-gd-text-muted uppercase mb-2" style={{ fontWeight: 540 }}>{ja ? "ユーザープロンプト" : "User Prompt"}</h3>
                   <div className="bg-gd-elevated border border-gd-subtle rounded-lg p-4 text-sm font-mono text-gd-text-primary whitespace-pre-wrap">
                     {userPrompt}
                   </div>
@@ -175,7 +188,7 @@ export default function ReviewQueuePage() {
               {/* Matched Rules */}
               {selected.request_detail && selected.request_detail.input_matched_rules.length > 0 && (
                 <div>
-                  <h3 className="text-xs text-gd-text-muted uppercase mb-2" style={{ fontWeight: 540 }}>Matched Threat Rules</h3>
+                  <h3 className="text-xs text-gd-text-muted uppercase mb-2" style={{ fontWeight: 540 }}>{ja ? "一致した脅威ルール" : "Matched Threat Rules"}</h3>
                   <div className="space-y-2">
                     {selected.request_detail.input_matched_rules.map((rule) => (
                       <div key={rule.rule_id} className="flex items-center justify-between bg-gd-danger-bg border border-gd-subtle rounded-lg px-3 py-2">
@@ -192,9 +205,9 @@ export default function ReviewQueuePage() {
 
               {/* Meta info */}
               <div className="text-xs text-gd-text-muted space-y-1 border-t border-gd-subtle pt-3">
-                <p><span style={{ fontWeight: 480 }}>Model:</span> {selected.request_detail?.model ?? "—"}</p>
-                <p><span style={{ fontWeight: 480 }}>SLA Deadline:</span> {new Date(selected.sla_deadline).toLocaleString()}</p>
-                <p><span style={{ fontWeight: 480 }}>Client IP:</span> {selected.request_detail?.client_ip ?? "—"}</p>
+                <p><span style={{ fontWeight: 480 }}>{ja ? "モデル：" : "Model:"}</span> {selected.request_detail?.model ?? "—"}</p>
+                <p><span style={{ fontWeight: 480 }}>{ja ? "SLA期限：" : "SLA Deadline:"}</span> {new Date(selected.sla_deadline).toLocaleString()}</p>
+                <p><span style={{ fontWeight: 480 }}>{ja ? "クライアントIP：" : "Client IP:"}</span> {selected.request_detail?.client_ip ?? "—"}</p>
               </div>
 
               {/* Decision buttons */}
@@ -203,7 +216,7 @@ export default function ReviewQueuePage() {
                   <textarea
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder="Add a review note (optional)..."
+                    placeholder={ja ? "レビューメモを追加（任意）..." : "Add a review note (optional)..."}
                     className="w-full bg-gd-input border border-gd-standard rounded-lg p-3 text-sm text-gd-text-primary placeholder-gd-text-dim resize-none h-20 focus:outline-none focus:border-gd-accent focus:shadow-gd-focus"
                   />
                   <div className="flex gap-3">
@@ -213,7 +226,7 @@ export default function ReviewQueuePage() {
                       className="flex-1 py-2.5 bg-gd-safe-bg hover:bg-gd-elevated text-gd-safe border border-gd-subtle rounded-lg text-sm disabled:opacity-50 transition-colors"
                       style={{ fontWeight: 540 }}
                     >
-                      Approve
+                      {ja ? "承認" : "Approve"}
                     </button>
                     <button
                       onClick={() => decide("reject")}
@@ -221,7 +234,7 @@ export default function ReviewQueuePage() {
                       className="flex-1 py-2.5 bg-gd-danger-bg hover:bg-gd-elevated text-gd-danger border border-gd-subtle rounded-lg text-sm disabled:opacity-50 transition-colors"
                       style={{ fontWeight: 540 }}
                     >
-                      Reject
+                      {ja ? "却下" : "Reject"}
                     </button>
                     <button
                       onClick={() => decide("escalate")}
@@ -229,24 +242,24 @@ export default function ReviewQueuePage() {
                       className="flex-1 py-2.5 bg-gd-warn-bg hover:bg-gd-elevated text-gd-warn border border-gd-subtle rounded-lg text-sm disabled:opacity-50 transition-colors"
                       style={{ fontWeight: 540 }}
                     >
-                      Escalate
+                      {ja ? "エスカレーション" : "Escalate"}
                     </button>
                   </div>
                 </>
               )}
               {selected.status !== "pending" && (
                 <p className="text-sm text-gd-text-muted">
-                  This item has been <span style={{ fontWeight: 480 }}>{selected.status}</span>.
+                  {ja ? "このアイテムは" : "This item has been "}<span style={{ fontWeight: 480 }}>{statusLabels[selected.status] ?? selected.status}</span>{ja ? "済みです。" : "."}
                   {selected.reviewer_note && (
-                    <span className="block mt-1 italic">Note: {selected.reviewer_note}</span>
+                    <span className="block mt-1 italic">{ja ? "メモ：" : "Note: "}{selected.reviewer_note}</span>
                   )}
                 </p>
               )}
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gd-text-muted text-sm">Select an item from the queue to review</p>
-              <p className="text-gd-text-dim text-xs mt-1">You'll see the full prompt, matched rules, and risk score</p>
+              <p className="text-gd-text-muted text-sm">{ja ? "キューからアイテムを選択してレビューしてください" : "Select an item from the queue to review"}</p>
+              <p className="text-gd-text-dim text-xs mt-1">{ja ? "プロンプト全文、一致ルール、リスクスコアが表示されます" : "You'll see the full prompt, matched rules, and risk score"}</p>
             </div>
           )}
         </div>

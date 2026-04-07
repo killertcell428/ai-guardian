@@ -12,6 +12,7 @@ build/
 .installed.cfg
 lib/
 !site/src/lib/
+!frontend/src/lib/
 lib64/
 parts/
 sdist/

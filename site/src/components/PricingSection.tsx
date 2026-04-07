@@ -9,7 +9,26 @@ export default function PricingSection() {
   const { lang } = useLanguage();
   const ja = lang === "ja";
 
-  const PLANS = [
+  const FREE_PLAN = {
+    name: tx(t.pricing.free.name, lang),
+    price: "$0",
+    period: tx(t.pricing.free.period, lang),
+    tagline: tx(t.pricing.free.tagline, lang),
+    features: [
+      tx(t.pricing.free.f1, lang),
+      tx(t.pricing.free.f2, lang),
+      tx(t.pricing.free.f3, lang),
+      tx(t.pricing.free.f4, lang),
+      tx(t.pricing.free.f5, lang),
+      tx(t.pricing.free.f6, lang),
+    ],
+    cta: tx(t.pricing.free.cta, lang),
+    ctaHref: "https://github.com/killertcell428/ai-guardian",
+    highlight: false,
+    badge: "OSS",
+  };
+
+  const PAID_PLANS = [
     {
       name: tx(t.pricing.starter.name, lang),
       price: "$49",
@@ -48,24 +67,24 @@ export default function PricingSection() {
       badge: tx(t.pricing.business.badge, lang),
       trialBadge: ja ? "14日間無料" : "14-day free trial",
     },
-    {
-      name: tx(t.pricing.enterprise.name, lang),
-      price: ja ? "要相談" : "Custom",
-      period: tx(t.pricing.enterprise.period, lang),
-      tagline: tx(t.pricing.enterprise.tagline, lang),
-      features: [
-        tx(t.pricing.enterprise.f1, lang),
-        tx(t.pricing.enterprise.f2, lang),
-        tx(t.pricing.enterprise.f3, lang),
-        tx(t.pricing.enterprise.f4, lang),
-        tx(t.pricing.enterprise.f5, lang),
-        tx(t.pricing.enterprise.f6, lang),
-      ],
-      cta: tx(t.pricing.enterprise.cta, lang),
-      ctaHref: "/contact",
-      highlight: false,
-    },
   ];
+
+  const ENTERPRISE = {
+    name: tx(t.pricing.enterprise.name, lang),
+    price: ja ? "要相談" : "Custom",
+    period: tx(t.pricing.enterprise.period, lang),
+    tagline: tx(t.pricing.enterprise.tagline, lang),
+    features: [
+      tx(t.pricing.enterprise.f1, lang),
+      tx(t.pricing.enterprise.f2, lang),
+      tx(t.pricing.enterprise.f3, lang),
+      tx(t.pricing.enterprise.f4, lang),
+      tx(t.pricing.enterprise.f5, lang),
+      tx(t.pricing.enterprise.f6, lang),
+    ],
+    cta: tx(t.pricing.enterprise.cta, lang),
+    ctaHref: "/contact",
+  };
 
   return (
     <section id="pricing" className="py-24 bg-gray-50">
@@ -78,8 +97,43 @@ export default function PricingSection() {
           <p className="section-subheading">{tx(t.pricing.sub, lang)}</p>
         </div>
 
+        {/* Free + Pro + Business — 3 columns */}
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
-          {PLANS.map((plan) => (
+          {/* Free plan */}
+          <div className="rounded-2xl border-2 border-guardian-200 bg-white p-8 relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="bg-guardian-100 text-guardian-700 text-xs font-bold px-3 py-1 rounded-full border border-guardian-200">
+                {FREE_PLAN.badge}
+              </span>
+            </div>
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-1">{FREE_PLAN.name}</h3>
+              <p className="text-sm text-gray-500">{FREE_PLAN.tagline}</p>
+            </div>
+            <div className="mb-6">
+              <span className="text-4xl font-extrabold text-gray-900">{FREE_PLAN.price}</span>
+              <span className="text-sm ml-2 text-gray-500">{FREE_PLAN.period}</span>
+            </div>
+            <ul className="space-y-3 mb-8">
+              {FREE_PLAN.features.map((feature) => (
+                <li key={feature} className="flex items-start gap-2 text-sm">
+                  <span className="text-guardian-600">✓</span>
+                  <span className="text-gray-700">{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href={FREE_PLAN.ctaHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center py-2.5 rounded-lg font-semibold text-sm transition-colors border-2 border-guardian-600 text-guardian-700 hover:bg-guardian-50"
+            >
+              {FREE_PLAN.cta}
+            </a>
+          </div>
+
+          {/* Paid plans */}
+          {PAID_PLANS.map((plan) => (
             <div
               key={plan.name}
               className={clsx(
@@ -148,6 +202,36 @@ export default function PricingSection() {
           ))}
         </div>
 
+        {/* Enterprise — compact banner */}
+        <div className="max-w-5xl mx-auto mt-8">
+          <div className="bg-white border border-gray-200 rounded-xl px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-lg bg-gray-900 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                E
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900">{ENTERPRISE.name}</h3>
+                <p className="text-sm text-gray-500">{ENTERPRISE.tagline}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-6">
+              <ul className="hidden lg:flex items-center gap-4 text-xs text-gray-500">
+                {ENTERPRISE.features.slice(0, 3).map((f) => (
+                  <li key={f} className="flex items-center gap-1">
+                    <span className="text-guardian-600">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={ENTERPRISE.ctaHref}
+                className="btn-primary text-sm px-6 py-2.5 whitespace-nowrap"
+              >
+                {ENTERPRISE.cta}
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* 3-Layer Value Proposition */}
         <div className="mt-20 max-w-4xl mx-auto">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-3">
@@ -163,8 +247,8 @@ export default function PricingSection() {
               number="1"
               title={ja ? "OSSセキュリティライブラリ" : "OSS Security Library"}
               desc={ja
-                ? "pip install aig-guardian で即座にLLMアプリを保護。64種の検出パターン、FastAPI/LangChain/OpenAI統合。永久無料でセキュリティの入り口を開く。"
-                : "Protect LLM apps instantly with pip install aig-guardian. 64 detection patterns, FastAPI/LangChain/OpenAI integration. Free forever to open the door to security."}
+                ? "pip install aig-guardian で即座にLLMアプリを保護。137種の検出パターン、MCPスキャナー、自動レッドチーム。永久無料でセキュリティの入り口を開く。"
+                : "Protect LLM apps instantly with pip install aig-guardian. 137 detection patterns, MCP scanner, automated red team. Free forever to open the door to security."}
               plan="Free"
               color="bg-guardian-50 border-guardian-200"
             />
@@ -181,8 +265,8 @@ export default function PricingSection() {
               number="3"
               title={ja ? "コンプライアンス・ガバナンス" : "Compliance & Governance"}
               desc={ja
-                ? "OWASP LLM Top 10、SOC2、GDPR対応のコンプライアンスレポートを自動生成。イミュータブル監査ログ、SSO統合。CISOが四半期レビューで求める証跡を自動で提供。"
-                : "Auto-generate compliance reports for OWASP LLM Top 10, SOC2, GDPR. Immutable audit logs, SSO integration. Automatically provide the evidence trail CISOs need for quarterly reviews."}
+                ? "OWASP LLM Top 10、SOC2、GDPR、AI事業者ガイドラインv1.2対応のコンプライアンスレポートを自動生成。イミュータブル監査ログ、SSO統合。"
+                : "Auto-generate compliance reports for OWASP LLM Top 10, SOC2, GDPR, Japan AI Guidelines v1.2. Immutable audit logs, SSO integration."}
               plan="Business"
               color="bg-purple-50 border-purple-200"
             />
@@ -205,7 +289,7 @@ export default function PricingSection() {
               { icon: "🏥", label: ja ? "ヘルスケア" : "Healthcare", sub: ja ? "HIPAA対応" : "HIPAA ready" },
               { icon: "🏛️", label: ja ? "政府・自治体" : "Government", sub: ja ? "ISMAP準拠" : "ISMAP aligned" },
               { icon: "🏭", label: ja ? "製造業" : "Manufacturing", sub: ja ? "IP保護" : "IP protection" },
-              { icon: "⚦️", label: ja ? "法律" : "Legal", sub: ja ? "守秘義務対応" : "Confidentiality" },
+              { icon: "⚖️", label: ja ? "法律" : "Legal", sub: ja ? "守秘義務対応" : "Confidentiality" },
             ].map((industry) => (
               <div key={industry.label} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
                 <div className="text-2xl mb-2">{industry.icon}</div>

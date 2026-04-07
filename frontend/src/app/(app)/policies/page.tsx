@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { policiesApi, type Policy, type CustomRule } from "@/lib/api";
+import { getLang, saveLang, type Lang } from "@/lib/lang";
+import LangToggle from "@/components/LangToggle";
 
 const RULE_TEMPLATES = [
   { name: "HIPAA: Medical Record Number", pattern: "\\b(MRN|medical\\s+record)\\s*[:#]?\\s*\\d{6,10}\\b", score_delta: 70, category: "compliance" },
@@ -25,6 +27,11 @@ export default function PoliciesPage() {
   const [testText, setTestText] = useState("");
   const [testResult, setTestResult] = useState<{ matches: boolean; matchedText: string } | null>(null);
   const [regexError, setRegexError] = useState("");
+  const [lang, setLang] = useState<Lang>("ja");
+
+  useEffect(() => { setLang(getLang()); }, []);
+  const changeLang = (l: Lang) => { setLang(l); saveLang(l); };
+  const ja = lang === "ja";
 
   useEffect(() => {
     policiesApi.list().then(setPolicies).catch(console.error).finally(() => setLoading(false));
@@ -44,7 +51,7 @@ export default function PoliciesPage() {
       });
       setPolicies((p) => p.map((pol) => (pol.id === updated.id ? updated : pol)));
       setSelected(updated);
-      alert("Policy saved!");
+      alert(ja ? "ポリシーを保存しました" : "Policy saved!");
     } catch (e) {
       alert(`Error: ${e}`);
     } finally {
@@ -119,10 +126,13 @@ export default function PoliciesPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>Policies</h1>
-        <p className="text-gd-text-muted text-sm mt-1">Configure risk thresholds and custom detection rules</p>
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>{ja ? "ポリシー設定" : "Policies"}</h1>
+          <p className="text-gd-text-muted text-sm mt-1">{ja ? "リスクしきい値とカスタム検出ルールの設定" : "Configure risk thresholds and custom detection rules"}</p>
+        </div>
+        <LangToggle lang={lang} onChange={changeLang} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -139,21 +149,21 @@ export default function PoliciesPage() {
               <div className="flex items-center justify-between">
                 <p className="text-gd-text-primary text-sm" style={{ fontWeight: 480 }}>{p.name}</p>
                 <span className={`px-2 py-0.5 rounded-full text-xs ${p.is_active ? "bg-gd-safe-bg text-gd-safe" : "bg-gd-elevated text-gd-text-muted"}`}>
-                  {p.is_active ? "Active" : "Inactive"}
+                  {p.is_active ? (ja ? "有効" : "Active") : (ja ? "無効" : "Inactive")}
                 </span>
               </div>
               {p.description && <p className="text-xs text-gd-text-muted mt-1 truncate">{p.description}</p>}
               <div className="flex gap-3 mt-2 text-xs text-gd-text-muted">
-                <span>Allow ≤{p.auto_allow_threshold}</span>
-                <span>Block ≥{p.auto_block_threshold}</span>
+                <span>{ja ? "許可" : "Allow"} ≤{p.auto_allow_threshold}</span>
+                <span>{ja ? "ブロック" : "Block"} ≥{p.auto_block_threshold}</span>
                 <span>SLA {p.review_sla_minutes}m</span>
-                <span>{p.custom_rules.length} rules</span>
+                <span>{p.custom_rules.length} {ja ? "ルール" : "rules"}</span>
               </div>
             </button>
           ))}
           {policies.length === 0 && (
             <div className="bg-gd-surface rounded-xl border border-gd-subtle p-6 text-center text-gd-text-muted text-sm">
-              No policies configured
+              {ja ? "ポリシーが設定されていません" : "No policies configured"}
             </div>
           )}
         </div>
@@ -166,46 +176,46 @@ export default function PoliciesPage() {
               <h2 className="text-gd-text-primary" style={{ fontWeight: 540 }}>{selected.name}</h2>
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>Auto-Allow Threshold (0-100)</span>
-                  <p className="text-xs text-gd-text-muted mb-1">Requests scoring ≤ this are automatically allowed</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>{ja ? "自動許可しきい値 (0-100)" : "Auto-Allow Threshold (0-100)"}</span>
+                  <p className="text-xs text-gd-text-muted mb-1">{ja ? "このスコア以下のリクエストは自動的に許可されます" : "Requests scoring ≤ this are automatically allowed"}</p>
                   <input type="number" min={0} max={100} value={selected.auto_allow_threshold}
                     onChange={(e) => setSelected({ ...selected, auto_allow_threshold: Number(e.target.value) })}
                     className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>Auto-Block Threshold (0-100)</span>
-                  <p className="text-xs text-gd-text-muted mb-1">Requests scoring ≥ this are automatically blocked</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>{ja ? "自動ブロックしきい値 (0-100)" : "Auto-Block Threshold (0-100)"}</span>
+                  <p className="text-xs text-gd-text-muted mb-1">{ja ? "このスコア以上のリクエストは自動的にブロックされます" : "Requests scoring ≥ this are automatically blocked"}</p>
                   <input type="number" min={0} max={100} value={selected.auto_block_threshold}
                     onChange={(e) => setSelected({ ...selected, auto_block_threshold: Number(e.target.value) })}
                     className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>Review SLA (minutes)</span>
-                  <p className="text-xs text-gd-text-muted mb-1">Time allowed for human review</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>{ja ? "レビューSLA（分）" : "Review SLA (minutes)"}</span>
+                  <p className="text-xs text-gd-text-muted mb-1">{ja ? "人間によるレビューの制限時間" : "Time allowed for human review"}</p>
                   <input type="number" min={1} max={1440} value={selected.review_sla_minutes}
                     onChange={(e) => setSelected({ ...selected, review_sla_minutes: Number(e.target.value) })}
                     className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>SLA Fallback</span>
-                  <p className="text-xs text-gd-text-muted mb-1">Action when review times out</p>
+                  <span className="text-xs text-gd-text-secondary" style={{ fontWeight: 480 }}>{ja ? "SLAフォールバック" : "SLA Fallback"}</span>
+                  <p className="text-xs text-gd-text-muted mb-1">{ja ? "レビューがタイムアウトした場合のアクション" : "Action when review times out"}</p>
                   <select value={selected.sla_fallback}
                     onChange={(e) => setSelected({ ...selected, sla_fallback: e.target.value })}
                     className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus">
-                    <option value="block">Block (Fail-Close)</option>
-                    <option value="allow">Allow (Fail-Open)</option>
-                    <option value="escalate">Escalate</option>
+                    <option value="block">{ja ? "ブロック（Fail-Close）" : "Block (Fail-Close)"}</option>
+                    <option value="allow">{ja ? "許可（Fail-Open）" : "Allow (Fail-Open)"}</option>
+                    <option value="escalate">{ja ? "エスカレーション" : "Escalate"}</option>
                   </select>
                 </label>
               </div>
 
               {/* Risk zone visualization */}
               <div>
-                <p className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 480 }}>Risk Zone Visualization</p>
+                <p className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 480 }}>{ja ? "リスクゾーンの可視化" : "Risk Zone Visualization"}</p>
                 <div className="flex rounded-lg overflow-hidden h-6 text-xs" style={{ fontWeight: 480 }}>
-                  <div className="bg-gd-safe-bg text-gd-safe flex items-center justify-center" style={{ width: `${selected.auto_allow_threshold}%`, minWidth: 40 }}>Allow</div>
-                  <div className="bg-gd-warn-bg text-gd-warn flex items-center justify-center" style={{ width: `${selected.auto_block_threshold - selected.auto_allow_threshold}%`, minWidth: 40 }}>Review</div>
-                  <div className="bg-gd-danger-bg text-gd-danger flex items-center justify-center flex-1">Block</div>
+                  <div className="bg-gd-safe-bg text-gd-safe flex items-center justify-center" style={{ width: `${selected.auto_allow_threshold}%`, minWidth: 40 }}>{ja ? "許可" : "Allow"}</div>
+                  <div className="bg-gd-warn-bg text-gd-warn flex items-center justify-center" style={{ width: `${selected.auto_block_threshold - selected.auto_allow_threshold}%`, minWidth: 40 }}>{ja ? "レビュー" : "Review"}</div>
+                  <div className="bg-gd-danger-bg text-gd-danger flex items-center justify-center flex-1">{ja ? "ブロック" : "Block"}</div>
                 </div>
                 <div className="flex justify-between text-xs text-gd-text-muted mt-1">
                   <span>0</span><span>{selected.auto_allow_threshold}</span><span>{selected.auto_block_threshold}</span><span>100</span>
@@ -216,17 +226,17 @@ export default function PoliciesPage() {
             {/* Custom Rules */}
             <div className="bg-gd-surface rounded-xl border border-gd-subtle shadow-gd-card p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-gd-text-primary" style={{ fontWeight: 540 }}>Custom Rules ({selected.custom_rules.length})</h3>
+                <h3 className="text-gd-text-primary" style={{ fontWeight: 540 }}>{ja ? "カスタムルール" : "Custom Rules"} ({selected.custom_rules.length})</h3>
                 <div className="flex gap-2">
                   <button onClick={() => setShowTemplates(!showTemplates)}
                     className="px-3 py-1.5 text-xs bg-gd-hover text-gd-text-secondary border border-gd-subtle rounded-lg hover:bg-gd-elevated transition-colors"
                     style={{ fontWeight: 480 }}>
-                    {showTemplates ? "Hide Templates" : "Templates"}
+                    {showTemplates ? (ja ? "テンプレートを隠す" : "Hide Templates") : (ja ? "テンプレート" : "Templates")}
                   </button>
                   <button onClick={() => setShowRuleBuilder(!showRuleBuilder)}
                     className="px-3 py-1.5 text-xs bg-gd-accent text-white rounded-lg hover:bg-gd-accent-hover shadow-gd-inset transition-colors"
                     style={{ fontWeight: 480 }}>
-                    + Add Rule
+                    {ja ? "+ ルール追加" : "+ Add Rule"}
                   </button>
                 </div>
               </div>
@@ -234,7 +244,7 @@ export default function PoliciesPage() {
               {/* Rule Templates */}
               {showTemplates && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-gd-info-bg rounded-lg border border-gd-subtle">
-                  <p className="col-span-full text-xs text-gd-accent mb-1" style={{ fontWeight: 480 }}>Quick-add compliance templates:</p>
+                  <p className="col-span-full text-xs text-gd-accent mb-1" style={{ fontWeight: 480 }}>{ja ? "コンプライアンステンプレート一覧：" : "Quick-add compliance templates:"}</p>
                   {RULE_TEMPLATES.map((tmpl, i) => (
                     <button key={i} onClick={() => addTemplate(tmpl)}
                       className="text-left p-2 bg-gd-surface rounded-lg border border-gd-subtle hover:border-gd-accent transition-colors text-xs">
@@ -248,9 +258,9 @@ export default function PoliciesPage() {
               {/* Rule Builder */}
               {showRuleBuilder && (
                 <div className="p-4 bg-gd-elevated rounded-lg border border-gd-subtle space-y-3">
-                  <p className="text-xs text-gd-text-secondary" style={{ fontWeight: 540 }}>New Custom Rule</p>
+                  <p className="text-xs text-gd-text-secondary" style={{ fontWeight: 540 }}>{ja ? "新規カスタムルール" : "New Custom Rule"}</p>
                   <div className="grid grid-cols-2 gap-3">
-                    <input type="text" placeholder="Rule name" value={newRule.name}
+                    <input type="text" placeholder={ja ? "ルール名" : "Rule name"} value={newRule.name}
                       onChange={(e) => setNewRule({ ...newRule, name: e.target.value })}
                       className="col-span-2 bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                     <input type="text" placeholder="Regex pattern (e.g., secret_project_\w+)" value={newRule.pattern}
@@ -258,7 +268,7 @@ export default function PoliciesPage() {
                       className={`col-span-2 bg-gd-input border rounded-lg px-3 py-2 text-sm font-mono text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus ${regexError ? "border-gd-danger" : "border-gd-standard"}`} />
                     {regexError && <p className="col-span-2 text-xs text-gd-danger">{regexError}</p>}
                     <label className="block">
-                      <span className="text-xs text-gd-text-secondary">Score Delta</span>
+                      <span className="text-xs text-gd-text-secondary">{ja ? "スコア加算" : "Score Delta"}</span>
                       <input type="number" min={1} max={100} value={newRule.score_delta}
                         onChange={(e) => setNewRule({ ...newRule, score_delta: Number(e.target.value) })}
                         className="w-full bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
@@ -268,28 +278,28 @@ export default function PoliciesPage() {
                         <input type="checkbox" checked={newRule.enabled}
                           onChange={(e) => setNewRule({ ...newRule, enabled: e.target.checked })}
                           className="rounded border-gd-standard" />
-                        Enabled
+                        {ja ? "有効" : "Enabled"}
                       </label>
                     </div>
                   </div>
 
                   {/* Regex Tester */}
                   <div className="border-t border-gd-subtle pt-3">
-                    <p className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 540 }}>Test your pattern:</p>
+                    <p className="text-xs text-gd-text-secondary mb-2" style={{ fontWeight: 540 }}>{ja ? "パターンをテスト：" : "Test your pattern:"}</p>
                     <div className="flex gap-2">
-                      <input type="text" placeholder="Enter test text..." value={testText}
+                      <input type="text" placeholder={ja ? "テストテキストを入力..." : "Enter test text..."} value={testText}
                         onChange={(e) => { setTestText(e.target.value); setTestResult(null); }}
                         className="flex-1 bg-gd-input border border-gd-standard rounded-lg px-3 py-2 text-sm text-gd-text-primary placeholder-gd-text-dim focus:outline-none focus:border-gd-accent focus:shadow-gd-focus" />
                       <button onClick={testRegex}
                         className="px-4 py-2 bg-gd-deep text-gd-text-dim rounded-lg text-sm hover:bg-gd-elevated transition-colors">
-                        Test
+                        {ja ? "テスト" : "Test"}
                       </button>
                     </div>
                     {testResult && (
                       <div className={`mt-2 p-2 rounded-lg text-xs ${testResult.matches ? "bg-gd-safe-bg text-gd-safe border border-gd-subtle" : "bg-gd-danger-bg text-gd-danger border border-gd-subtle"}`}>
                         {testResult.matches
-                          ? <span>Match found: <code className="font-mono bg-gd-safe-bg px-1 rounded">{testResult.matchedText}</code></span>
-                          : "No match found"}
+                          ? <span>{ja ? "マッチ：" : "Match found: "}<code className="font-mono bg-gd-safe-bg px-1 rounded">{testResult.matchedText}</code></span>
+                          : (ja ? "マッチなし" : "No match found")}
                       </div>
                     )}
                   </div>
@@ -298,11 +308,11 @@ export default function PoliciesPage() {
                     <button onClick={addRule} disabled={!newRule.name || !newRule.pattern}
                       className="px-4 py-2 bg-gd-accent text-white rounded-lg text-sm hover:bg-gd-accent-hover shadow-gd-inset disabled:opacity-50 transition-colors"
                       style={{ fontWeight: 480 }}>
-                      Add Rule
+                      {ja ? "ルール追加" : "Add Rule"}
                     </button>
                     <button onClick={() => { setShowRuleBuilder(false); setTestResult(null); setRegexError(""); }}
                       className="px-4 py-2 text-gd-text-secondary text-sm hover:bg-gd-elevated rounded-lg transition-colors">
-                      Cancel
+                      {ja ? "キャンセル" : "Cancel"}
                     </button>
                   </div>
                 </div>
@@ -310,7 +320,7 @@ export default function PoliciesPage() {
 
               {/* Existing rules */}
               {selected.custom_rules.length === 0 ? (
-                <p className="text-xs text-gd-text-muted">No custom rules. Click &quot;+ Add Rule&quot; or use a template.</p>
+                <p className="text-xs text-gd-text-muted">{ja ? "カスタムルールがありません。「+ ルール追加」またはテンプレートを使用してください。" : "No custom rules. Click \"+ Add Rule\" or use a template."}</p>
               ) : (
                 <div className="space-y-2">
                   {selected.custom_rules.map((rule) => (
@@ -324,7 +334,7 @@ export default function PoliciesPage() {
                       <span className="text-xs text-gd-text-muted flex-shrink-0" style={{ fontWeight: 480 }}>+{rule.score_delta}</span>
                       <button onClick={() => removeRule(rule.id)}
                         className="opacity-0 group-hover:opacity-100 text-gd-danger hover:text-gd-danger text-xs transition-opacity">
-                        Remove
+                        {ja ? "削除" : "Remove"}
                       </button>
                     </div>
                   ))}
@@ -335,7 +345,7 @@ export default function PoliciesPage() {
             <button onClick={savePolicy} disabled={saving}
               className="px-6 py-2 bg-gd-accent hover:bg-gd-accent-hover text-white rounded-lg text-sm shadow-gd-inset disabled:opacity-50 transition-colors"
               style={{ fontWeight: 480 }}>
-              {saving ? "Saving..." : "Save All Changes"}
+              {saving ? (ja ? "保存中..." : "Saving...") : (ja ? "すべての変更を保存" : "Save All Changes")}
             </button>
           </div>
         )}

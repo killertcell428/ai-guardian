@@ -204,6 +204,21 @@ export const t = {
       en: "All plans include OWASP LLM Top 10 coverage · Annual billing saves 20%",
       ja: "全プランにOWASP LLM Top 10対応を含む · 年間契約で20%OFF",
     },
+    free: {
+      name: { en: "Free", ja: "Free" },
+      period: { en: "forever", ja: "永久無料" },
+      tagline: {
+        en: "Open-source core — everything you need to get started",
+        ja: "オープンソースコア — 始めるために必要なすべてが無料",
+      },
+      f1: { en: "137 detection patterns (100% accuracy)", ja: "137種の検出パターン（100%精度）" },
+      f2: { en: "MCP Security Scanner", ja: "MCPセキュリティスキャナー" },
+      f3: { en: "Automated Red Team testing", ja: "自動レッドチームテスト" },
+      f4: { en: "CLI tool (pip install)", ja: "CLIツール（pip install）" },
+      f5: { en: "FastAPI / LangChain / OpenAI integration", ja: "FastAPI / LangChain / OpenAI統合" },
+      f6: { en: "Apache 2.0 License", ja: "Apache 2.0ライセンス" },
+      cta: { en: "Get Started Free", ja: "無料で始める" },
+    },
     starter: {
       name: { en: "Pro", ja: "Pro" },
       price: { en: "$49", ja: "$49" },

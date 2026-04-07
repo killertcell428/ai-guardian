@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { billingApi, SubscriptionStatus, UsageStats } from "@/lib/api";
+import LangToggle from "@/components/LangToggle";
+import { getLang, saveLang } from "@/lib/lang";
 
 const STATUS_COLORS: Record<string, string> = {
   active: "bg-gd-safe-bg text-gd-safe",
@@ -15,7 +17,17 @@ export default function BillingPage() {
   const [sub, setSub] = useState<SubscriptionStatus | null>(null);
   const [usage, setUsage] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [lang, setLang] = useState<"en" | "ja">("en");
+  const [lang, setLang] = useState<"en" | "ja">("ja");
+
+  useEffect(() => {
+    setLang(getLang());
+  }, []);
+
+  function changeLang(l: "en" | "ja") {
+    saveLang(l);
+    setLang(l);
+    window.dispatchEvent(new Event("aig-lang-change"));
+  }
 
   useEffect(() => {
     Promise.all([billingApi.getStatus(), billingApi.getUsage()])
@@ -85,6 +97,10 @@ export default function BillingPage() {
       unlimited: "Unlimited",
       proDesc: "Dashboard, logs, team up to 5 — $49/mo",
       bizDesc: "Compliance reports, SSO, team up to 50 — $299/mo",
+      freeTitle: "Free (OSS Core)",
+      freeDesc: "CLI tool, 137 pattern detection, MCP scanner — free forever",
+      retentionDays: "days",
+      paymentFailed: "Payment failed. Please update your payment method.",
     },
     ja: {
       title: "課金・サブスクリプション",
@@ -101,8 +117,12 @@ export default function BillingPage() {
       requests: "リクエスト",
       users: "名",
       unlimited: "無制限",
-      proDesc: "ダッシュボード、ログ、5名まで — $49/月",
-      bizDesc: "コンプラレポート、SSO、50名まで — $299/月",
+      proDesc: "ダッシュボード、ログ閲覧、5名まで — $49/月",
+      bizDesc: "コンプライアンスレポート、SSO、50名まで — $299/月",
+      freeTitle: "Free (OSSコア)",
+      freeDesc: "CLIツール、137パターン検出、MCPスキャナー — 永久無料",
+      retentionDays: "日間",
+      paymentFailed: "支払いに失敗しました。お支払い方法を更新してください。",
     },
   }[lang];
 
@@ -111,12 +131,7 @@ export default function BillingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>{t.title}</h1>
-        <button
-          onClick={() => setLang(lang === "en" ? "ja" : "en")}
-          className="text-xs px-2 py-1 rounded border border-gd-standard text-gd-text-muted hover:bg-gd-elevated"
-        >
-          {lang === "en" ? "日本語" : "English"}
-        </button>
+        <LangToggle lang={lang} onChange={changeLang} />
       </div>
 
       {/* Plan & Status */}
@@ -146,10 +161,21 @@ export default function BillingPage() {
 
         {sub?.status === "past_due" && (
           <div className="mt-3 text-sm text-gd-danger bg-gd-danger-bg border border-gd-subtle rounded-lg px-4 py-2">
-            Payment failed. Please update your payment method.
+            {t.paymentFailed}
           </div>
         )}
       </div>
+
+      {/* Free Plan info */}
+      {(sub?.plan || "free") === "free" && (
+        <div className="bg-gd-info-bg border border-gd-subtle rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-2 py-0.5 rounded text-xs bg-gd-safe-bg text-gd-safe border border-gd-subtle" style={{ fontWeight: 520 }}>OSS</span>
+            <p className="text-sm text-gd-text-primary" style={{ fontWeight: 540 }}>{t.freeTitle}</p>
+          </div>
+          <p className="text-xs text-gd-text-secondary">{t.freeDesc}</p>
+        </div>
+      )}
 
       {/* Usage */}
       {usage && (
@@ -194,7 +220,7 @@ export default function BillingPage() {
           <div className="flex items-center justify-between text-sm">
             <span className="text-gd-text-muted">{t.retention}</span>
             <span className="text-gd-text-secondary" style={{ fontWeight: 480 }}>
-              {usage.retention_days ? `${usage.retention_days} days` : t.unlimited}
+              {usage.retention_days ? `${usage.retention_days} ${t.retentionDays}` : t.unlimited}
             </span>
           </div>
         </div>

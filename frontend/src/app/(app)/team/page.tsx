@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { billingApi, teamApi, TeamMember, UsageStats } from "@/lib/api";
+import LangToggle from "@/components/LangToggle";
+import { getLang, saveLang } from "@/lib/lang";
 
 export default function TeamPage() {
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -13,7 +15,17 @@ export default function TeamPage() {
   const [inviteRole, setInviteRole] = useState("reviewer");
   const [invitePassword, setInvitePassword] = useState("");
   const [error, setError] = useState("");
-  const [lang, setLang] = useState<"en" | "ja">("en");
+  const [lang, setLang] = useState<"en" | "ja">("ja");
+
+  useEffect(() => {
+    setLang(getLang());
+  }, []);
+
+  function changeLang(l: "en" | "ja") {
+    saveLang(l);
+    setLang(l);
+    window.dispatchEvent(new Event("aig-lang-change"));
+  }
 
   const load = () => {
     setLoading(true);
@@ -61,6 +73,15 @@ export default function TeamPage() {
       cancel: "Cancel",
       seats: "seats used",
       atLimit: "Team limit reached. Upgrade to add more members.",
+      nameCol: "Name",
+      emailCol: "Email",
+      roleCol: "Role",
+      statusCol: "Status",
+      active: "Active",
+      inactive: "Inactive",
+      noMembers: "No team members yet",
+      loading: "Loading...",
+      upgrade: "Upgrade",
     },
     ja: {
       title: "チーム管理",
@@ -73,6 +94,15 @@ export default function TeamPage() {
       cancel: "キャンセル",
       seats: "席使用中",
       atLimit: "チーム上限に達しました。アップグレードしてメンバーを追加してください。",
+      nameCol: "名前",
+      emailCol: "メールアドレス",
+      roleCol: "ロール",
+      statusCol: "ステータス",
+      active: "有効",
+      inactive: "無効",
+      noMembers: "チームメンバーはまだいません",
+      loading: "読み込み中...",
+      upgrade: "アップグレード",
     },
   }[lang];
 
@@ -81,12 +111,7 @@ export default function TeamPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl text-gd-text-primary" style={{ fontWeight: 580 }}>{t.title}</h1>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setLang(lang === "en" ? "ja" : "en")}
-            className="text-xs px-2 py-1 rounded border border-gd-standard text-gd-text-muted hover:bg-gd-elevated"
-          >
-            {lang === "en" ? "日本語" : "English"}
-          </button>
+          <LangToggle lang={lang} onChange={changeLang} />
           <button
             onClick={() => setShowInvite(true)}
             disabled={atLimit}
@@ -111,7 +136,7 @@ export default function TeamPage() {
         <div className="bg-gd-warn-bg border border-gd-subtle rounded-lg px-4 py-3 text-sm text-gd-warn">
           {t.atLimit}{" "}
           <a href="/billing" className="underline" style={{ fontWeight: 480 }}>
-            Upgrade
+            {t.upgrade}
           </a>
         </div>
       )}
@@ -186,23 +211,23 @@ export default function TeamPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gd-subtle bg-gd-elevated">
-              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Name</th>
-              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Email</th>
-              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Role</th>
-              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>Status</th>
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>{t.nameCol}</th>
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>{t.emailCol}</th>
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>{t.roleCol}</th>
+              <th className="text-left px-4 py-3 text-gd-text-secondary" style={{ fontWeight: 480 }}>{t.statusCol}</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
-                  Loading...
+                  {t.loading}
                 </td>
               </tr>
             ) : members.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-gd-text-muted">
-                  No team members yet
+                  {t.noMembers}
                 </td>
               </tr>
             ) : (
@@ -231,7 +256,7 @@ export default function TeamPage() {
                       }`}
                       style={{ fontWeight: 480 }}
                     >
-                      {m.is_active ? "Active" : "Inactive"}
+                      {m.is_active ? t.active : t.inactive}
                     </span>
                   </td>
                 </tr>

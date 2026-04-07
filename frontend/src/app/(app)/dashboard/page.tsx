@@ -15,7 +15,9 @@ import {
   Legend,
 } from "recharts";
 import StatCard from "@/components/StatCard";
+import LangToggle from "@/components/LangToggle";
 import { auditApi, billingApi, type AuditLog, type UsageStats } from "@/lib/api";
+import { getLang, saveLang } from "@/lib/lang";
 
 interface Stats {
   total: number;
@@ -41,6 +43,16 @@ export default function DashboardPage() {
   const [usage, setUsage] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState<"en" | "ja">("ja");
+
+  useEffect(() => {
+    setLang(getLang());
+  }, []);
+
+  function changeLang(l: "en" | "ja") {
+    saveLang(l);
+    setLang(l);
+    window.dispatchEvent(new Event("aig-lang-change"));
+  }
 
   useEffect(() => {
     Promise.all([
@@ -128,34 +140,11 @@ export default function DashboardPage() {
           </h1>
           <p className="text-gd-text-muted text-sm mt-1">
             {ja
-              ? "\u3059\u3079\u3066\u306eAI\u30ea\u30af\u30a8\u30b9\u30c8\u306f\u76e3\u8996\u4e0b\u306b\u3042\u308a\u307e\u3059"
-              : "Security filter overview \u2014 all AI requests are monitored"}
+              ? "すべてのAIリクエストはリアルタイムで監視されています"
+              : "Real-time monitoring of all AI requests"}
           </p>
         </div>
-        <div className="flex items-center gap-0.5 bg-gd-surface border border-gd-subtle rounded-lg p-0.5">
-          <button
-            onClick={() => setLang("en")}
-            className={`px-2.5 py-1 rounded text-xs transition-all ${
-              lang === "en"
-                ? "bg-gd-accent-glow text-gd-text-primary"
-                : "text-gd-text-muted hover:text-gd-text-secondary"
-            }`}
-            style={{ fontWeight: lang === "en" ? 520 : 440 }}
-          >
-            EN
-          </button>
-          <button
-            onClick={() => setLang("ja")}
-            className={`px-2.5 py-1 rounded text-xs transition-all ${
-              lang === "ja"
-                ? "bg-gd-accent-glow text-gd-text-primary"
-                : "text-gd-text-muted hover:text-gd-text-secondary"
-            }`}
-            style={{ fontWeight: lang === "ja" ? 520 : 440 }}
-          >
-            JA
-          </button>
-        </div>
+        <LangToggle lang={lang} onChange={changeLang} />
       </div>
 
       {/* Stats row */}
@@ -268,12 +257,12 @@ export default function DashboardPage() {
         </div>
         <div>
           <p className="text-sm text-gd-info" style={{ fontWeight: 540 }}>
-            {ja ? "AI Guardian \u304c\u7a3c\u50cd\u4e2d" : "AI Guardian Active"}
+            {ja ? "AI Guardian v1.1.0 が稼働中" : "AI Guardian v1.1.0 Active"}
           </p>
           <p className="text-xs text-gd-text-secondary mt-0.5">
             {ja
-              ? "\u3059\u3079\u3066\u306eAI\u30ea\u30af\u30a8\u30b9\u30c8\u306f\u81ea\u52d5\u30b9\u30ad\u30e3\u30f3\u3055\u308c\u3001\u30ea\u30b9\u30af\u306b\u5fdc\u3058\u3066\u8a31\u53ef\u30fb\u30ec\u30d3\u30e5\u30fc\u30fb\u30d6\u30ed\u30c3\u30af\u3055\u308c\u307e\u3059\u3002\u5224\u65ad\u306e\u6700\u7d42\u8cac\u4efb\u306f\u5e38\u306b\u4eba\u9593\u306b\u3042\u308a\u307e\u3059\u3002"
-              : "All AI requests are automatically scanned and routed based on risk. Final decisions always rest with your team."}
+              ? "137パターンでプロンプトインジェクション・MCPセキュリティ脅威を自動検出。OSSコアは無料でご利用いただけます。"
+              : "137 patterns detect prompt injection & MCP security threats. OSS Core is free forever."}
           </p>
         </div>
       </div>

@@ -1,13 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { t, tx } from "@/lib/translations";
 
+const NAV_ITEMS = [
+  { href: "/challenge", labelEn: "Challenge", labelJa: "チャレンジ" },
+  { href: "/pricing", labelEn: "Pricing", labelJa: "料金" },
+  { href: "/docs", labelEn: "Docs", labelJa: "ドキュメント" },
+];
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { lang, setLang } = useLanguage();
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
@@ -20,9 +28,20 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-          <Link href="/challenge" className="hover:text-guardian-600 transition-colors font-semibold text-guardian-600">{lang === "ja" ? "チャレンジ" : "Challenge"}</Link>
-          <Link href="/pricing" className="hover:text-guardian-600 transition-colors">{tx(t.nav.pricing, lang)}</Link>
-          <Link href="/docs" className="hover:text-guardian-600 transition-colors">{tx(t.nav.docs, lang)}</Link>
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`hover:text-guardian-600 transition-colors ${
+                  isActive ? "font-semibold text-guardian-600" : ""
+                }`}
+              >
+                {lang === "ja" ? item.labelJa : item.labelEn}
+              </Link>
+            );
+          })}
           <a href="https://zenn.dev/sharu389no" target="_blank" rel="noopener noreferrer" className="hover:text-guardian-600 transition-colors">{lang === "ja" ? "ブログ" : "Blog"}</a>
           <a
             href="https://github.com/killertcell428/ai-guardian"
@@ -74,9 +93,21 @@ export default function Navbar() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-gray-200 bg-white px-4 py-4 space-y-3">
-          <Link href="/challenge" className="block text-sm font-bold text-guardian-600 py-2">{lang === "ja" ? "チャレンジ" : "Challenge"}</Link>
-          <Link href="/pricing" className="block text-sm font-medium text-gray-700 py-2">{tx(t.nav.pricing, lang)}</Link>
-          <Link href="/docs" className="block text-sm font-medium text-gray-700 py-2">{tx(t.nav.docs, lang)}</Link>
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block text-sm py-2 ${
+                  isActive ? "font-bold text-guardian-600" : "font-medium text-gray-700"
+                }`}
+                onClick={() => setMobileOpen(false)}
+              >
+                {lang === "ja" ? item.labelJa : item.labelEn}
+              </Link>
+            );
+          })}
           <a href="https://zenn.dev/sharu389no" target="_blank" rel="noopener noreferrer" className="block text-sm font-medium text-gray-700 py-2">{lang === "ja" ? "ブログ" : "Blog"}</a>
           <a href="https://github.com/killertcell428/ai-guardian" target="_blank" rel="noreferrer" className="block text-sm font-medium text-gray-700 py-2">GitHub</a>
           {/* Mobile lang toggle */}
@@ -91,7 +122,7 @@ export default function Navbar() {
               className={`text-xs px-2 py-1 rounded border ${lang === "ja" ? "bg-guardian-600 text-white border-guardian-600" : "border-gray-300 text-gray-600"}`}
             >日本語</button>
           </div>
-          <Link href="/#waitlist" className="btn-primary w-full text-center mt-2">{tx(t.nav.startTrial, lang)}</Link>
+          <Link href="/#waitlist" className="btn-primary w-full text-center mt-2" onClick={() => setMobileOpen(false)}>{tx(t.nav.startTrial, lang)}</Link>
         </div>
       )}
     </header>
