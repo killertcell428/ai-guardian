@@ -1,7 +1,7 @@
 # AI Guardian — OWASP Top 10 for LLM Applications (2025) Coverage Matrix
 
-> Last updated: 2026-04-06
-> AI Guardian version: v1.0.0
+> Last updated: 2026-04-07
+> AI Guardian version: v1.1.0 (137 patterns + active decoding)
 > Reference: [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/)
 
 ## Coverage Summary

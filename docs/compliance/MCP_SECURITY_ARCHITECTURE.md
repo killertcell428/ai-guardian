@@ -1,8 +1,9 @@
 # AI Guardian — MCP Security Architecture
 
-> Last updated: 2026-04-06
-> AI Guardian version: v1.0.0
+> Last updated: 2026-04-07
+> AI Guardian version: v1.1.0
 > The **first and only** open-source MCP security scanner.
+> v1.1.0: Server-level trust scoring, rug pull detection via snapshots, permission analysis
 
 ## Why MCP Is Vulnerable
 
@@ -24,11 +25,14 @@ MCP (Model Context Protocol) connects AI agents to external tools. Every connect
                     ┌──────────────▼───────────────────────────┐
                     │        AI Guardian Defense Layers         │
                     │                                          │
-                    │  L1: Pattern Detection (10 MCP patterns) │
+                    │  L1: Pattern Detection (14 MCP patterns) │
                     │  L2: Structural Analysis (schema scan)   │
-                    │  L3: Behavioral Rules (cross-tool check) │
-                    │  L4: Existing 112 patterns (reused)      │
-                    │  L5: Policy Engine (block/review/allow)  │
+                    │  L3: Active Decoding (Base64/hex/URL)    │
+                    │  L4: Behavioral Rules (cross-tool check) │
+                    │  L5: Server Trust Score (0-100)          │
+                    │  L6: Rug Pull Detection (snapshots)      │
+                    │  L7: Existing 137 patterns (reused)      │
+                    │  L8: Policy Engine (block/review/allow)  │
                     │                                          │
                     └──────────────────────────────────────────┘
 ```
