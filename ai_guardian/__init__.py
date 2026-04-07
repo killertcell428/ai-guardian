@@ -20,6 +20,7 @@ Functional API (convenience wrappers around Guard)::
 """
 
 from ai_guardian.guard import Guard
+from ai_guardian.mcp_scanner import MCPServerReport, scan_mcp_server
 from ai_guardian.scanner import (
     ScanResult,
     sanitize,
@@ -48,7 +49,10 @@ __all__ = [
     "scan_mcp_tool",
     "scan_mcp_tools",
     "sanitize",
+    # MCP Server Scanner
+    "scan_mcp_server",
+    "MCPServerReport",
     # Similarity / semantic layer
     "check_similarity",
 ]
-__version__ = "1.0.0"
+__version__ = "1.1.0"

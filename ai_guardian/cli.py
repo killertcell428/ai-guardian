@@ -120,6 +120,29 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Output results as JSON",
     )
+    mcp_p.add_argument(
+        "--trust",
+        action="store_true",
+        help="Show server trust score and permission summary",
+    )
+    mcp_p.add_argument(
+        "--diff",
+        action="store_true",
+        help="Compare against previous snapshots (rug pull detection)",
+    )
+    mcp_p.add_argument(
+        "--snapshot-dir",
+        metavar="PATH",
+        default=".ai-guardian/mcp_snapshots",
+        help="Snapshot storage directory (default: .ai-guardian/mcp_snapshots)",
+    )
+    mcp_p.add_argument(
+        "--server",
+        dest="server_url",
+        metavar="URL",
+        default="",
+        help="MCP server URL (stored as metadata)",
+    )
 
     # aig redteam
     red_p = sub.add_parser("redteam", help="Automated red team testing")
@@ -129,6 +152,28 @@ def main(argv: list[str] | None = None) -> int:
     )
     red_p.add_argument("--seed", type=int, help="Random seed for reproducibility")
     red_p.add_argument("--json", dest="json_output", action="store_true", help="Output as JSON")
+    red_p.add_argument(
+        "--adaptive", action="store_true", help="Run adaptive mutation mode"
+    )
+    red_p.add_argument(
+        "--rounds", type=int, default=3, help="Max mutation rounds for adaptive mode (default: 3)"
+    )
+    red_p.add_argument(
+        "--report", action="store_true", help="Generate vulnerability report"
+    )
+    red_p.add_argument(
+        "--report-format", choices=["markdown", "html"], default="markdown",
+        help="Report format (default: markdown)",
+    )
+    red_p.add_argument(
+        "--report-path", metavar="PATH", help="Report output path"
+    )
+    red_p.add_argument(
+        "--target-url", metavar="URL", help="HTTP endpoint to test against"
+    )
+    red_p.add_argument(
+        "--multi-step", action="store_true", help="Include multi-step attack chains"
+    )
 
     # aig benchmark
     bench_p = sub.add_parser("benchmark", help="Run built-in adversarial test suite")
@@ -145,6 +190,16 @@ def main(argv: list[str] | None = None) -> int:
     bench_p.add_argument("--json", dest="json_output", action="store_true", help="Output as JSON")
     bench_p.add_argument(
         "--threshold", type=int, default=1, help="Minimum score to count as detected (default: 1)"
+    )
+    bench_p.add_argument(
+        "--report", action="store_true", help="Generate Markdown latency report (requires --latency)"
+    )
+    bench_p.add_argument(
+        "--report-path", metavar="PATH", default="benchmark_report.md",
+        help="Output path for latency report (default: benchmark_report.md)",
+    )
+    bench_p.add_argument(
+        "--badge", action="store_true", help="Output shields.io badge JSON (requires --latency)"
     )
 
     args = parser.parse_args(argv)
@@ -621,18 +676,52 @@ def cmd_scan(args: argparse.Namespace) -> int:
 
 def cmd_redteam(args: argparse.Namespace) -> int:
     """Run automated red team testing."""
-    from ai_guardian.redteam import RedTeamSuite
+    from ai_guardian.redteam import RedTeamReportGenerator, RedTeamSuite
 
     categories = [args.category] if getattr(args, "category", None) else None
     count = getattr(args, "count", 10)
     seed = getattr(args, "seed", None)
-    suite = RedTeamSuite(categories=categories, count_per_category=count, seed=seed)
+
+    # HTTP endpoint target
+    target_fn = None
+    target_url = getattr(args, "target_url", None)
+    if target_url:
+        from ai_guardian.redteam import make_http_check
+
+        target_fn = make_http_check(target_url)
+
+    suite = RedTeamSuite(
+        target_fn=target_fn,
+        categories=categories,
+        count_per_category=count,
+        seed=seed,
+    )
+
+    # Run adaptive or standard mode
+    if getattr(args, "adaptive", False):
+        max_rounds = getattr(args, "rounds", 3)
+        result = suite.run_adaptive(max_rounds=max_rounds)
+    else:
+        result = suite.run()
+
+    # Generate report if requested
+    if getattr(args, "report", False):
+        report_format = getattr(args, "report_format", "markdown")
+        if report_format == "html":
+            report_content = RedTeamReportGenerator.generate_html(result)
+            default_ext = ".html"
+        else:
+            report_content = RedTeamReportGenerator.generate_markdown(result)
+            default_ext = ".md"
+
+        report_path = getattr(args, "report_path", None) or f"redteam_report{default_ext}"
+        Path(report_path).write_text(report_content, encoding="utf-8")
+        print(f"Report written to: {report_path}")
 
     if getattr(args, "json_output", False):
-        print(suite.run_json())
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
         return 0
 
-    result = suite.run()
     print(result.summary())
     return 0 if result.overall_block_rate >= 90.0 else 1
 
@@ -669,18 +758,45 @@ def cmd_mcp(args: argparse.Namespace) -> int:
         # Treat as raw description text
         data = raw
 
-    # Handle single tool or list of tools
+    # Resolve tools list from input
     if isinstance(data, list):
-        results = scan_mcp_tools(data)
+        tools_list = data
     elif isinstance(data, dict):
         if "tools" in data:
-            results = scan_mcp_tools(data["tools"])
+            tools_list = data["tools"]
         else:
-            name = data.get("name", "tool")
-            results = {name: scan_mcp_tool(data)}
+            tools_list = [data]
     else:
-        # Plain text — scan as raw description
-        results = {"description": scan_mcp_tool(str(data))}
+        tools_list = [{"name": "description", "description": str(data)}]
+
+    # Use enhanced MCP server scanner if --trust or --diff requested
+    use_trust = getattr(args, "trust", False)
+    use_diff = getattr(args, "diff", False)
+    server_url = getattr(args, "server_url", "") or ""
+
+    if use_trust or use_diff:
+        from ai_guardian.mcp_scanner import scan_mcp_server
+
+        snapshot_dir = getattr(args, "snapshot_dir", ".ai-guardian/mcp_snapshots")
+        report = scan_mcp_server(
+            tools_list,
+            server_url=server_url,
+            snapshot_dir=snapshot_dir if use_diff else None,
+        )
+
+        if getattr(args, "json_output", False):
+            print(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
+        else:
+            print(report.summary())
+
+        any_unsafe = any(not r.is_safe for r in report.tool_results.values())
+        return 1 if any_unsafe else 0
+
+    # Standard per-tool scan (original behavior)
+    results = {
+        tool.get("name", f"tool_{i}"): scan_mcp_tool(tool)
+        for i, tool in enumerate(tools_list)
+    }
 
     if getattr(args, "json_output", False):
         output = {}
@@ -710,7 +826,7 @@ def cmd_mcp(args: argparse.Namespace) -> int:
     any_unsafe = False
     for name, result in results.items():
         if result.is_safe:
-            print(f"  ✓ {name}: SAFE (score={result.risk_score})")
+            print(f"  \u2713 {name}: SAFE (score={result.risk_score})")
         else:
             any_unsafe = True
             level = (
@@ -718,7 +834,7 @@ def cmd_mcp(args: argparse.Namespace) -> int:
                 if hasattr(result.risk_level, "upper")
                 else str(result.risk_level).split(".")[-1]
             )
-            print(f"  ✗ {name}: {level} (score={result.risk_score})")
+            print(f"  \u2717 {name}: {level} (score={result.risk_score})")
             for rule in result.matched_rules:
                 print(f"      {rule.rule_name}: {rule.owasp_ref}")
                 if rule.remediation_hint:
@@ -742,6 +858,18 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
         iterations = getattr(args, "iterations", 100)
         suite = BenchmarkSuite()
         latency = suite.run_latency(iterations=iterations)
+
+        if getattr(args, "badge", False):
+            print(latency.to_badge_json())
+            return 0
+
+        if getattr(args, "report", False):
+            report_md = latency.to_markdown_report()
+            report_path = getattr(args, "report_path", "benchmark_report.md")
+            Path(report_path).write_text(report_md, encoding="utf-8")
+            print(f"Latency report written to: {report_path}")
+            return 0
+
         if getattr(args, "json_output", False):
             print(json.dumps(latency.to_dict(), indent=2))
         else:

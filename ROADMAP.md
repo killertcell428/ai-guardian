@@ -67,7 +67,7 @@ OSS Core（無料・永久）
 - [ ] Twitter/X で週 3〜5 投稿ペース継続
 - [ ] **Product Hunt ローンチ（5/13 水曜 予定）** ← 詳細は `content/product_hunt_strategy.md`
   - ⚠️ Coming Soon ページは廃止済み（2025-08）。Maker 信頼構築 + 外部チャネルで代替
-  - [ ] Phase A: PH アカウント & Draft 作成、毎日コメント活動（〜4/20）
+  - [x] Phase A: PH アカウント & Draft 作成、毎日コメント活動（〜4/20） ← アカウント&Draft完了（4/7）、コメント活動継続中
   - [ ] Phase B: 外部チャネル種まき & 支援者 50-100名 獲得（4/14〜4/28）
   - [ ] ギャラリー画像 5枚 + OG image PNG + デモ動画（〜4/21）
   - [ ] ローンチコピー最終レビュー & 支援者事前連絡（〜4/28）
@@ -89,9 +89,9 @@ OSS Core（無料・永久）
 - [x] **間接インジェクション検知**（Issue #6: RAG/Webスクレイピング）← v0.8.1
 - [x] **コンプライアンス文書作成**（OWASP/NIST/MITRE/CSA）← v0.8.1
 - [x] **AI事業者ガイドライン v1.2 完全対応**（37/37要件）← v0.8.2
-- [ ] **🔴 MCPセキュリティスキャナー**（`aig mcp scan`）— ツール定義のポイズニング検知、シャドウイング検知、ラグプル検知、出力ポイズニング検知。**唯一のOSS MCP セキュリティツール**を目指す
-- [ ] **レイテンシベンチマーク公開** — ゼロ依存の速度優位を数字で証明。競合との比較表
-- [ ] **Base64/Unicode/Emoji難読化検出の強化** — エージェント向け攻撃の最新手法
+- [x] **🔴 MCPセキュリティスキャナー強化**（`aig mcp --trust --diff`）— ラグプル検知、権限分析、サーバー信頼スコア、スナップショット管理 ← v1.1.0
+- [x] **レイテンシベンチマーク公開** — Markdownレポート生成、shields.ioバッジ、競合比較テーブル ← v1.1.0
+- [x] **Base64/Unicode/Emoji難読化検出の強化** — 実デコード再スキャン、Cyrillic/Greek confusable正規化、emoji除去 ← v1.1.0
 
 ### KPI 目標
 | 指標 | 目標 |
@@ -120,9 +120,9 @@ OSS Core（無料・永久）
 - [x] **チーム管理**: メンバー一覧・招待・ロール設定・プラン上限制御
 - [x] **Slack 通知**: 高リスク検知時の Webhook 通知（Block Kit メッセージ、Settings UI、通知設定API）
 - [ ] メールリスト → β招待フロー構築
-- [ ] **自動レッドチーミング** (`aig redteam`) — 自社LLMの脆弱性を自動テスト。Promptfoo買収後のOSS空白を埋める
-- [ ] **メモリポイズニング検出** — GPT-5/Sonnet 4.5向け新攻撃（90%+成功率）への対策
-- [ ] **Second-Order インジェクション検出** — 低権限→高権限エージェント間の権限昇格攻撃
+- [x] **自動レッドチーミング強化** (`aig redteam --adaptive`) — 適応型変異、マルチステップ攻撃チェーン、Markdown/HTMLレポート生成、HTTPエンドポイントテスト ← v1.1.0（Phase 1 先行実装）
+- [x] **メモリポイズニング検出強化** — 9パターン（cross-session、gradual drift、tool permission override、EN/JA/KO/ZH） ← v1.1.0（Phase 1 先行実装）
+- [x] **Second-Order インジェクション検出強化** — 9パターン（tool chain、response craft、shared context、EN/JA/KO/ZH） ← v1.1.0（Phase 1 先行実装）
 
 ### KPI 目標
 | 指標 | 目標 |
@@ -226,7 +226,7 @@ OSS Core（無料・永久）
 8. AI Meetup LT 登壇申し込み
 
 ### 🔴 今すぐ（今週 4/6〜）
-9. **PH アカウント作成 & Product Draft 登録**（〜4/8）
+9. ~~**PH アカウント作成 & Product Draft 登録**（〜4/8）~~ ✅ 完了（4/7）
 10. **PH で毎日 2-3件にコメント開始**（4/6〜 継続）
 
 ### 🟡 今月〜来月（Phase 1: PH ローンチ中心）

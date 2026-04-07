@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-04-07
+
+### Added
+- **Active Encoding Bypass Detection** — new `decoders.py` module (stdlib only):
+  - Base64/hex/URL-encoding/ROT13 payloads are now actively decoded and re-scanned (Layer 3)
+  - Unicode confusable normalization (Cyrillic/Greek → Latin homoglyph mapping)
+  - Emoji stripping for emoji-interleaved attack detection
+  - 3 new encoding patterns: nested encoding, mixed-script confusable, URL-encoded keywords
+- **MCP Server-Level Security Scanner** — new `mcp_scanner.py` module:
+  - `scan_mcp_server()`: comprehensive server-level analysis with trust scoring
+  - Rug pull detection via snapshot comparison (`MCPToolSnapshot`, `detect_rug_pull()`)
+  - Permission scope analysis (`analyze_permissions()`: file_system, network, code_execution, sensitive_data)
+  - Server trust scoring (0-100, trusted/suspicious/dangerous)
+  - CLI: `aig mcp --trust --diff --snapshot-dir --server`
+  - 3 new MCP patterns: permission escalation, rug pull indicator, hidden tool invocation
+- **Memory Poisoning Detection Enhancement** — 5 new patterns:
+  - Cross-session instruction persistence, gradual personality drift, tool permission override
+  - Korean (`mem_ko_persistent`) and Chinese (`mem_zh_persistent`) variants
+- **Second-Order Injection Detection Enhancement** — 5 new patterns:
+  - Tool chain injection, response crafting for downstream agents, shared context manipulation
+  - Korean (`so_ko_escalation`) and Chinese (`so_zh_escalation`) variants
+- **Latency Benchmark Reports**:
+  - `LatencyResult.to_markdown_report()` — competitor comparison table with environment info
+  - `LatencyResult.to_badge_json()` — shields.io-compatible badge generation
+  - CLI: `aig benchmark --latency --report [--report-path] [--badge]`
+- **Red Team Enhancements**:
+  - `RedTeamSuite.run_adaptive(max_rounds=3)` — adaptive mutation with 5 strategies (char spacing, emoji interleave, case mix, prefix/suffix, synonym replacement)
+  - `MultiStepAttack` + `generate_multi_step_attacks()` — multi-step attack chains (gradual escalation, trust building, context priming)
+  - `RedTeamReportGenerator` — Markdown and HTML vulnerability report generation
+  - `make_http_check(target_url)` — test against HTTP endpoints (urllib.request, zero deps)
+  - CLI: `aig redteam --adaptive --rounds --report --report-format --target-url --multi-step`
+
+### Changed
+- Total detection patterns: 121 → **137** (16 new patterns across 6 categories)
+- Benchmark: 112/112 attacks detected (100%), 0/26 false positives (0%)
+- `scanner.py`: `_normalize_text()` now includes confusable normalization and emoji stripping; `_run_patterns()` adds Layer 3 active decoding
+- `__init__.py`: exports updated with `scan_mcp_server`, `MCPServerReport`
+
+---
+
 ## [1.0.0] - 2026-04-06
 
 ### Added

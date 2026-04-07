@@ -1490,6 +1490,54 @@ MCP_SECURITY_PATTERNS: list[DetectionPattern] = [
         remediation_hint="Tool descriptions should not modify communication targets. "
         "Verify all recipient/destination fields against user intent.",
     ),
+    DetectionPattern(
+        id="mcp_permission_escalation",
+        name="MCP Permission Escalation Claim",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(requires?\s+)?(admin|root|sudo|elevated|privileged)\s+"
+            r"(access|permissions?|rights?|privileges?)"
+        ),
+        base_score=60,
+        description="MCP tool description claims admin/root access privileges — "
+        "legitimate tools should operate with least privilege.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="MCP tools should never require elevated privileges. "
+        "Review the tool's actual permission requirements.",
+    ),
+    DetectionPattern(
+        id="mcp_rug_pull_indicator",
+        name="MCP Rug Pull Indicator",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(this\s+version|updated?\s+to|now\s+includes?|recently\s+added|"
+            r"new\s+feature).{0,50}"
+            r"(read|send|access|execute|upload|download|forward)\s+"
+            r"(all|any|user|sensitive|private|credential)"
+        ),
+        base_score=50,
+        description="Version/update language combined with sensitive data access — "
+        "may indicate a rug pull (malicious update to previously safe tool).",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Compare this tool definition against its previous version. "
+        "Use 'aig mcp --diff' for automated rug pull detection.",
+    ),
+    DetectionPattern(
+        id="mcp_hidden_tool_call",
+        name="MCP Hidden/Silent Tool Invocation",
+        category="mcp_poisoning",
+        pattern=_p(
+            r"(silently|quietly|automatically|in\s+the\s+background|without\s+"
+            r"(user\s+)?notification)\s+"
+            r"(call|invoke|trigger|execute|run|activate)\s+(the\s+)?[a-z_]+"
+        ),
+        base_score=65,
+        description="MCP tool description instructs silent invocation of other tools — "
+        "all tool actions should be transparent to the user.",
+        owasp_ref="OWASP LLM01: Prompt Injection (MCP Tool Poisoning)",
+        remediation_hint="Tools must never instruct silent execution of other tools. "
+        "All actions should be visible and auditable.",
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -1562,6 +1610,53 @@ ENCODING_BYPASS_PATTERNS: list[DetectionPattern] = [
         owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
         remediation_hint="Expand and inspect hidden HTML/markdown elements.",
     ),
+    DetectionPattern(
+        id="enc_nested_encoding",
+        name="Nested/Multi-Layer Encoding",
+        category="encoding_bypass",
+        pattern=_p(
+            r"(decode|atob|base64|unescape|urldecode).{0,30}"
+            r"(decode|atob|base64|unescape|urldecode)"
+        ),
+        base_score=55,
+        description="Multi-layer encoding chain — decoding one format into another "
+        "to evade pattern detection.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="Multi-layer encoding is a strong evasion indicator. "
+        "Recursively decode all layers before scanning.",
+    ),
+    DetectionPattern(
+        id="enc_mixed_script",
+        name="Mixed Script Confusable Attack",
+        category="encoding_bypass",
+        pattern=_p(
+            r"[\u0400-\u04ff][\u0000-\u007f]|[\u0000-\u007f][\u0400-\u04ff]"
+            r"|[\u0370-\u03ff][\u0000-\u007f]{2,}[\u0370-\u03ff]"
+        ),
+        base_score=30,
+        description="Mixed-script text (Cyrillic/Greek + Latin) that may use "
+        "homoglyph substitution to bypass keyword detection.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="Normalize confusable characters before scanning. "
+        "AI Guardian's decoders.normalize_confusables() handles this.",
+    ),
+    DetectionPattern(
+        id="enc_url_encoded_keywords",
+        name="URL-Encoded Attack Keywords",
+        category="encoding_bypass",
+        pattern=_p(
+            r"%69%67%6e%6f%72%65"  # ignore
+            r"|%73%79%73%74%65%6d"  # system
+            r"|%70%72%6f%6d%70%74"  # prompt
+            r"|%62%79%70%61%73%73"  # bypass
+            r"|%69%6e%6a%65%63%74"  # inject
+        ),
+        base_score=50,
+        description="URL percent-encoded attack keywords — used to evade text-based filters.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Encoding Bypass)",
+        remediation_hint="URL-decode all input before scanning. "
+        "AI Guardian's active decoding layer handles this automatically.",
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -1625,6 +1720,85 @@ MEMORY_POISONING_PATTERNS: list[DetectionPattern] = [
         description="Japanese persistent memory injection — attempt to store instructions for future sessions.",
         owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
         remediation_hint="エージェントのメモリに永続的な指示を注入しようとしています。",
+    ),
+    DetectionPattern(
+        id="mem_cross_session_persistence",
+        name="Cross-Session Instruction Persistence",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(across|between|in\s+all|every)\s+"
+            r"(sessions?|conversations?|chats?|interactions?).{0,30}"
+            r"(remember|keep|maintain|persist|retain|store|save)"
+        ),
+        base_score=50,
+        description="Attempt to persist instructions across all sessions — "
+        "a cross-session memory poisoning attack.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="Cross-session persistence should only be allowed for "
+        "user-approved preferences, not behavioral instructions.",
+    ),
+    DetectionPattern(
+        id="mem_gradual_drift",
+        name="Gradual Personality Drift via Memory",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(slightly|gradually|slowly|incrementally|a\s+little\s+more)\s+"
+            r"(change|modify|adjust|shift|alter|loosen|relax)\s+"
+            r"(your|the)\s+(behavior|personality|responses?|tone|rules?|restrictions?)"
+        ),
+        base_score=40,
+        description="Gradual personality drift attack — small incremental changes "
+        "to bypass detection thresholds.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="Incremental behavior modification is a subtle attack. "
+        "Track cumulative changes to agent behavior over time.",
+    ),
+    DetectionPattern(
+        id="mem_tool_permission_override",
+        name="Memory-Based Tool Permission Override",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(remember|memorize|note|store).{0,30}"
+            r"(always|from\s+now|permanently|going\s+forward).{0,30}"
+            r"(allow|permit|grant|enable|authorize|approve)\s+"
+            r"(access|use|execution|running|calling)"
+        ),
+        base_score=55,
+        description="Attempt to override tool permissions via memory — "
+        "grants unauthorized access to tools or resources.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="Tool permissions should be managed by the policy engine, "
+        "not by user-provided memory instructions.",
+    ),
+    DetectionPattern(
+        id="mem_ko_persistent",
+        name="Persistent Memory Injection (Korean)",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(앞으로|이후|영구적으로|항상|계속).{0,20}"
+            r"(기억해|저장해|유지해|보관해).{0,20}"
+            r"(지시|규칙|명령|설정|지침)"
+        ),
+        base_score=50,
+        description="Korean persistent memory injection — attempt to store "
+        "instructions for future sessions.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="에이전트 메모리에 영구적인 지시를 주입하려는 시도입니다.",
+    ),
+    DetectionPattern(
+        id="mem_zh_persistent",
+        name="Persistent Memory Injection (Chinese)",
+        category="memory_poisoning",
+        pattern=_p(
+            r"(从现在开始|以后|永远|始终|永久).{0,20}"
+            r"(记住|保存|记忆|保持|存储).{0,20}"
+            r"(指令|规则|设置|命令|指示)"
+        ),
+        base_score=50,
+        description="Chinese persistent memory injection — attempt to store "
+        "instructions for future sessions.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Memory Poisoning)",
+        remediation_hint="代理内存注入攻击。每个代理应独立验证输入。",
     ),
 ]
 
@@ -1691,6 +1865,85 @@ SECOND_ORDER_INJECTION_PATTERNS: list[DetectionPattern] = [
         description="Japanese privilege escalation — using one agent to command another.",
         owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
         remediation_hint="エージェント間の権限昇格攻撃です。各エージェントは独立して入力を検証してください。",
+    ),
+    DetectionPattern(
+        id="so_tool_chain_injection",
+        name="Tool Chain Injection",
+        category="second_order_injection",
+        pattern=_p(
+            r"(call|invoke|use)\s+[a-z_]+\s+(first|then|next).{0,50}"
+            r"(pass|forward|include|send|pipe).{0,30}"
+            r"(to|into|through)\s+[a-z_]+"
+        ),
+        base_score=50,
+        description="Tool chain injection — embedding payloads in a sequence "
+        "of tool calls (A -> B -> C) to exploit downstream tools.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="Validate inputs at each step in a tool chain. "
+        "Do not blindly pass outputs from one tool as inputs to another.",
+    ),
+    DetectionPattern(
+        id="so_response_crafting",
+        name="Response Crafting for Downstream Injection",
+        category="second_order_injection",
+        pattern=_p(
+            r"(craft|format|structure|write|compose)\s+(your\s+)?"
+            r"(output|response|reply|answer).{0,40}"
+            r"(so\s+that|in\s+a\s+way\s+that|to\s+make).{0,30}"
+            r"(the\s+)?(next|other|downstream|receiving)\s+"
+            r"(agent|system|model|tool)"
+        ),
+        base_score=55,
+        description="Instructs the AI to craft its output as an injection payload "
+        "for a downstream agent or system.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="Agent outputs should contain data, not instructions. "
+        "Scan inter-agent messages for injection patterns.",
+    ),
+    DetectionPattern(
+        id="so_shared_context_manipulation",
+        name="Shared Context/Workspace Manipulation",
+        category="second_order_injection",
+        pattern=_p(
+            r"(add|inject|insert|write|place)\s+(to|into|in)\s+(the\s+)?"
+            r"(shared|common|global|central)\s+"
+            r"(context|memory|state|workspace|environment|config)"
+        ),
+        base_score=50,
+        description="Manipulating shared context or workspace between agents "
+        "to inject instructions accessible by other agents.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="Shared contexts should be read-only for user inputs. "
+        "Only system-level processes should modify shared state.",
+    ),
+    DetectionPattern(
+        id="so_ko_escalation",
+        name="Agent Privilege Escalation (Korean)",
+        category="second_order_injection",
+        pattern=_p(
+            r"(다른|다음|상위|관리자)\s*(에이전트|AI|시스템|모델).{0,20}"
+            r"(보안|검사|필터|제한).{0,10}(해제|비활성화|무시|끄)"
+        ),
+        base_score=55,
+        description="Korean second-order privilege escalation — using one agent "
+        "to disable security checks on another.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="에이전트 간 권�� 상승 공격입니다. 각 에이전트는 독립적으로 입력을 검증해야 합니다.",
+    ),
+    DetectionPattern(
+        id="so_zh_escalation",
+        name="Agent Privilege Escalation (Chinese)",
+        category="second_order_injection",
+        pattern=_p(
+            r"(告诉|指示|命令)\s*(另一个|下一个|上级|管理员)\s*"
+            r"(代理|AI|系统|模型).{0,20}"
+            r"(禁用|关闭|忽略|跳过)\s*(安全|限制|过滤|检查)"
+        ),
+        base_score=55,
+        description="Chinese second-order privilege escalation — commanding "
+        "another agent to disable security.",
+        owasp_ref="OWASP LLM01: Prompt Injection (Second-Order)",
+        remediation_hint="代理间权限提升攻击。每个代理必须独立验证输入。",
     ),
 ]
 

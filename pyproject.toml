@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aig-guardian"
-version = "1.0.0"
-description = "Zero-dependency AI agent security: 121 patterns for prompt injection, MCP tool poisoning, jailbreak, PII detection. OWASP LLM Top 10 + MITRE ATLAS coverage. Integrates with FastAPI, LangChain, OpenAI, Anthropic."
+version = "1.1.0"
+description = "Zero-dependency AI agent security: 137 patterns for prompt injection, MCP tool poisoning, jailbreak, PII detection. OWASP LLM Top 10 + MITRE ATLAS coverage. Integrates with FastAPI, LangChain, OpenAI, Anthropic."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"

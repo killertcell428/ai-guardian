@@ -162,6 +162,18 @@ def _normalize_text(text: str) -> str:
         )
         result = result + "\n" + collapsed
 
+    # Step 4: Unicode confusable normalization (Cyrillic/Greek → Latin)
+    from ai_guardian.decoders import normalize_confusables, strip_emojis
+
+    confusable_normalized = normalize_confusables(result)
+    if confusable_normalized != result:
+        result = result + "\n" + confusable_normalized
+
+    # Step 5: Strip emojis (emoji-interleaved attacks)
+    emoji_stripped = strip_emojis(result)
+    if emoji_stripped != result:
+        result = result + "\n" + emoji_stripped
+
     return result
 
 
@@ -252,6 +264,35 @@ def _run_patterns(
                 )
                 prev = category_scores.get(sm.category, 0)
                 category_scores[sm.category] = min(prev + sm.base_score, sm.base_score * 2)
+
+    # Layer 3: Active decoding — decode Base64/hex/URL/ROT13 payloads and
+    # re-scan the decoded content for hidden attacks
+    from ai_guardian.decoders import decode_all
+
+    matched_ids = {m.rule_id for m in matched}
+    for decoded_variant in decode_all(text):
+        decoded_normalized = _normalize_text(decoded_variant)
+        for p in patterns:
+            if not p.enabled or p.id in matched_ids:
+                continue
+            m = p.pattern.search(decoded_normalized)
+            if m:
+                matched_ids.add(p.id)
+                matched.append(
+                    MatchedRule(
+                        rule_id=p.id,
+                        rule_name=f"{p.name} (decoded)",
+                        category=p.category,
+                        score_delta=p.base_score,
+                        matched_text=m.group(0)[:200],
+                        owasp_ref=p.owasp_ref,
+                        remediation_hint=p.remediation_hint,
+                    )
+                )
+                prev = category_scores.get(p.category, 0)
+                category_scores[p.category] = min(
+                    prev + p.base_score, p.base_score * 2
+                )
 
     total = min(sum(category_scores.values()), 100)
     level = _score_to_level(total)
