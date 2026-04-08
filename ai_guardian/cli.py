@@ -175,6 +175,46 @@ def main(argv: list[str] | None = None) -> int:
         "--multi-step", action="store_true", help="Include multi-step attack chains"
     )
 
+    # aig adversarial-loop
+    adv_p = sub.add_parser("adversarial-loop", help="Run attack-defend-improve cycle")
+    adv_p.add_argument(
+        "--rounds", type=int, default=3, help="Number of adversarial rounds (default: 3)"
+    )
+    adv_p.add_argument(
+        "--count", type=int, default=5, help="Attacks per category per round (default: 5)"
+    )
+    adv_p.add_argument("--category", help="Test only this category")
+    adv_p.add_argument("--seed", type=int, help="Random seed for reproducibility")
+    adv_p.add_argument("--json", dest="json_output", action="store_true", help="Output as JSON")
+    adv_p.add_argument(
+        "--no-evolve", action="store_true", help="Disable bypass evolution between rounds"
+    )
+    adv_p.add_argument(
+        "--report", action="store_true", help="Generate full report"
+    )
+    adv_p.add_argument(
+        "--report-format", choices=["markdown", "json"], default="markdown",
+        help="Report format (default: markdown)",
+    )
+    adv_p.add_argument(
+        "--report-path", metavar="PATH", help="Report output path"
+    )
+    adv_p.add_argument(
+        "--proposals", metavar="PATH", help="Save defense proposals to JSON file"
+    )
+    adv_p.add_argument(
+        "--auto-fix", action="store_true",
+        help="Auto-apply high/medium priority proposals, verify no FP regressions, rollback if needed"
+    )
+    adv_p.add_argument(
+        "--min-priority", choices=["low", "medium", "high"], default="medium",
+        help="Minimum priority for auto-fix (default: medium)"
+    )
+    adv_p.add_argument(
+        "--no-rollback", action="store_true",
+        help="Do not auto-rollback on false positive regressions"
+    )
+
     # aig benchmark
     bench_p = sub.add_parser("benchmark", help="Run built-in adversarial test suite")
     bench_p.add_argument("--category", help="Test only this category (e.g., jailbreak)")
@@ -224,6 +264,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_mcp(args)
     elif args.command == "redteam":
         return cmd_redteam(args)
+    elif args.command == "adversarial-loop":
+        return cmd_adversarial_loop(args)
     elif args.command == "benchmark":
         return cmd_benchmark(args)
     else:
@@ -724,6 +766,65 @@ def cmd_redteam(args: argparse.Namespace) -> int:
 
     print(result.summary())
     return 0 if result.overall_block_rate >= 90.0 else 1
+
+
+def cmd_adversarial_loop(args: argparse.Namespace) -> int:
+    """Run attack-defend-improve adversarial loop."""
+    from ai_guardian.adversarial_loop import AdversarialLoop
+
+    categories = [args.category] if getattr(args, "category", None) else None
+    loop = AdversarialLoop(
+        max_rounds=getattr(args, "rounds", 3),
+        attacks_per_category=getattr(args, "count", 5),
+        categories=categories,
+        seed=getattr(args, "seed", None),
+        evolve=not getattr(args, "no_evolve", False),
+    )
+
+    report = loop.run()
+
+    # Save defense proposals if requested
+    proposals_path = getattr(args, "proposals", None)
+    if proposals_path:
+        report.save_proposals(proposals_path)
+        print(f"Defense proposals saved to: {proposals_path}")
+
+    # Generate report if requested
+    if getattr(args, "report", False):
+        fmt = getattr(args, "report_format", "markdown")
+        default_ext = ".json" if fmt == "json" else ".md"
+        report_path = getattr(args, "report_path", None) or f"adversarial_loop_report{default_ext}"
+        report.save_report(report_path, fmt=fmt)
+        print(f"Report saved to: {report_path}")
+
+    if getattr(args, "json_output", False):
+        print(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
+        return 0
+
+    print(report.summary())
+
+    # Auto-fix: apply proposals → verify → rollback if needed
+    if getattr(args, "auto_fix", False) and report.proposals:
+        from ai_guardian.auto_fix import run_auto_fix
+
+        print("\n--- Auto-Fix ---")
+        fix_result = run_auto_fix(
+            proposals=report.proposals,
+            min_priority=getattr(args, "min_priority", "medium"),
+            auto_rollback=not getattr(args, "no_rollback", False),
+        )
+        print(fix_result.summary())
+
+        if fix_result.rolled_back:
+            print("\nFalse positives detected — changes rolled back.")
+            print("Review proposals manually with --proposals flag.")
+        elif fix_result.applied:
+            applied_patterns = sum(1 for f in fix_result.applied if f.fix_type == "pattern")
+            applied_similarity = sum(1 for f in fix_result.applied if f.fix_type == "similarity")
+            print(f"\nDefenses strengthened: {applied_patterns} patterns, {applied_similarity} similarity phrases")
+
+    # Exit 1 if any bypasses found (useful for CI)
+    return 0 if report.total_bypassed == 0 else 1
 
 
 def cmd_mcp(args: argparse.Namespace) -> int:

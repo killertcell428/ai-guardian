@@ -304,15 +304,38 @@ def _run_patterns(
     return ScanResult(risk_score=total, risk_level=level, matched_rules=matched, reason=reason)
 
 
+def _load_learned_rules() -> list[dict]:
+    """Load learned defense patterns from auto-fix storage (if available)."""
+    try:
+        from ai_guardian.auto_fix import load_learned_patterns
+        return [
+            {
+                "id": p["id"],
+                "name": p["name"],
+                "pattern": p["pattern"],
+                "score_delta": p.get("score", 35),
+                "owasp_ref": p.get("owasp_ref", ""),
+                "remediation_hint": p.get("remediation_hint", ""),
+                "enabled": True,
+            }
+            for p in load_learned_patterns()
+        ]
+    except Exception:
+        return []
+
+
 def scan(
     text: str,
     custom_rules: list[dict] | None = None,
+    use_learned: bool = True,
 ) -> ScanResult:
     """Scan user input text for security threats.
 
     Args:
         text: The user's prompt or input text.
         custom_rules: Optional list of custom detection rules.
+        use_learned: If True, also apply learned patterns from auto-fix
+            (stored in .ai-guardian/learned_patterns.json). Default: True.
 
     Returns:
         ScanResult with risk_score, risk_level, matched_rules, remediation,
@@ -329,7 +352,10 @@ def scan(
         >>> result.remediation["hints"][0]
         'If you intended to reference previous content...'
     """
-    return _run_patterns(text, ALL_INPUT_PATTERNS, custom_rules)
+    rules = list(custom_rules) if custom_rules else []
+    if use_learned:
+        rules.extend(_load_learned_rules())
+    return _run_patterns(text, ALL_INPUT_PATTERNS, rules or None)
 
 
 def scan_messages(
