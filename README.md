@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/killertcell428/ai-guardian/main/.github/shield.svg" alt="AI Guardian" width="120" />
 </p>
 
-<h1 align="center">aig-guardian</h1>
+<h1 align="center">ai-guardian</h1>
 
 <p align="center">
   <strong>日本のAI規制に完全対応した、唯一のOSSセキュリティツール。</strong><br />
