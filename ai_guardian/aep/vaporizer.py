@@ -132,9 +132,17 @@ class Vaporizer:
     def _secure_delete(self, path: Path) -> bool:
         """Overwrite *path* with random data, then unlink.
 
+        Symlinks are unlinked without following (we do NOT overwrite the
+        symlink target, which may reside outside the work directory).
+
         Returns ``True`` on success, ``False`` if the file could not be
         removed (e.g. locked on Windows).
         """
+        # Safety: never follow symlinks — just remove the link itself.
+        if path.is_symlink():
+            logger.warning("Removing symlink without following: %s -> %s", path, os.readlink(path))
+            return self._unlink_with_retry(path)
+
         try:
             size = path.stat().st_size
             # Overwrite with cryptographically random bytes.
@@ -203,12 +211,16 @@ class Vaporizer:
 
     @staticmethod
     def _list_files(directory: Path) -> set[str]:
-        """Return relative file paths (forward slashes) under *directory*."""
+        """Return relative file paths (forward slashes) under *directory*.
+
+        Includes symlinks as entries but does NOT follow them into
+        directories outside *directory* (prevents symlink traversal attacks).
+        """
         result: set[str] = set()
         if not directory.exists():
             return result
         for p in directory.rglob("*"):
-            if p.is_file():
+            if p.is_symlink() or p.is_file():
                 result.add(str(p.relative_to(directory)).replace("\\", "/"))
         return result
 

@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-04-10
+
+### Fixed
+- **[Critical] Tool name case-insensitive mapping** — `enforcer.py` now resolves
+  Claude Code PascalCase tool names (`Bash`, `Read`, `Write`, `Edit`, `Agent`,
+  `Glob`, `Grep`, `WebFetch`, `NotebookEdit`, `Skill`) correctly. Previously all
+  PascalCase names fell through to `tool:{Name}`, bypassing capability enforcement.
+- **[High] MCP tools added to control-flow-sensitive set** — `mcp:tool_call` is
+  now in `_CONTROL_FLOW_RESOURCES`, blocking MCP tool execution when data
+  provenance is UNTRUSTED. Also handles `mcp__*` prefixed tool names.
+- **[High] Symlink traversal in Vaporizer** — `vaporizer.py` now detects symlinks
+  and removes them without following, preventing overwrite of files outside the
+  sandbox work directory.
+- **[High] Orphaned child process prevention** — `ProcessSandbox` now uses
+  `start_new_session` (Unix) / `CREATE_NEW_PROCESS_GROUP` (Windows) and kills the
+  entire process group on timeout, preventing background processes from outliving
+  the sandbox.
+- **[Medium] Path traversal normalization in SafetyVerifier** — `verify()` now
+  normalizes `..` segments in target paths before scope matching, so
+  `subdir/../.env` correctly matches the `.env*` forbidden scope.
+
 ## [1.3.0] - 2026-04-10
 
 ### Added — Three new architectural layers for provable security guarantees

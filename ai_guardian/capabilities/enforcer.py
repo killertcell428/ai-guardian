@@ -18,11 +18,20 @@ if TYPE_CHECKING:
     from ai_guardian.guard import Guard
 
 
-# Tools that affect control flow must never be driven by untrusted data
-_CONTROL_FLOW_RESOURCES = frozenset({"shell:exec", "agent:spawn", "code:eval"})
+# Tools that affect control flow must never be driven by untrusted data.
+# MCP tool calls are included because MCP tools can execute arbitrary
+# actions on remote servers (file I/O, network, code execution).
+_CONTROL_FLOW_RESOURCES = frozenset({
+    "shell:exec",
+    "agent:spawn",
+    "code:eval",
+    "mcp:tool_call",
+})
 
-# Mapping from tool names to (resource_type, target_key) pairs
+# Mapping from tool names (lowercase) to (resource_type, target_key) pairs.
+# Lookup is case-insensitive; see _map_tool().
 _TOOL_RESOURCE_MAP: dict[str, tuple[str, str]] = {
+    # Generic / SDK names
     "read_file": ("file:read", "path"),
     "write_file": ("file:write", "path"),
     "edit_file": ("file:write", "file_path"),
@@ -33,6 +42,17 @@ _TOOL_RESOURCE_MAP: dict[str, tuple[str, str]] = {
     "http_request": ("network:fetch", "url"),
     "fetch": ("network:fetch", "url"),
     "mcp_call": ("mcp:tool_call", "tool_name"),
+    # Claude Code tool names (PascalCase -> lowercase keys)
+    "read": ("file:read", "file_path"),
+    "write": ("file:write", "file_path"),
+    "edit": ("file:write", "file_path"),
+    "glob": ("file:search", "pattern"),
+    "grep": ("file:search", "pattern"),
+    "webfetch": ("network:fetch", "url"),
+    "websearch": ("network:search", "query"),
+    "agent": ("agent:spawn", "prompt"),
+    "notebookedit": ("file:write", "file_path"),
+    "skill": ("agent:spawn", "skill"),
 }
 
 
@@ -76,14 +96,25 @@ class AuthorizationResult:
 def _map_tool(tool_name: str) -> tuple[str, str]:
     """Map a tool name to its (resource_type, target_key) pair.
 
-    Falls back to a generic "tool:{name}" resource with "input" as the
-    target key for unknown tools.
+    Lookup is **case-insensitive** so both ``"Bash"`` (Claude Code) and
+    ``"bash"`` (generic) resolve to ``("shell:exec", "command")``.
+
+    MCP tools (``mcp__*``) are mapped to ``mcp:tool_call``.
+
+    Falls back to a generic ``"tool:{name}"`` resource with ``"input"``
+    as the target key for unknown tools.
     """
-    if tool_name in _TOOL_RESOURCE_MAP:
-        return _TOOL_RESOURCE_MAP[tool_name]
+    lower = tool_name.lower()
+
+    if lower in _TOOL_RESOURCE_MAP:
+        return _TOOL_RESOURCE_MAP[lower]
+
+    # MCP tools: mcp__server__tool_name -> mcp:tool_call
+    if lower.startswith("mcp__") or lower.startswith("mcp_"):
+        return "mcp:tool_call", "input"
 
     for prefix, (resource, _) in _TOOL_RESOURCE_MAP.items():
-        if tool_name.startswith(prefix):
+        if lower.startswith(prefix):
             return resource, "input"
 
     return f"tool:{tool_name}", "input"

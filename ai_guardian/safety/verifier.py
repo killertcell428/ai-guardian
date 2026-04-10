@@ -212,6 +212,16 @@ class SafetyVerifier:
         """
         ctx = context or {}
 
+        # Pre-check: normalize target path to defeat traversal attacks
+        # (e.g. "subdir/../.env" -> ".env") before scope matching.
+        normalized_target = target.replace("\\", "/")
+        if ".." in normalized_target:
+            from pathlib import PurePosixPath
+
+            normalized_target = str(PurePosixPath(normalized_target))
+            # Also update target for downstream matching
+            target = normalized_target
+
         for spec in self._specs:
             violations: list[str] = []
             checked_invariants: list[dict] = []

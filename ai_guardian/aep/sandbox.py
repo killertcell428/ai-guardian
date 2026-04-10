@@ -109,24 +109,36 @@ class ProcessSandbox:
         safe_env = self._build_env(env)
         shell_cmd = self._shell_command(code)
 
+        # Use start_new_session (Unix) / CREATE_NEW_PROCESS_GROUP (Windows)
+        # so we can kill the entire process group on timeout, preventing
+        # child processes from outliving the sandbox.
+        is_win = platform.system() == "Windows"
+        popen_kwargs: dict = {
+            "cwd": str(work_dir),
+            "env": safe_env,
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+        }
+        if not is_win:
+            popen_kwargs["start_new_session"] = True
+        else:
+            popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+
         t0 = time.perf_counter()
+        proc_obj = subprocess.Popen(shell_cmd, **popen_kwargs)
         try:
-            proc = subprocess.run(
-                shell_cmd,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=str(work_dir),
-                env=safe_env,
-            )
+            stdout_b, stderr_b = proc_obj.communicate(timeout=timeout)
             elapsed_ms = (time.perf_counter() - t0) * 1000.0
-            stdout = proc.stdout
-            stderr = proc.stderr
-            exit_code = proc.returncode
-        except subprocess.TimeoutExpired as exc:
+            stdout = stdout_b.decode(errors="replace")
+            stderr = stderr_b.decode(errors="replace")
+            exit_code = proc_obj.returncode
+        except subprocess.TimeoutExpired:
+            # Kill the entire process group to prevent orphaned children
+            self._kill_process_tree(proc_obj, is_win)
+            stdout_b, stderr_b = proc_obj.communicate(timeout=5)
             elapsed_ms = (time.perf_counter() - t0) * 1000.0
-            stdout = (exc.stdout or b"").decode(errors="replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")
-            stderr = (exc.stderr or b"").decode(errors="replace") if isinstance(exc.stderr, bytes) else (exc.stderr or "")
+            stdout = stdout_b.decode(errors="replace") if stdout_b else ""
+            stderr = stderr_b.decode(errors="replace") if stderr_b else ""
             exit_code = -1
 
         # Detect files created during execution.
@@ -144,6 +156,26 @@ class ProcessSandbox:
     # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _kill_process_tree(proc: subprocess.Popen, is_win: bool) -> None:
+        """Kill the process and all its children."""
+        import signal
+
+        try:
+            if is_win:
+                # On Windows, kill the process tree via taskkill
+                subprocess.run(
+                    ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+                    capture_output=True,
+                    timeout=5,
+                )
+            else:
+                # On Unix, kill the entire process group
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        except (ProcessLookupError, OSError, subprocess.TimeoutExpired):
+            # Process already exited or group doesn't exist
+            proc.kill()
 
     def _build_env(self, extra: dict[str, str] | None) -> dict[str, str]:
         """Build a stripped environment from the current process env."""
