@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-04-10
+
+### Fixed
+- **[Critical] Policy conditions always evaluated to True** — `_check_conditions()` in
+  `policy.py` now correctly returns `False` when conditions are not met, restoring
+  `autonomy_level`, `cost_limit`, and `department` policy enforcement.
+- **[High] Fail-open to fail-closed** — `adapters/claude_code.py` hooks now block (exit 2)
+  on errors instead of silently allowing. Prevents full defense bypass during failures.
+- **[High] FastAPI body re-injection** — `middleware/fastapi.py` now caches `request._body`
+  so downstream handlers can re-read the request body.
+- **[High] OpenAI proxy output scan fallback** — `middleware/openai_proxy.py` now tries
+  `to_dict()` / `__dict__` when `model_dump()` is unavailable, blocks if unscannable.
+- **[High] MCP tool scan TypeError** — `scanner.py` `scan_mcp_tool()` now applies `str()`
+  normalization to all fields, preventing `TypeError` / DoS from malformed tool definitions.
+- **[Medium] FastAPI check_output implemented** — `middleware/fastapi.py` now scans response
+  bodies when `check_output=True`, matching the documented API.
+- **[Medium] ReDoS mitigation** — Custom regex input capped at 50,000 characters in both
+  `scorer.py` and `scanner.py`.
+- **[Medium] Non-dict message handling** — `input_filter.py` and `scanner.py` now skip
+  non-dict elements in messages arrays instead of raising `AttributeError`.
+- **[Medium] Threshold range validation** — `Guard()` now raises `ValueError` if
+  `auto_block_threshold` or `auto_allow_threshold` is outside 0-100.
+- **[Low] Dead code removal** — Removed unused `learned_similarity` variable in `auto_fix.py`.
+- **[Low] DetectionPattern unified** — `patterns.py` now imports `DetectionPattern` from
+  `filters.patterns` instead of defining a duplicate class. Removed `type: ignore`.
+- **[Low] Escalation scan performance** — Multi-turn escalation analysis now limited to the
+  last 10 user messages to avoid O(n) cost on long conversations.
+
 ## [1.2.0] - 2026-04-10
 
 ### Added

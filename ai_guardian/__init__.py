@@ -55,4 +55,4 @@ __all__ = [
     # Similarity / semantic layer
     "check_similarity",
 ]
-__version__ = "1.2.0"
+__version__ = "1.2.1"
