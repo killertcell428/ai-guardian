@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-10
+
+### Added — Three new architectural layers for provable security guarantees
+
+#### Layer 4: Capability-Based Access Control (CaMeL-inspired)
+- **`ai_guardian.capabilities`** module — control flow / data flow separation
+- `Capability` tokens with cryptographic nonces (`secrets.token_hex`) — unforgeable by
+  injected text, matched by identity not string comparison
+- `TaintLabel` enum (TRUSTED / UNTRUSTED / SANITIZED) with enforcement: UNTRUSTED data
+  cannot be promoted to TRUSTED without scanning (prevents data→control flow escalation)
+- `CapabilityStore` — thread-safe grant/revoke/check with fnmatch scope matching and
+  automatic expiry pruning. All operations logged to append-only audit trail
+- `CapabilityEnforcer` — blocks control-flow-sensitive tools (`shell:exec`, `agent:spawn`,
+  `code:eval`) when data provenance is UNTRUSTED, regardless of pattern match results
+- `policy_bridge` — automatically converts existing YAML policy rules into capability grants
+  for full backwards compatibility
+- `Guard.authorize_tool()` — new method integrating capability checks into the main API
+
+#### Layer 5: Atomic Execution Pipeline (AEP)
+- **`ai_guardian.aep`** module — Scan → Execute → Vaporize as indivisible security primitive
+- `ProcessSandbox` — stdlib-only execution sandbox (subprocess + tempdir, environment
+  stripping, timeout enforcement, platform-aware Windows/Unix)
+- `Vaporizer` — secure artifact destruction with `os.urandom` overwrite before unlink,
+  Windows file-lock retry with exponential backoff, verification pass
+- `AtomicPipeline` — thread-safe orchestrator guaranteeing: input always scanned before
+  execution, execution always sandboxed, artifacts always destroyed (unless explicitly
+  opted out with audit warning)
+- 27 new tests covering sandbox, vaporizer, and pipeline
+
+#### Layer 6: Safety Specification & Verifier
+- **`ai_guardian.safety`** module — declarative safety specs with pre-execution verification
+- `SafetySpec` with `allowed_effects`, `forbidden_effects`, and `invariants`
+- `SafetyVerifier` producing `ProofCertificate` (UUID4 + UTC timestamp) for audit trails
+- Built-in invariant checks: `check_no_secrets_in_output`, `check_no_pii_in_output`,
+  `check_path_traversal`
+- `DEFAULT_SAFETY_SPEC` (8 allowed, 10 forbidden, 2 invariants) and `STRICT_SAFETY_SPEC`
+- JSON and YAML spec loading with stdlib-only fallback parser
+- Brace expansion support (`*.{py,js,ts}`) in scope patterns
+
+### Research Basis
+- Google DeepMind CaMeL: [arxiv 2503.18813](https://arxiv.org/abs/2503.18813) (2025)
+- Guaranteed Safe AI: [arxiv 2405.06624](https://arxiv.org/abs/2405.06624) (Bengio, Russell, Tegmark et al., 2024)
+- Atomic Execution Pipelines for AI Agent Security (2026)
+- CIV: A Provable Security Architecture for LLMs: [arxiv 2508.09288](https://arxiv.org/abs/2508.09288) (2025)
+
+### Changed
+- `Guard.__init__()` now accepts optional `capabilities: CapabilityStore` parameter
+- `AuthorizationResult` added to `ai_guardian.types`
+- All new features are fully backwards compatible — zero breaking changes to v1.x API
+
 ## [1.2.1] - 2026-04-10
 
 ### Fixed

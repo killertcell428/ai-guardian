@@ -40,3 +40,21 @@ class CheckResult:
     def __bool__(self) -> bool:
         """True if the request was NOT blocked (safe to proceed)."""
         return not self.blocked
+
+
+@dataclass
+class AuthorizationResult:
+    """Result of a capability-based tool authorization check.
+
+    Returned by ``Guard.authorize_tool()`` and ``CapabilityEnforcer.authorize_tool_call()``.
+    """
+
+    allowed: bool
+    capability_used: str | None  # nonce of the capability that authorized the call
+    reason: str
+    taint_level: str
+    scan_result: CheckResult | None = None
+
+    def __bool__(self) -> bool:
+        """True if the tool call is allowed."""
+        return self.allowed

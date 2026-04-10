@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ai_guardian.filters.input_filter import filter_input, filter_messages
 from ai_guardian.filters.output_filter import filter_output, filter_response
 from ai_guardian.filters.scorer import _build_remediation
 from ai_guardian.policies.manager import Policy, load_policy
-from ai_guardian.types import CheckResult, MatchedRule, RiskLevel
+from ai_guardian.types import AuthorizationResult, CheckResult, MatchedRule, RiskLevel
+
+if TYPE_CHECKING:
+    from ai_guardian.capabilities.store import CapabilityStore
+    from ai_guardian.capabilities.taint import TaintLabel
 
 
 class Guard:
@@ -22,6 +28,17 @@ class Guard:
         if result.blocked:
             raise ValueError(result.reasons)
 
+    With capability-based access control (Layer 4)::
+
+        from ai_guardian import Guard
+        from ai_guardian.capabilities import CapabilityStore
+
+        store = CapabilityStore()
+        store.grant("file:read", "/tmp/*", "system_prompt")
+        guard = Guard(capabilities=store)
+        auth = guard.authorize_tool("read_file", {"path": "/tmp/data.txt"})
+        assert auth.allowed
+
     Args:
         policy: Built-in policy name ("default", "strict", "permissive")
                 or path to a YAML policy file. Defaults to "default".
@@ -29,6 +46,8 @@ class Guard:
                      *policy* when provided.
         auto_block_threshold: Override the policy's block threshold (0-100).
         auto_allow_threshold: Override the policy's allow threshold (0-100).
+        capabilities: Optional CapabilityStore for Layer 4 access control.
+                      When provided, ``authorize_tool()`` becomes available.
     """
 
     def __init__(
@@ -37,8 +56,11 @@ class Guard:
         policy_file: str | None = None,
         auto_block_threshold: int | None = None,
         auto_allow_threshold: int | None = None,
+        capabilities: CapabilityStore | None = None,
     ) -> None:
         self._policy: Policy = load_policy(policy_file or policy)
+        self._capabilities = capabilities
+        self._enforcer = None
 
         if auto_block_threshold is not None:
             if not (0 <= auto_block_threshold <= 100):
@@ -48,6 +70,11 @@ class Guard:
             if not (0 <= auto_allow_threshold <= 100):
                 raise ValueError(f"auto_allow_threshold must be 0-100, got {auto_allow_threshold}")
             self._policy.auto_allow_threshold = auto_allow_threshold
+
+        if capabilities is not None:
+            from ai_guardian.capabilities.enforcer import CapabilityEnforcer
+
+            self._enforcer = CapabilityEnforcer(store=capabilities, guard=self)
 
     # ------------------------------------------------------------------
     # Public API
@@ -102,6 +129,57 @@ class Guard:
         return self._make_result(score, level, matched)
 
     # ------------------------------------------------------------------
+    # Layer 4: Capability-based tool authorization
+    # ------------------------------------------------------------------
+
+    def authorize_tool(
+        self,
+        tool_name: str,
+        tool_input: dict,
+        data_provenance: TaintLabel | None = None,
+    ) -> AuthorizationResult:
+        """Authorize a tool call using capability-based access control.
+
+        Requires ``capabilities`` to have been passed to the constructor.
+
+        Args:
+            tool_name: Name of the tool to authorize.
+            tool_input: Arguments dict for the tool call.
+            data_provenance: Taint label of the data driving this call.
+                Defaults to UNTRUSTED if not specified.
+
+        Returns:
+            AuthorizationResult indicating whether the call is permitted.
+
+        Raises:
+            RuntimeError: If no CapabilityStore was configured.
+        """
+        if self._enforcer is None:
+            raise RuntimeError(
+                "authorize_tool() requires a CapabilityStore. "
+                "Pass capabilities=CapabilityStore() to Guard()"
+            )
+
+        if data_provenance is None:
+            from ai_guardian.capabilities.taint import TaintLabel as _TL
+
+            data_provenance = _TL.UNTRUSTED
+
+        enforcer_result = self._enforcer.authorize_tool_call(
+            tool_name=tool_name,
+            tool_input=tool_input,
+            data_provenance=data_provenance,
+        )
+
+        return AuthorizationResult(
+            allowed=enforcer_result.allowed,
+            capability_used=enforcer_result.capability_used,
+            reason=enforcer_result.reason,
+            taint_level=enforcer_result.taint_level,
+            scan_result=enforcer_result.scan_result,
+        )
+
+    # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
 
@@ -119,8 +197,12 @@ class Guard:
         )
 
     def __repr__(self) -> str:
-        return (
-            f"Guard(policy={self._policy.name!r}, "
-            f"block_at={self._policy.auto_block_threshold}, "
-            f"allow_at={self._policy.auto_allow_threshold})"
-        )
+        parts = [
+            f"Guard(policy={self._policy.name!r}",
+            f"block_at={self._policy.auto_block_threshold}",
+            f"allow_at={self._policy.auto_allow_threshold}",
+        ]
+        if self._capabilities is not None:
+            count = len(self._capabilities.list_active())
+            parts.append(f"capabilities={count}")
+        return ", ".join(parts) + ")"

@@ -32,7 +32,7 @@ from ai_guardian.scanner import (
     scan_rag_context,
 )
 from ai_guardian.similarity import check_similarity
-from ai_guardian.types import CheckResult, MatchedRule, RiskLevel
+from ai_guardian.types import AuthorizationResult, CheckResult, MatchedRule, RiskLevel
 
 __all__ = [
     # Primary OOP API
@@ -40,6 +40,7 @@ __all__ = [
     "CheckResult",
     "MatchedRule",
     "RiskLevel",
+    "AuthorizationResult",
     # Functional API (scanner.py)
     "ScanResult",
     "scan",
@@ -55,4 +56,4 @@ __all__ = [
     # Similarity / semantic layer
     "check_similarity",
 ]
-__version__ = "1.2.1"
+__version__ = "2.0.0"
