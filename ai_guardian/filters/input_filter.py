@@ -11,6 +11,8 @@ def extract_text_from_messages(messages: list[dict]) -> str:
     """Concatenate all message content into a single string for pattern matching."""
     parts: list[str] = []
     for msg in messages:
+        if not isinstance(msg, dict):
+            continue
         content = msg.get("content", "")
         if isinstance(content, str):
             parts.append(content)

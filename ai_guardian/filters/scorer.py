@@ -122,13 +122,17 @@ def run_patterns(
                 prev + pattern.base_score, pattern.base_score * 2
             )
 
+    # Cap text length for custom regex to mitigate ReDoS on untrusted patterns
+    _MAX_CUSTOM_REGEX_INPUT = 50_000
+    safe_text = text[:_MAX_CUSTOM_REGEX_INPUT] if len(text) > _MAX_CUSTOM_REGEX_INPUT else text
+
     if custom_rules:
         for rule in custom_rules:
             if not rule.get("enabled", True):
                 continue
             try:
                 compiled = re.compile(rule["pattern"], re.IGNORECASE | re.DOTALL)
-                m = compiled.search(text)
+                m = compiled.search(safe_text)
                 if m:
                     score_delta = int(rule.get("score_delta", 20))
                     matched.append(

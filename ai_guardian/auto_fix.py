@@ -368,9 +368,6 @@ def verify_no_regressions(
         for p in learned_patterns
     ]
 
-    # Build extended similarity corpus
-    learned_similarity = load_learned_similarity(sdir)
-
     false_positives: list[dict] = []
 
     for text in inputs:

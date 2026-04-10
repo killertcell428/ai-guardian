@@ -47,7 +47,8 @@ def main():
     try:
         input_data = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, EOFError):
-        sys.exit(0)  # Can't parse = allow (fail-open for hooks)
+        print("AI Guardian: failed to parse hook input — blocking (fail-closed)", file=sys.stderr)
+        sys.exit(2)  # Can't parse = block (fail-closed for safety)
 
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
@@ -63,8 +64,8 @@ def main():
         from ai_guardian.activity import ActivityStream, ActivityEvent
         from ai_guardian.policy import load_policy, evaluate
     except ImportError:
-        # AI Guardian not installed — pass through
-        sys.exit(0)
+        print("AI Guardian: package not installed — blocking (fail-closed)", file=sys.stderr)
+        sys.exit(2)  # AI Guardian not installed — block (fail-closed)
 
     # Build event
     event = ActivityEvent(
@@ -89,8 +90,9 @@ def main():
             event.risk_score = result.risk_score
             event.risk_level = result.risk_level
             event.matched_rules = [r.rule_id for r in result.matched_rules]
-        except Exception:
-            pass
+        except Exception as exc:
+            print(f"AI Guardian: scan error ({exc}) — blocking (fail-closed)", file=sys.stderr)
+            sys.exit(2)
 
     # Evaluate policy
     try:
@@ -98,8 +100,9 @@ def main():
         decision, rule_id = evaluate(event, policy)
         event.policy_decision = decision
         event.policy_rule_id = rule_id
-    except Exception:
-        decision = "allow"
+    except Exception as exc:
+        print(f"AI Guardian: policy error ({exc}) — blocking (fail-closed)", file=sys.stderr)
+        decision = "deny"
 
     # Log to Activity Stream
     try:

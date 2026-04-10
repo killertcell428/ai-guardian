@@ -41,8 +41,12 @@ class Guard:
         self._policy: Policy = load_policy(policy_file or policy)
 
         if auto_block_threshold is not None:
+            if not (0 <= auto_block_threshold <= 100):
+                raise ValueError(f"auto_block_threshold must be 0-100, got {auto_block_threshold}")
             self._policy.auto_block_threshold = auto_block_threshold
         if auto_allow_threshold is not None:
+            if not (0 <= auto_allow_threshold <= 100):
+                raise ValueError(f"auto_allow_threshold must be 0-100, got {auto_allow_threshold}")
             self._policy.auto_allow_threshold = auto_allow_threshold
 
     # ------------------------------------------------------------------

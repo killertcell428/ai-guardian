@@ -15,22 +15,9 @@ Every pattern includes:
 """
 
 import re
-from dataclasses import dataclass
 
-
-@dataclass
-class DetectionPattern:
-    """A single detection rule with remediation metadata."""
-
-    id: str
-    name: str
-    category: str
-    pattern: re.Pattern
-    base_score: int
-    description: str
-    owasp_ref: str = ""
-    remediation_hint: str = ""
-    enabled: bool = True
+# Use the single canonical DetectionPattern definition from filters.patterns
+from ai_guardian.filters.patterns import DetectionPattern  # noqa: F401
 
 
 def _p(pattern: str, flags: int = re.IGNORECASE | re.DOTALL) -> re.Pattern:
@@ -762,8 +749,6 @@ from ai_guardian.filters.patterns import (  # noqa: E402
     TOKEN_EXHAUSTION_PATTERNS,
 )
 
-# Note: filters.patterns.DetectionPattern is a structurally identical but separate
-# class from the local DetectionPattern. Unifying them is tracked as a future refactor.
 _combined = (
     PROMPT_INJECTION_PATTERNS
     + JAPANESE_INJECTION_PATTERNS
@@ -796,4 +781,4 @@ _combined = (
     + EVALUATION_GAMING_PATTERNS
     + COT_DECEPTION_PATTERNS
 )
-ALL_INPUT_PATTERNS: list[DetectionPattern] = _combined  # type: ignore[assignment]
+ALL_INPUT_PATTERNS: list[DetectionPattern] = _combined

@@ -149,7 +149,9 @@ def _matches(event: ActivityEvent, rule: PolicyRule) -> bool:
 
 
 def _check_conditions(event: ActivityEvent, conditions: dict) -> bool:
-    """Check AGI-era conditions (stubs for future implementation).
+    """Check AGI-era conditions against an event.
+
+    Returns True only when ALL specified conditions are satisfied.
 
     Supported conditions (extensible):
       - autonomy_level: event must have >= this level
@@ -159,19 +161,19 @@ def _check_conditions(event: ActivityEvent, conditions: dict) -> bool:
     if "autonomy_level" in conditions:
         required = int(conditions["autonomy_level"])
         if event.autonomy_level < required:
-            return True  # Condition met (insufficient autonomy = rule applies)
+            return False  # Insufficient autonomy — condition not met
 
     if "cost_limit" in conditions:
         limit = float(conditions["cost_limit"])
         if event.estimated_cost > limit:
-            return True  # Over budget = rule applies
+            return False  # Over budget — condition not met
 
     if "department" in conditions:
         required_dept = conditions["department"]
         if event.memory_scope and required_dept not in event.memory_scope:
-            return True  # Wrong department = rule applies
+            return False  # Wrong department — condition not met
 
-    return True  # All conditions met
+    return True  # All conditions satisfied
 
 
 def _default_policy() -> Policy:

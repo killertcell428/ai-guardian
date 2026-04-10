@@ -218,13 +218,17 @@ def _run_patterns(
             prev = category_scores.get(p.category, 0)
             category_scores[p.category] = min(prev + p.base_score, p.base_score * 2)
 
+    # Cap text length for custom regex to mitigate ReDoS on untrusted patterns
+    _MAX_CUSTOM_REGEX_INPUT = 50_000
+    safe_normalized = normalized[:_MAX_CUSTOM_REGEX_INPUT] if len(normalized) > _MAX_CUSTOM_REGEX_INPUT else normalized
+
     if custom_rules:
         for rule in custom_rules:
             if not rule.get("enabled", True):
                 continue
             try:
                 pat = re.compile(rule["pattern"], re.IGNORECASE | re.DOTALL)
-                m = pat.search(normalized)
+                m = pat.search(safe_normalized)
                 if m:
                     delta = int(rule.get("score_delta", 20))
                     matched.append(
@@ -380,6 +384,8 @@ def scan_messages(
     all_parts: list[str] = []
 
     for msg in messages:
+        if not isinstance(msg, dict):
+            continue
         content = msg.get("content", "")
         text = ""
         if isinstance(content, str):
@@ -396,10 +402,13 @@ def scan_messages(
     combined_result = scan("\n".join(all_parts), custom_rules)
 
     # Multi-turn analysis: scan each user message individually
-    # and check for escalation patterns
-    if len(user_parts) >= 2:
+    # and check for escalation patterns.
+    # Limit to the last N user messages to avoid O(n) full-scan cost on long conversations.
+    _MAX_USER_MESSAGES_FOR_ESCALATION = 10
+    recent_user_parts = user_parts[-_MAX_USER_MESSAGES_FOR_ESCALATION:]
+    if len(recent_user_parts) >= 2:
         per_message_scores: list[int] = []
-        for part in user_parts:
+        for part in recent_user_parts:
             r = scan(part, custom_rules)
             per_message_scores.append(r.risk_score)
 
@@ -508,17 +517,21 @@ def scan_mcp_tool(
         text = tool_definition
     else:
         parts: list[str] = []
-        if "name" in tool_definition:
-            parts.append(tool_definition["name"])
-        if "description" in tool_definition:
-            parts.append(tool_definition["description"])
+        name = tool_definition.get("name")
+        if name is not None:
+            parts.append(str(name))
+        desc = tool_definition.get("description")
+        if desc is not None:
+            parts.append(str(desc))
         # Scan inputSchema property descriptions (hidden injection surface)
         schema = tool_definition.get("inputSchema", {})
-        for _prop_name, prop_def in schema.get("properties", {}).items():
-            if isinstance(prop_def, dict):
-                parts.append(_prop_name)
-                if "description" in prop_def:
-                    parts.append(prop_def["description"])
+        if isinstance(schema, dict):
+            for _prop_name, prop_def in schema.get("properties", {}).items():
+                if isinstance(prop_def, dict):
+                    parts.append(str(_prop_name))
+                    prop_desc = prop_def.get("description")
+                    if prop_desc is not None:
+                        parts.append(str(prop_desc))
         text = "\n".join(parts)
 
     return _run_patterns(text, ALL_INPUT_PATTERNS, custom_rules)

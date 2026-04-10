@@ -99,7 +99,24 @@ class _SecureCompletions:
         response = self._completions.create(**kwargs)
 
         if self._check_output:
-            response_dict = response.model_dump() if hasattr(response, "model_dump") else {}
+            if hasattr(response, "model_dump"):
+                response_dict = response.model_dump()
+            elif hasattr(response, "to_dict"):
+                response_dict = response.to_dict()
+            elif hasattr(response, "__dict__"):
+                response_dict = response.__dict__
+            else:
+                import logging
+                logging.getLogger("ai_guardian").warning(
+                    "Cannot serialize OpenAI response for output scanning — "
+                    "response type %s has no model_dump/to_dict. Blocking as precaution.",
+                    type(response).__name__,
+                )
+                raise GuardianBlockedError(
+                    "AI Guardian: unable to scan response (unsupported response type)",
+                    risk_score=0,
+                    reasons=["output_scan_unsupported"],
+                )
             out_result = self._guard.check_response(response_dict)
             if out_result.blocked:
                 raise GuardianBlockedError(

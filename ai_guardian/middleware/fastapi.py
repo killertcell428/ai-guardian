@@ -67,6 +67,15 @@ class AIGuardianMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Any) -> Response:
         if request.method == "POST" and self._should_scan(request.url.path):
             body_bytes = await request.body()
+
+            # Re-inject body so downstream handlers can read it again.
+            # Starlette's Request caches body bytes internally after the
+            # first await, so subsequent request.body() calls return the
+            # cached value. However, some ASGI servers or test clients
+            # rely on the receive channel. We set the internal cache
+            # explicitly to guarantee availability.
+            request._body = body_bytes  # type: ignore[attr-defined]
+
             try:
                 body = json.loads(body_bytes)
             except (json.JSONDecodeError, ValueError):
@@ -92,6 +101,31 @@ class AIGuardianMiddleware(BaseHTTPMiddleware):
                     )
 
         response: Response = await call_next(request)
+
+        # Output scanning: if enabled, inspect the response body for data leaks
+        if self.check_output and request.method == "POST" and self._should_scan(request.url.path):
+            if hasattr(response, "body"):
+                try:
+                    resp_body = json.loads(response.body)
+                    out_result = self.guard.check_response(resp_body)
+                    if out_result.blocked:
+                        return JSONResponse(
+                            status_code=400,
+                            content={
+                                "error": {
+                                    "type": "guardian_policy_violation",
+                                    "code": "response_blocked",
+                                    "message": "Response blocked by AI Guardian security policy.",
+                                    "risk_score": out_result.risk_score,
+                                    "risk_level": out_result.risk_level.value,
+                                    "reasons": out_result.reasons,
+                                    "remediation": out_result.remediation,
+                                }
+                            },
+                        )
+                except (json.JSONDecodeError, ValueError, AttributeError):
+                    pass
+
         return response
 
     def _should_scan(self, path: str) -> bool:
