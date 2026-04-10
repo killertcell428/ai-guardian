@@ -21,6 +21,13 @@ Functional API (convenience wrappers around Guard)::
 
 from ai_guardian.guard import Guard
 from ai_guardian.mcp_scanner import MCPServerReport, scan_mcp_server
+from ai_guardian.monitor import SecurityMonitor
+from ai_guardian.monitor.anomaly import AnomalyAlert
+from ai_guardian.monitor.containment import ContainmentLevel
+from ai_guardian.monitor.drift import DriftAlert
+from ai_guardian.monitor.monitor import BehavioralMonitor
+from ai_guardian.monitor.monitor import MonitoringReport as BehavioralMonitoringReport
+from ai_guardian.report import MonitoringReport
 from ai_guardian.scanner import (
     ScanResult,
     sanitize,
@@ -55,5 +62,14 @@ __all__ = [
     "MCPServerReport",
     # Similarity / semantic layer
     "check_similarity",
+    # Monitoring & Reporting
+    "SecurityMonitor",
+    "MonitoringReport",
+    # Behavioral Monitoring (Phase 1)
+    "BehavioralMonitor",
+    "BehavioralMonitoringReport",
+    "ContainmentLevel",
+    "DriftAlert",
+    "AnomalyAlert",
 ]
-__version__ = "1.3.1"
+__version__ = "1.4.0"

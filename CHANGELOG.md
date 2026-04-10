@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-04-11
+
+### Added — Runtime Behavioral Monitoring, Memory Defense, Multi-Agent Security
+
+#### Runtime Behavioral Monitoring (`ai_guardian.monitor`)
+- **`ActionTracker`** — Thread-safe sliding window of agent actions with session
+  tracking, resource histograms, and time-windowed queries.
+- **`BaselineBuilder` / `BehaviorProfile`** — Pure-statistics behavioral profiling
+  (mean, stddev, distributions). JSON serialization for persistence across sessions.
+- **`DriftDetector`** — Z-score anomaly detection against baseline. Four checks:
+  frequency spike, resource distribution shift, escalation pattern (read→write→exec),
+  exfiltration pattern (read→send). Configurable sensitivity threshold.
+- **`AnomalyDetector`** — MI9-inspired FSM-based sequence analysis. Six predefined
+  escalation chains, rapid-fire detection, new-resource detection.
+- **`ContainmentManager`** — Graduated containment: NORMAL → WARN → THROTTLE →
+  RESTRICT → ISOLATE → STOP. Auto-escalation capped at RESTRICT by default;
+  ISOLATE/STOP require human confirmation via `escalate_manual()`.
+- **`BehavioralMonitor`** — Orchestrator tying tracker + drift + anomaly + containment.
+  Simple API: `record_action()`, `check()`, `should_allow()`, `report()`.
+- **`Guard(monitor=)` integration** — Optional `BehavioralMonitor` parameter;
+  auto-records actions in `check_input/output/messages/response`.
+- 80 new tests.
+
+#### Memory Poisoning Defense (`ai_guardian.memory`)
+- **`MemoryScanner`** — 16 memory-specific detection patterns (EN+JA) covering
+  persistent instruction injection, persona manipulation, policy override,
+  persistent exfiltration, and sleeper/conditional triggers. Two-layer detection:
+  Guard scan + memory-specific heuristics. Source trust multipliers.
+- **`MemoryIntegrity`** — SHA-256 content hashing for tamper detection. TTL-based
+  rotation: untrusted sources (user, tool) default to 7-day expiry; trusted sources
+  (agent, system) have no expiry. Thread-safe. JSON persistence.
+
+#### Multi-Agent Security (`ai_guardian.multi_agent`)
+- **`AgentMessageScanner`** — 3-layer cross-agent message scanning: Guard content
+  scan + 18 cross-agent injection patterns (EN+JA) + message-type-specific checks.
+  Detects injection relay, privilege escalation, data exfiltration, delegation abuse.
+- **`AgentTopology`** — Agent communication topology monitoring. Trust model:
+  orchestrators default to `high` trust, all others to `low` (zero-trust).
+  Tracks communication edges, detects unexpected patterns, reports trust violations.
+- 64 new tests.
+
+### Research Basis
+- MI9 Agent Intelligence Protocol: [arxiv 2508.03858](https://arxiv.org/abs/2508.03858) (FSM conformance, graduated containment)
+- AgentSpec: [arxiv 2503.18666](https://arxiv.org/abs/2503.18666) (ICSE 2026, runtime enforcement DSL)
+- MINJA Memory Injection Attack: [arxiv 2601.05504](https://arxiv.org/abs/2601.05504) (NeurIPS 2025)
+- AgentGuardian: [arxiv 2601.10440](https://arxiv.org/abs/2601.10440) (access control policy learning)
+- Institutional AI: [arxiv 2601.10599](https://arxiv.org/abs/2601.10599) (governance graph for agent collectives)
+
 ## [1.3.1] - 2026-04-10
 
 ### Fixed

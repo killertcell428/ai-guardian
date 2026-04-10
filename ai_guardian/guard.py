@@ -13,6 +13,7 @@ from ai_guardian.types import AuthorizationResult, CheckResult, MatchedRule, Ris
 if TYPE_CHECKING:
     from ai_guardian.capabilities.store import CapabilityStore
     from ai_guardian.capabilities.taint import TaintLabel
+    from ai_guardian.monitor.monitor import BehavioralMonitor
 
 
 class Guard:
@@ -39,6 +40,21 @@ class Guard:
         auth = guard.authorize_tool("read_file", {"path": "/tmp/data.txt"})
         assert auth.allowed
 
+    With behavioral monitoring (Phase 1)::
+
+        from ai_guardian import Guard
+        from ai_guardian.monitor.monitor import BehavioralMonitor
+
+        monitor = BehavioralMonitor()
+        guard = Guard(monitor=monitor)
+
+        result = guard.check_input("some input")
+        # The monitor automatically records the scan
+
+        # Check containment
+        if not guard.monitor.should_allow("shell:exec"):
+            print("Blocked by containment")
+
     Args:
         policy: Built-in policy name ("default", "strict", "permissive")
                 or path to a YAML policy file. Defaults to "default".
@@ -48,6 +64,9 @@ class Guard:
         auto_allow_threshold: Override the policy's allow threshold (0-100).
         capabilities: Optional CapabilityStore for Layer 4 access control.
                       When provided, ``authorize_tool()`` becomes available.
+        monitor: Optional BehavioralMonitor for runtime behavioral monitoring.
+                 When provided, check methods automatically record actions
+                 and the monitor property becomes available.
     """
 
     def __init__(
@@ -57,10 +76,12 @@ class Guard:
         auto_block_threshold: int | None = None,
         auto_allow_threshold: int | None = None,
         capabilities: CapabilityStore | None = None,
+        monitor: BehavioralMonitor | None = None,
     ) -> None:
         self._policy: Policy = load_policy(policy_file or policy)
         self._capabilities = capabilities
         self._enforcer = None
+        self._monitor = monitor
 
         if auto_block_threshold is not None:
             if not (0 <= auto_block_threshold <= 100):
@@ -80,6 +101,15 @@ class Guard:
     # Public API
     # ------------------------------------------------------------------
 
+    @property
+    def monitor(self) -> BehavioralMonitor | None:
+        """Access the behavioral monitor, if configured.
+
+        Returns:
+            The BehavioralMonitor instance, or None if not configured.
+        """
+        return self._monitor
+
     def check_input(self, text: str) -> CheckResult:
         """Scan a plain-text user prompt for threats.
 
@@ -90,7 +120,9 @@ class Guard:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
         score, level, matched = filter_input(text, self._policy.custom_rules or None)
-        return self._make_result(score, level, matched)
+        result = self._make_result(score, level, matched)
+        self._record_to_monitor("check_input", "scan:input", text[:100], result)
+        return result
 
     def check_messages(self, messages: list[dict]) -> CheckResult:
         """Scan an OpenAI-style messages array for threats.
@@ -102,7 +134,10 @@ class Guard:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
         score, level, matched = filter_messages(messages, self._policy.custom_rules or None)
-        return self._make_result(score, level, matched)
+        result = self._make_result(score, level, matched)
+        target = str(len(messages)) + " messages"
+        self._record_to_monitor("check_messages", "scan:messages", target, result)
+        return result
 
     def check_output(self, text: str) -> CheckResult:
         """Scan an LLM response string for data leaks and harmful content.
@@ -114,7 +149,9 @@ class Guard:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
         score, level, matched = filter_output(text, self._policy.custom_rules or None)
-        return self._make_result(score, level, matched)
+        result = self._make_result(score, level, matched)
+        self._record_to_monitor("check_output", "scan:output", text[:100], result)
+        return result
 
     def check_response(self, response_body: dict) -> CheckResult:
         """Scan an OpenAI-compatible response body for data leaks.
@@ -126,7 +163,9 @@ class Guard:
             CheckResult — inspect ``.blocked`` and ``.reasons``.
         """
         score, level, matched = filter_response(response_body, self._policy.custom_rules or None)
-        return self._make_result(score, level, matched)
+        result = self._make_result(score, level, matched)
+        self._record_to_monitor("check_response", "scan:response", "response_body", result)
+        return result
 
     # ------------------------------------------------------------------
     # Layer 4: Capability-based tool authorization
@@ -196,6 +235,25 @@ class Guard:
             remediation=remediation,
         )
 
+    def _record_to_monitor(
+        self,
+        tool_name: str,
+        resource: str,
+        target: str,
+        result: CheckResult,
+    ) -> None:
+        """Record a check result to the behavioral monitor, if configured."""
+        if self._monitor is None:
+            return
+        outcome = "blocked" if result.blocked else "allowed"
+        self._monitor.record_action(
+            tool_name=tool_name,
+            resource=resource,
+            target=target,
+            risk_score=result.risk_score,
+            outcome=outcome,
+        )
+
     def __repr__(self) -> str:
         parts = [
             f"Guard(policy={self._policy.name!r}",
@@ -205,4 +263,6 @@ class Guard:
         if self._capabilities is not None:
             count = len(self._capabilities.list_active())
             parts.append(f"capabilities={count}")
+        if self._monitor is not None:
+            parts.append("monitor=active")
         return ", ".join(parts) + ")"
