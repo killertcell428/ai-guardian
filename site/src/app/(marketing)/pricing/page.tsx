@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const COMPARISON_ROWS_EN = [
   { feature: "Team members", values: ["1 (personal)", "Up to 5", "Up to 50", "Unlimited"] },
   { feature: "API requests / month", values: ["Unlimited (CLI)", "500K", "5M", "Unlimited"] },
-  { feature: "Detection patterns (137+)", values: [true, true, true, true] },
+  { feature: "Detection patterns (165+), 6-layer defense", values: [true, true, true, true] },
   { feature: "MCP Security Scanner", values: [true, true, true, true] },
   { feature: "Red Team testing (CLI)", values: [true, true, true, true] },
   { feature: "Cloud dashboard", values: [false, true, true, true] },
@@ -26,7 +26,7 @@ const COMPARISON_ROWS_EN = [
 const COMPARISON_ROWS_JA = [
   { feature: "チームメンバー", values: ["1名（個人）", "最大5名", "最大50名", "無制限"] },
   { feature: "月間APIリクエスト", values: ["無制限（CLI）", "50万", "500万", "無制限"] },
-  { feature: "検出パターン（137種以上）", values: [true, true, true, true] },
+  { feature: "検出パターン（165+種）、6層防御", values: [true, true, true, true] },
   { feature: "MCPセキュリティスキャナー", values: [true, true, true, true] },
   { feature: "レッドチームテスト（CLI）", values: [true, true, true, true] },
   { feature: "クラウドダッシュボード", values: [false, true, true, true] },

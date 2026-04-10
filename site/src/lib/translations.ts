@@ -83,10 +83,10 @@ export const t = {
       ja: "AI Guardianがスコア&ルーティング",
     },
     step2Desc: {
-      en: "OWASP LLM Top 10 coverage with 20+ built-in rules. Detects prompt injection, jailbreaks, SQL injection, PII leaks, and more. Every request gets a risk score within 5ms.",
-      ja: "OWASP LLM Top 10 に対応した20+の組み込みルールで検査。プロンプトインジェクション・ジェイルブレイク・SQLインジェクション・PIIリーク…。5ms以内にリスクスコアを付与します。",
+      en: "OWASP LLM Top 10 coverage with 165+ detection patterns across 25+ threat categories. 6-layer defense including CaMeL Capabilities, Atomic Execution Pipeline, and Safety Verifier. Every request gets a risk score within 5ms.",
+      ja: "OWASP LLM Top 10 に対応した165+検出パターン（25+脅威カテゴリ）で検査。CaMeL Capabilities・AEP・Safety Verifierを含む6層防御。5ms以内にリスクスコアを付与します。",
     },
-    step2Aside: { en: "20+ rules · OWASP LLM Top 10", ja: "20以上のルール · OWASP LLM Top 10" },
+    step2Aside: { en: "165+ patterns · 25+ categories · 6-layer defense", ja: "165+パターン · 25+カテゴリ · 6層防御" },
     step3Title: {
       en: "Your team decides the hard calls",
       ja: "難しい判断はあなたのチームが下す",
@@ -211,7 +211,7 @@ export const t = {
         en: "Open-source core — everything you need to get started",
         ja: "オープンソースコア — 始めるために必要なすべてが無料",
       },
-      f1: { en: "137 detection patterns (100% accuracy)", ja: "137種の検出パターン（100%精度）" },
+      f1: { en: "165+ detection patterns, 6-layer defense (100% accuracy)", ja: "165+検出パターン、6層防御（100%精度）" },
       f2: { en: "MCP Security Scanner", ja: "MCPセキュリティスキャナー" },
       f3: { en: "Automated Red Team testing", ja: "自動レッドチームテスト" },
       f4: { en: "CLI tool (pip install)", ja: "CLIツール（pip install）" },

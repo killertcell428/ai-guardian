@@ -185,6 +185,27 @@ except GuardianBlockedError as e:
 
 ---
 
+## ケーパビリティベースの認可（v1.3.0+）
+
+ミドルウェア層でもケーパビリティ検証を適用できます。`Guard` に `CapabilityStore` を設定すると、ツール呼び出しを含むリクエストに対して自動的にケーパビリティチェックが実行されます。
+
+```python
+from ai_guardian import Guard
+from ai_guardian.capabilities import CapabilityStore, Capability
+
+store = CapabilityStore()
+store.grant("chat_tool", Capability(resource="llm", actions=["invoke"]))
+
+guard = Guard(policy="strict", capabilities=store)
+
+# FastAPI ミドルウェアに設定 → ツール呼び出しも自動検証
+app.add_middleware(AIGuardianMiddleware, guard=guard)
+```
+
+ケーパビリティが不足している場合、**HTTP 403** レスポンスが返されます。
+
+---
+
 ## 連携の組み合わせ
 
 多層防御のために複数の連携ポイントを重ねて使用できます。

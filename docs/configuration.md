@@ -8,15 +8,17 @@ Guard(
     policy_file: str | None = None,
     auto_block_threshold: int | None = None,
     auto_allow_threshold: int | None = None,
+    capabilities: CapabilityStore | None = None,    # v1.3.0 追加
 )
 ```
 
-| パラメータ             | 型             | デフォルト  | 説明                                                     |
-|------------------------|----------------|-------------|----------------------------------------------------------|
-| `policy`               | `str`          | `"default"` | 組み込みポリシー名: `"default"`, `"strict"`, `"permissive"` |
-| `policy_file`          | `str \| None`  | `None`      | YAML ポリシーファイルのパス（`policy` より優先）         |
-| `auto_block_threshold` | `int \| None`  | `None`      | ブロック閾値の上書き（0〜100）                           |
-| `auto_allow_threshold` | `int \| None`  | `None`      | 許可閾値の上書き（0〜100）                               |
+| パラメータ             | 型                        | デフォルト  | 説明                                                     |
+|------------------------|---------------------------|-------------|----------------------------------------------------------|
+| `policy`               | `str`                     | `"default"` | 組み込みポリシー名: `"default"`, `"strict"`, `"permissive"` |
+| `policy_file`          | `str \| None`             | `None`      | YAML ポリシーファイルのパス（`policy` より優先）         |
+| `auto_block_threshold` | `int \| None`             | `None`      | ブロック閾値の上書き（0〜100）                           |
+| `auto_allow_threshold` | `int \| None`             | `None`      | 許可閾値の上書き（0〜100）                               |
+| `capabilities`         | `CapabilityStore \| None` | `None`      | ケーパビリティストア（v1.3.0+、`authorize_tool()` に必要）|
 
 ## 組み込みポリシー
 
@@ -123,6 +125,56 @@ guard = Guard(policy_file="policy.yaml")
 | 31 〜 60    | MEDIUM     | ログ記録＆許可 |
 | 61 〜 80    | HIGH       | ログ記録＆許可 |
 | 81 〜 100   | CRITICAL   | ブロック       |
+
+## Safety Spec（安全仕様）の YAML 設定
+
+v1.3.0 で追加。ツール実行の安全性を検証するための仕様を YAML で定義できます。
+
+```yaml
+# safety_spec.yaml
+name: production-safety
+description: 本番環境向け安全仕様
+
+invariants:
+  - name: no_system_write
+    description: システムディレクトリへの書き込みを禁止
+    condition: "effect.target not matches '/etc/**'"
+
+  - name: no_secret_exfil
+    description: シークレットの外部送信を禁止
+    condition: "effect.type != 'network_send' or effect.target in allowed_hosts"
+
+  - name: db_read_only
+    description: データベースは読み取りのみ
+    condition: "effect.type != 'db_query' or effect.metadata.operation == 'SELECT'"
+```
+
+```python
+from ai_guardian.safety import SafetyVerifier, SafetySpec
+
+# YAML から読み込み
+verifier = SafetyVerifier.from_yaml("safety_spec.yaml")
+```
+
+## AEP パイプライン設定
+
+v1.3.0 で追加。Atomic Execution Pipeline の動作をカスタマイズします。
+
+```python
+from ai_guardian.aep import AtomicPipeline
+
+pipeline = AtomicPipeline(
+    vaporize=True,      # 失敗時に副作用をロールバック（デフォルト: True）
+    sandbox=True,       # サンドボックス内で実行（デフォルト: False）
+    timeout=30.0,       # タイムアウト秒数（デフォルト: 60.0）
+)
+```
+
+| パラメータ   | 型      | デフォルト | 説明                                                   |
+|-------------|---------|-----------|--------------------------------------------------------|
+| `vaporize`  | `bool`  | `True`    | 実行失敗時に副作用（ファイル作成等）を自動ロールバック |
+| `sandbox`   | `bool`  | `False`   | 隔離プロセスで実行（ファイル・ネットワークアクセスを制限）|
+| `timeout`   | `float` | `60.0`    | 実行タイムアウト（秒）。超過時は強制終了＋ロールバック |
 
 ## 環境変数による設定
 

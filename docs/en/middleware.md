@@ -206,6 +206,27 @@ except GuardianBlockedError as e:
 
 ---
 
+## Capability-Based Authorization (v1.3.0+)
+
+Capability enforcement can also be applied at the middleware layer. When a `CapabilityStore` is configured on the `Guard`, requests containing tool calls are automatically checked against the granted capabilities.
+
+```python
+from ai_guardian import Guard
+from ai_guardian.capabilities import CapabilityStore, Capability
+
+store = CapabilityStore()
+store.grant("chat_tool", Capability(resource="llm", actions=["invoke"]))
+
+guard = Guard(policy="strict", capabilities=store)
+
+# Configure with FastAPI middleware — tool calls are auto-verified
+app.add_middleware(AIGuardianMiddleware, guard=guard)
+```
+
+Requests with insufficient capabilities receive an **HTTP 403** response.
+
+---
+
 ## Combining Integrations
 
 Multiple integration points can be stacked for defence-in-depth.

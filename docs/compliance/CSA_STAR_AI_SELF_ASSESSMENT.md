@@ -1,7 +1,7 @@
 # AI Guardian — CSA STAR for AI Level 1 Self-Assessment
 
-> Last updated: 2026-04-06
-> AI Guardian version: v1.0.0
+> Last updated: 2026-04-10
+> AI Guardian version: v1.3.1
 > Reference: [CSA STAR for AI](https://cloudsecurityalliance.org/star/ai)
 > Framework: AI Controls Matrix (AICM) + AI Consensus Assessment Initiative Questionnaire (AI-CAIQ)
 

@@ -245,10 +245,10 @@ export default function PricingSection() {
           <div className="space-y-4">
             <ValueLayer
               number="1"
-              title={ja ? "OSSセキュリティライブラリ" : "OSS Security Library"}
+              title={ja ? "OSSセキュリティライブラリ（6層防御）" : "OSS Security Library (6-Layer Defense)"}
               desc={ja
-                ? "pip install aig-guardian で即座にLLMアプリを保護。137種の検出パターン、MCPスキャナー、自動レッドチーム。永久無料でセキュリティの入り口を開く。"
-                : "Protect LLM apps instantly with pip install aig-guardian. 137 detection patterns, MCP scanner, automated red team. Free forever to open the door to security."}
+                ? "pip install aig-guardian で即座にLLMアプリを保護。165+検出パターン（25+脅威カテゴリ）、CaMeL Capabilities（権限制御）、Atomic Execution Pipeline（実行隔離）、Safety Verifier（安全性証明）、MCPスキャナー、自動レッドチーム。永久無料でセキュリティの入り口を開く。"
+                : "Protect LLM apps instantly with pip install aig-guardian. 165+ detection patterns (25+ threat categories), CaMeL Capabilities (access control), Atomic Execution Pipeline (sandboxed execution), Safety Verifier (provable safety), MCP scanner, automated red team. Free forever to open the door to security."}
               plan="Free"
               color="bg-guardian-50 border-guardian-200"
             />

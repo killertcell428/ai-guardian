@@ -179,6 +179,76 @@ aig report
 | **CSA STAR for AI** | Level 1 self-assessment complete |
 | **Japan AI Guidelines v1.2** | 37/37 requirements (100%) |
 
+## Capability-Based Tool Authorization (v1.3.0+)
+
+The capability, AEP, and safety verification layers added in v1.3.0 let you apply the principle of least privilege to LLM agent tool calls.
+
+```python
+from ai_guardian import Guard
+from ai_guardian.capabilities import CapabilityStore, Capability
+
+# 1. Create a capability store and define allowed operations
+store = CapabilityStore()
+store.grant("data_reader", Capability(
+    resource="filesystem",
+    actions=["read"],
+    constraints={"paths": ["/data/**"]},
+))
+
+# 2. Pass the capability store to Guard
+guard = Guard(policy="strict", capabilities=store)
+
+# 3. Authorize a tool call
+auth = guard.authorize_tool(
+    tool_name="data_reader",
+    action="read",
+    resource="filesystem",
+    target="/data/report.csv",
+)
+print(auth.authorized)  # True
+
+# Unauthorized operations are blocked
+auth = guard.authorize_tool(
+    tool_name="data_reader",
+    action="write",          # write not granted
+    resource="filesystem",
+    target="/data/report.csv",
+)
+print(auth.authorized)  # False
+```
+
+### Atomic Execution Pipeline (AEP)
+
+Execute tools atomically inside a sandbox with automatic rollback of side effects on failure.
+
+```python
+from ai_guardian.aep import AtomicPipeline
+
+pipeline = AtomicPipeline(vaporize=True, sandbox=True, timeout=30.0)
+result = await pipeline.execute(my_tool_fn, args={"path": "/data/input.csv"})
+if result.success:
+    print(result.return_value)
+else:
+    print("Failed — side effects rolled back")
+```
+
+### Safety Verification
+
+Formally verify that tool side effects comply with a safety specification.
+
+```python
+from ai_guardian.safety import SafetyVerifier, STRICT_SAFETY_SPEC, EffectSpec
+
+verifier = SafetyVerifier(spec=STRICT_SAFETY_SPEC)
+cert = verifier.verify(tool_name="file_writer", effects=[
+    EffectSpec(type="file_write", target="/data/output.csv"),
+])
+print(cert.verified)     # True
+print(cert.proof_hash)   # verification proof hash
+```
+
+See the [API Reference](api-reference.md) for full details.
+
 ## Next Steps
 
 - [Configuration Reference](configuration.md) — thresholds, custom rules, YAML policies

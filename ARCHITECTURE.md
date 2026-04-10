@@ -1,11 +1,11 @@
-# AI Guardian アーキテクチャ（v1.1.0）
+# AI Guardian アーキテクチャ（v1.3.1）
 
-> Last updated: 2026-04-07
-> Version: v1.1.0 — 137 patterns, 5-layer detection, MCP server scanner
+> Last updated: 2026-04-10
+> Version: v1.3.1 — 165+ patterns, 25+ threat categories, 6-layer detection, CaMeL capabilities, AEP, Safety Specs
 
 ## 概要
 
-AI Guardian は **AIエージェント向け汎用セキュリティレイヤー** である。LLMアプリケーションの入力・出力・MCP ツール定義を監視し、プロンプトインジェクションからデータ漏洩まで19カテゴリの脅威を検出・ブロック・修復ガイダンス付きで報告する。外部依存ゼロ（Python 標準ライブラリのみ）。
+AI Guardian は **AIエージェント向け汎用セキュリティレイヤー** である。LLMアプリケーションの入力・出力・MCP ツール定義を監視し、プロンプトインジェクションからデータ漏洩まで25+カテゴリの脅威を検出・ブロック・修復ガイダンス付きで報告する。v1.3.1 では従来の3層検出（パターン・類似度・デコード）に加え、CaMeL ベースのケーパビリティ制御（L4）、Atomic Execution Pipeline（L5）、Safety Specification & Verifier（L6）を追加し、6層防御を実現。外部依存ゼロ（Python 標準ライブラリのみ）。
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -26,23 +26,30 @@ AI Guardian は **AIエージェント向け汎用セキュリティレイヤー
 │  │  └─────────┬──────────────────────────────────────────────┘ │     │
 │  │            │                                                 │     │
 │  │  ┌─────────▼──────────────────────────────────────────────┐ │     │
-│  │  │  Detection Pipeline（5層）                              │ │     │
+│  │  │  Detection & Enforcement Pipeline（6層）                │ │     │
 │  │  │                                                         │ │     │
-│  │  │  L1. Text Normalization                                 │ │     │
-│  │  │      NFKC正規化 → ゼロ幅文字除去 → スペース圧縮        │ │     │
-│  │  │      → Confusable正規化 → Emoji除去                    │ │     │
+│  │  │  L1. Regex Pattern Matching（165+パターン）             │ │     │
+│  │  │      25+カテゴリ × 4言語（EN/JA/KO/ZH）                │ │     │
+│  │  │      + NFKC正規化 + ゼロ幅文字除去 + スペース圧縮      │ │     │
+│  │  │      + Confusable正規化 + Emoji除去                    │ │     │
 │  │  │                                                         │ │     │
-│  │  │  L2. Pattern Matching（137パターン）                    │ │     │
-│  │  │      19カテゴリ × 4言語（EN/JA/KO/ZH）                 │ │     │
-│  │  │                                                         │ │     │
-│  │  │  L3. Active Decoding ★v1.1新機能                       │ │     │
-│  │  │      Base64/Hex/URL/ROT13 → デコード → 再スキャン      │ │     │
-│  │  │                                                         │ │     │
-│  │  │  L4. Semantic Similarity（56フレーズ）                  │ │     │
+│  │  │  L2. Semantic Similarity Detection（56フレーズ）        │ │     │
 │  │  │      difflib + n-gram ファジーマッチング                │ │     │
 │  │  │                                                         │ │     │
-│  │  │  L5. Policy Evaluation                                  │ │     │
-│  │  │      YAML宣言ルール → allow / deny / review             │ │     │
+│  │  │  L3. Active Decoding                                    │ │     │
+│  │  │      Base64/Hex/ROT13/URL/Unicode → デコード → 再スキャン│ │    │
+│  │  │                                                         │ │     │
+│  │  │  L4. Capability-Based Access Control ★v1.2              │ │     │
+│  │  │      CaMeL: 制御フロー/データフロー分離                 │ │     │
+│  │  │      テイント追跡 + 権限トークン + ポリシー強制          │ │     │
+│  │  │                                                         │ │     │
+│  │  │  L5. Atomic Execution Pipeline (AEP) ★v1.3              │ │     │
+│  │  │      Scan → Execute → Vaporize（原子的実行）            │ │     │
+│  │  │      サンドボックス隔離 + 痕跡消去                      │ │     │
+│  │  │                                                         │ │     │
+│  │  │  L6. Safety Specification & Verifier ★v1.3.1            │ │     │
+│  │  │      宣言的安全仕様 + 証明書検証                        │ │     │
+│  │  │      ビルトイン仕様（no_exfil, no_exec, pii_guard等）   │ │     │
 │  │  └─────────┬──────────────────────────────────────────────┘ │     │
 │  │            │                                                 │     │
 │  │  ┌─────────▼──────────────────────────────────────────────┐ │     │
@@ -70,10 +77,10 @@ ai_guardian/
 │   ├── scan_mcp_tool()     #   MCPツール定義スキャン
 │   ├── scan_mcp_tools()    #   複数MCPツール一括スキャン
 │   ├── sanitize()          #   PII自動マスキング
-│   ├── _normalize_text()   #   L1: 正規化（NFKC + ゼロ幅 + スペース + Confusable + Emoji）
-│   └── _run_patterns()     #   L2-L4: パターン→デコード→類似度の順次実行
+│   ├── _normalize_text()   #   正規化（NFKC + ゼロ幅 + スペース + Confusable + Emoji）
+│   └── _run_patterns()     #   L1-L3: パターン→類似度→デコードの順次実行
 │
-├── decoders.py             # ★v1.1 L3: アクティブデコーディング
+├── decoders.py             # L3: アクティブデコーディング
 │   ├── decode_base64_payloads()    #   Base64検出・デコード
 │   ├── decode_hex_payloads()       #   \xNN / 0xNNNN デコード
 │   ├── decode_url_encoding()       #   %XX パーセントエンコーディング
@@ -94,31 +101,57 @@ ai_guardian/
 │   └── MCPDiffResult               #   差分結果データクラス
 │
 ├── filters/
-│   └── patterns.py         # 全137検出パターン定義（19カテゴリ）
-│       ├── PROMPT_INJECTION_PATTERNS        # EN 7 + JA 6 + KO 4 + ZH 4 = 21
+│   └── patterns.py         # 全165+検出パターン定義（25+カテゴリ）
+│       ├── PROMPT_INJECTION_PATTERNS        # EN 6 + JA 4 + KO 4 + ZH 4 = 18
 │       ├── JAILBREAK_ROLEPLAY_PATTERNS      # 6
-│       ├── MCP_SECURITY_PATTERNS            # 14（★v1.1 +3: 権限昇格/ラグプル/隠しツール）
+│       ├── MCP_SECURITY_PATTERNS            # 13
 │       ├── INDIRECT_INJECTION_PATTERNS      # 5
-│       ├── ENCODING_BYPASS_PATTERNS         # 8（★v1.1 +3: nested/confusable/URL-encoded）
-│       ├── MEMORY_POISONING_PATTERNS        # 9（★v1.1 +5: cross-session/drift/KO/ZH）
-│       ├── SECOND_ORDER_INJECTION_PATTERNS  # 9（★v1.1 +5: tool-chain/craft/KO/ZH）
+│       ├── ENCODING_BYPASS_PATTERNS         # 8
+│       ├── MEMORY_POISONING_PATTERNS        # 9
+│       ├── SECOND_ORDER_INJECTION_PATTERNS  # 9
 │       ├── SQL_INJECTION_PATTERNS           # 8
 │       ├── COMMAND_INJECTION_PATTERNS       # 2
 │       ├── DATA_EXFIL_PATTERNS              # 4
-│       ├── PII_INPUT_PATTERNS               # JP 5 + Intl 4 + KO 3 + ZH 3 = 15
+│       ├── PII_INPUT_PATTERNS               # JP + Intl + KO + ZH = 11+
 │       ├── CONFIDENTIAL_DATA_PATTERNS       # 3
-│       ├── LEGAL_RISK_PATTERNS              # 2
 │       ├── PROMPT_LEAK_PATTERNS             # EN 6 + JA 2 = 8
 │       ├── TOKEN_EXHAUSTION_PATTERNS        # 5
 │       ├── HALLUCINATION_ACTION_PATTERNS    # 3
 │       ├── SYNTHETIC_CONTENT_PATTERNS       # 4
 │       ├── EMOTIONAL_MANIPULATION_PATTERNS  # 3
 │       ├── OVER_RELIANCE_PATTERNS           # 3
+│       ├── SANDBOX_ESCAPE_PATTERNS          # ★v1.2: 4
+│       ├── SELF_PRIVILEGE_ESCALATION_PATTERNS # ★v1.2: 4
+│       ├── COT_DECEPTION_PATTERNS           # ★v1.2: 3
+│       ├── EVALUATION_GAMING_PATTERNS       # ★v1.2: 3
+│       ├── AUDIT_TAMPERING_PATTERNS         # ★v1.2: 4
+│       ├── AUTONOMOUS_EXPLOIT_PATTERNS      # ★v1.2: 5
 │       └── OUTPUT_PATTERNS                  # 9（SSN/CC/Email/Secret/Harmful/MyNumber/Phone等）
 │
-├── similarity.py           # L4: 意味的類似度検出
+├── similarity.py           # L2: 意味的類似度検出
 │   ├── ATTACK_CORPUS       #   56件の攻撃フレーズ（EN + JA + KO + ZH）
 │   └── check_similarity()  #   difflib + n-gram ファジーマッチング
+│
+├── capabilities/           # ★v1.2 L4: CaMeL ケーパビリティベースアクセス制御
+│   ├── __init__.py
+│   ├── enforcer.py         #   ケーパビリティ強制（権限チェック + ポリシー適用）
+│   ├── policy_bridge.py    #   既存ポリシーエンジンとの橋渡し
+│   ├── store.py            #   ケーパビリティストア（権限永続化）
+│   ├── taint.py            #   テイント追跡（データフロー汚染伝搬）
+│   └── tokens.py           #   権限トークン（制御フロー/データフロー分離）
+│
+├── aep/                    # ★v1.3 L5: Atomic Execution Pipeline
+│   ├── __init__.py
+│   ├── pipeline.py         #   Scan → Execute → Vaporize パイプライン
+│   ├── sandbox.py          #   サンドボックス隔離実行
+│   └── vaporizer.py        #   実行痕跡の安全消去
+│
+├── safety/                 # ★v1.3.1 L6: Safety Specification & Verifier
+│   ├── __init__.py
+│   ├── spec.py             #   安全仕様の宣言的定義（SafetySpec）
+│   ├── builtin_specs.py    #   ビルトイン仕様（no_exfil, no_exec, pii_guard 等）
+│   ├── loader.py           #   YAML/JSON から仕様をロード
+│   └── verifier.py         #   証明書検証（Guaranteed Safe AI 準拠）
 │
 ├── guard.py                # OOP API（Guardクラス）
 │   ├── Guard               #   check_input() / check_output() / check_messages()
@@ -188,35 +221,37 @@ ai_guardian/
 
 ## 検出パイプライン詳細
 
-入力テキストがどのように処理されるかの全フロー：
+入力テキストがどのように6層で処理されるかの全フロー：
 
 ```
 入力テキスト
     │
     ▼
-┌─── L1: Text Normalization ────────────────────────────────────┐
-│  ① NFKC正規化（全角→半角、合字→分解）                        │
-│  ② ゼロ幅文字除去（U+200B, U+FEFF 等 12種）                  │
-│  ③ スペース挿入圧縮（"D R O P" → "DROP"）                    │
-│  ④ Confusable正規化（Cyrillic а→a, Greek ο→o 等 40+文字）   │
-│  ⑤ Emoji除去（絵文字挿入攻撃の無効化）                        │
+┌─── L1: Regex Pattern Matching ────────────────────────────────┐
+│  ① Text Normalization（前処理）                                │
+│     NFKC正規化 → ゼロ幅文字除去 → スペース圧縮               │
+│     → Confusable正規化 → Emoji除去                            │
+│  ② 165+パターン（25+カテゴリ × 4言語）を順次照合              │
+│     マッチ → MatchedRule 生成（rule_id, score_delta, owasp_ref）│
+│     カテゴリ別スコア集計（上限: base_score × 2 / カテゴリ）    │
 └───────┬───────────────────────────────────────────────────────┘
-        │ 正規化テキスト（元テキスト + 変換版を連結）
+        │ 正規化テキスト + マッチ結果
         ▼
-┌─── L2: Pattern Matching ──────────────────────────────────────┐
-│  137パターン（19カテゴリ × 4言語）を順次照合                   │
-│  マッチ → MatchedRule 生成（rule_id, score_delta, owasp_ref） │
-│  カテゴリ別スコア集計（上限: base_score × 2 / カテゴリ）      │
+┌─── L2: Semantic Similarity ───────────────────────────────────┐
+│  56件の攻撃フレーズ辞書と類似度比較                            │
+│  L1で未検出のカテゴリのみ対象（二重検出防止）                  │
+│  difflib.SequenceMatcher + n-gram で閾値判定                  │
 └───────┬───────────────────────────────────────────────────────┘
         │
         ▼
-┌─── L3: Active Decoding ★v1.1 ─────────────────────────────────┐
+┌─── L3: Active Decoding ───────────────────────────────────────┐
 │  エンコード指標を検出した場合のみ実行（性能への影響最小化）     │
 │                                                                 │
 │  ① Base64文字列 → base64.b64decode → テキスト化               │
 │  ② Hex(\xNN) → bytes.fromhex → テキスト化                     │
-│  ③ URL(%XX) → urllib.parse.unquote                             │
-│  ④ ROT13指標付きテキスト → codecs.decode(rot_13)              │
+│  ③ ROT13指標付きテキスト → codecs.decode(rot_13)              │
+│  ④ URL(%XX) → urllib.parse.unquote                             │
+│  ⑤ Unicode エスケープ → デコード                               │
 │                                                                 │
 │  デコード結果を L1→L2 で再スキャン                              │
 │  新規マッチのみ追加（重複排除: rule_id ベース）                 │
@@ -224,11 +259,51 @@ ai_guardian/
 └───────┬────────────────────────────────────────────────────────┘
         │
         ▼
-┌─── L4: Semantic Similarity ───────────────────────────────────┐
-│  56件の攻撃フレーズ辞書と類似度比較                            │
-│  L2で未検出のカテゴリのみ対象（二重検出防止）                  │
-│  difflib.SequenceMatcher + n-gram で閾値判定                  │
-└───────┬───────────────────────────────────────────────────────┘
+┌─── L4: Capability-Based Access Control ★v1.2 ─────────────────┐
+│  CaMeL アーキテクチャ: 制御フローとデータフローの分離           │
+│                                                                 │
+│  ① テイント追跡（taint.py）                                    │
+│     外部入力（ユーザー/RAG/MCP）にテイントラベルを付与          │
+│     データフロー全体で汚染伝搬を追跡                            │
+│  ② 権限トークン（tokens.py）                                   │
+│     操作に必要なケーパビリティをトークンとして発行              │
+│     file:read, net:connect, exec:shell 等の粒度で制御          │
+│  ③ 強制適用（enforcer.py）                                     │
+│     テイントレベル × 要求権限 → allow/deny 判定                │
+│     汚染データによる特権操作を自動ブロック                      │
+│                                                                 │
+│  参照: CaMeL (Debenedetti et al., 2025)                        │
+└───────┬────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌─── L5: Atomic Execution Pipeline (AEP) ★v1.3 ─────────────────┐
+│  ツール実行を原子的3フェーズで隔離                              │
+│                                                                 │
+│  ① Scan — 実行前に L1-L4 でコマンド/引数を検査                 │
+│  ② Execute — サンドボックス内で隔離実行（sandbox.py）          │
+│     ファイルシステム/ネットワークを制限した環境で実行            │
+│  ③ Vaporize — 実行痕跡の安全消去（vaporizer.py）              │
+│     一時ファイル・メモリ上の機密データを確実に除去              │
+│                                                                 │
+│  参照: AEP / CIV (Scan-Execute-Vaporize pattern)               │
+└───────┬────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌─── L6: Safety Specification & Verifier ★v1.3.1 ───────────────┐
+│  宣言的安全仕様による形式的保証                                 │
+│                                                                 │
+│  ① Safety Spec 定義（spec.py / builtin_specs.py）              │
+│     no_exfil: データ外部送信禁止                                │
+│     no_exec: 任意コード実行禁止                                 │
+│     pii_guard: PII漏洩防止                                      │
+│     カスタム仕様もYAML/JSONで定義可能（loader.py）              │
+│  ② Verifier（verifier.py）                                     │
+│     実行結果が安全仕様を満たすか検証                            │
+│     証明書（proof certificate）を発行                           │
+│     違反時は理由付きでブロック + 修復ガイダンス                 │
+│                                                                 │
+│  参照: Guaranteed Safe AI (Dalrymple et al., 2024)              │
+└───────┬────────────────────────────────────────────────────────┘
         │
         ▼
 ┌─── スコア算出 ────────────────────────────────────────────────┐
@@ -341,7 +416,7 @@ aig mcp --file tools.json --trust --diff
    user_id: "tanaka", agent_type: "claude_code"
        │
        ▼
-4. 検出パイプライン実行（L1→L2→L3→L4）
+4. 検出パイプライン実行（L1→L2→L3→L4→L5→L6）
    → risk_score: 90, risk_level: "critical"
    → matched_rules: [cmdi_shell, ...]
        │
@@ -352,9 +427,9 @@ aig mcp --file tools.json --trust --diff
        │
        ▼
 6. Activity Stream に記録（全3階層）
-   Local:  .ai-guardian/logs/2026-04-07.jsonl
-   Global: ~/.ai-guardian/global/2026-04-07.jsonl
-   Alert:  ~/.ai-guardian/alerts/2026-04-07.jsonl
+   Local:  .ai-guardian/logs/2026-04-10.jsonl
+   Global: ~/.ai-guardian/global/2026-04-10.jsonl
+   Alert:  ~/.ai-guardian/alerts/2026-04-10.jsonl
        │
        ▼
 7. エージェントに判定返却
@@ -399,13 +474,13 @@ aig mcp --file tools.json --trust --diff
 
 ## セキュリティカバー範囲
 
-### 19カテゴリ × パターン数
+### 25+カテゴリ × パターン数
 
 | # | カテゴリ | パターン数 | 言語 | OWASP LLM |
 |---|---------|:----------:|:----:|-----------|
-| 1 | Prompt Injection | 21 | EN/JA/KO/ZH | LLM01 |
+| 1 | Prompt Injection | 18 | EN/JA/KO/ZH | LLM01 |
 | 2 | Jailbreak / Roleplay | 6 | EN | LLM01 |
-| 3 | MCP Tool Poisoning | 14 | EN | LLM01 |
+| 3 | MCP Tool Poisoning | 13 | EN | LLM01 |
 | 4 | Indirect Injection (RAG) | 5 | EN | LLM01 |
 | 5 | Encoding Bypass | 8 | EN | LLM01 |
 | 6 | Memory Poisoning | 9 | EN/JA/KO/ZH | LLM01 |
@@ -414,16 +489,21 @@ aig mcp --file tools.json --trust --diff
 | 9 | SQL Injection | 8 | EN | — |
 | 10 | Command Injection | 2 | EN | — |
 | 11 | Data Exfiltration | 4 | EN | LLM06 |
-| 12 | PII Detection (Input) | 15 | JP/Intl/KO/ZH | LLM02 |
+| 12 | PII Detection (Input) | 11+ | JP/Intl/KO/ZH | LLM02 |
 | 13 | Confidential Data | 3 | EN/JA | LLM02 |
-| 14 | Legal Risk | 2 | JA | — |
-| 15 | Token Exhaustion | 5 | EN | LLM10 |
-| 16 | Hallucination Action | 3 | EN/JA | — |
-| 17 | Synthetic Content | 4 | EN/JA | — |
-| 18 | Emotional Manipulation | 3 | EN/JA | — |
-| 19 | Over-Reliance | 3 | EN/JA | — |
+| 14 | Token Exhaustion | 5 | EN | LLM10 |
+| 15 | Hallucination Action | 3 | EN/JA | — |
+| 16 | Synthetic Content | 4 | EN/JA | — |
+| 17 | Emotional Manipulation | 3 | EN/JA | — |
+| 18 | Over-Reliance | 3 | EN/JA | — |
+| 19 | Sandbox Escape ★v1.2 | 4 | EN | LLM01 |
+| 20 | Self-Privilege Escalation ★v1.2 | 4 | EN | LLM01 |
+| 21 | CoT Deception ★v1.2 | 3 | EN | — |
+| 22 | Evaluation Gaming ★v1.2 | 3 | EN | — |
+| 23 | Audit Tampering ★v1.2 | 4 | EN | LLM09 |
+| 24 | Autonomous Exploit ★v1.2 | 5 | EN | LLM01 |
 | — | **Output Safety** | **9** | EN/JA | LLM02/LLM05 |
-| | **合計** | **137 + 9** | | |
+| | **合計** | **165+** | | |
 
 ### フレームワークカバレッジ
 
@@ -441,7 +521,7 @@ aig mcp --file tools.json --trust --diff
 プロジェクト単位（ユーザーから参照可能）:
   .ai-guardian/
   ├── logs/
-  │   ├── 2026-04-07.jsonl        ← 本日のイベント
+  │   ├── 2026-04-10.jsonl        ← 本日のイベント
   │   ├── 2026-03-31.jsonl.gz     ← 圧縮済み（7日経過後）
   │   └── ...                      ← 60日後に自動削除
   └── mcp_snapshots/               ← ★v1.1: MCPスナップショット保存
@@ -450,9 +530,9 @@ aig mcp --file tools.json --trust --diff
 グローバル（CISO/監査、プロジェクト横断）:
   ~/.ai-guardian/
   ├── global/
-  │   └── 2026-04-07.jsonl        ← 全プロジェクト集約
+  │   └── 2026-04-10.jsonl        ← 全プロジェクト集約
   └── alerts/
-      └── 2026-04-07.jsonl        ← ブロック/レビューのみ（永久保持）
+      └── 2026-04-10.jsonl        ← ブロック/レビューのみ（永久保持）
 ```
 
 ## AGI対応スキーマ
@@ -476,4 +556,16 @@ ActivityEvent には将来のガバナンス拡張に備えたフィールドが
 4. **ポリシー as コード** — YAMLをgitで管理し、バージョン管理と監査を実現
 5. **エージェント非依存** — アダプタパターンにより任意のエージェントに対応
 6. **検出 + 修復** — すべてのブロックにOWASPリファレンスと修正ガイダンスを付与
-7. **多層防御** — 正規化→パターン→デコード→類似度→ポリシーの5層で回避困難な検出を実現
+7. **多層防御** — パターン→類似度→デコード→ケーパビリティ→AEP→安全仕様の6層で回避困難な検出・防御を実現
+8. **形式的安全保証** — Safety Specification による宣言的仕様と証明書検証で、検出だけでなく安全性の形式的保証を提供
+
+## 学術論文リファレンス
+
+v1.2 以降で導入したアーキテクチャ層は、以下の学術研究に基づいている。
+
+| 層 | 論文 | 著者 | 概要 |
+|----|------|------|------|
+| L4 | **CaMeL: Design and Evaluation of a Capability-Based Agent Security Framework** | Debenedetti et al., 2025 | LLMエージェントの制御フロー（信頼済み）とデータフロー（未信頼）を分離し、テイント追跡とケーパビリティトークンでプロンプトインジェクションを防御するフレームワーク |
+| L5 | **Atomic Execution Pipeline (AEP)** | — | ツール実行をScan→Execute→Vaporizeの原子的3フェーズで隔離し、実行痕跡を安全に消去するパターン |
+| L5 | **CIV: Confidentiality, Integrity, and Vaporization** | — | 機密データの安全な処理と消去を保証する実行モデル |
+| L6 | **Guaranteed Safe AI** | Dalrymple et al., 2024 | AIシステムの安全性を宣言的仕様（Safety Specification）と形式的検証（Proof Certificate）で保証するフレームワーク。World Model + Safety Spec + Verifier の三位一体構成 |

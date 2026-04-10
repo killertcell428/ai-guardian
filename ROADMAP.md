@@ -1,6 +1,6 @@
 # AI Guardian — OSS から収益化へのロードマップ
 
-> 最終更新: 2026-03-31
+> 最終更新: 2026-04-10
 > 戦略: OSS で信頼を獲得 → SaaS で収益化 → エンタープライズで拡大
 
 ---
@@ -25,7 +25,7 @@ OSS Core（無料・永久）
 
 | ティア | 対象 | 価格 | 主な機能 |
 |--------|------|------|---------|
-| **OSS Free** | 個人・スタートアップ | 無料 | Guard クラス・121パターン・CLI・MCP Scanner・Red Team |
+| **OSS Free** | 個人・スタートアップ | 無料 | Guard クラス・165+パターン・CLI・MCP Scanner・Red Team・Capabilities・AEP・Safety Verification |
 | **Cloud Pro** | 小規模チーム (2-20名) | $49/月 | Webダッシュボード・Slack通知・月次レポート |
 | **Business** | 中規模企業 (20-200名) | $299/月 | 複数テナント・SSO・SLA・カスタムポリシー |
 | **Enterprise** | 大企業・金融・医療 | 要見積 | オンプレ・LDAP・監査対応・専任サポート |
@@ -92,6 +92,11 @@ OSS Core（無料・永久）
 - [x] **🔴 MCPセキュリティスキャナー強化**（`aig mcp --trust --diff`）— ラグプル検知、権限分析、サーバー信頼スコア、スナップショット管理 ← v1.1.0
 - [x] **レイテンシベンチマーク公開** — Markdownレポート生成、shields.ioバッジ、競合比較テーブル ← v1.1.0
 - [x] **Base64/Unicode/Emoji難読化検出の強化** — 実デコード再スキャン、Cyrillic/Greek confusable正規化、emoji除去 ← v1.1.0
+- [x] **ケーパビリティベースのアクセス制御** — CapabilityStore、CapabilityEnforcer、TaintTracking、最小権限の原則を適用 ← v1.3.0
+- [x] **Atomic Execution Pipeline（AEP）** — サンドボックス実行、副作用ロールバック（Vaporizer）、タイムアウト制御 ← v1.3.0
+- [x] **形式的安全性検証** — SafetyVerifier、SafetySpec（YAML定義）、不変条件検証、ProofCertificate ← v1.3.0
+- [x] **`Guard.authorize_tool()`** — ケーパビリティ + 安全性検証 + AEP の統合エントリポイント ← v1.3.0
+- [x] **165+パターン到達** — 検出パターン数が137→165+に拡張 ← v1.3.1
 
 ### KPI 目標
 | 指標 | 目標 |

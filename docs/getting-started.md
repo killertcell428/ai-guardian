@@ -123,6 +123,76 @@ v0.8.0 より、2026年3月31日公開の **AI事業者ガイドライン v1.2**
 aig report
 ```
 
+## ケーパビリティベースのツール認可（v1.3.0+）
+
+v1.3.0 で追加されたケーパビリティ・AEP・安全性検証レイヤーにより、LLM エージェントのツール呼び出しに最小権限の原則を適用できます。
+
+```python
+from ai_guardian import Guard
+from ai_guardian.capabilities import CapabilityStore, Capability
+
+# 1. ケーパビリティストアを作成し、許可する操作を定義
+store = CapabilityStore()
+store.grant("data_reader", Capability(
+    resource="filesystem",
+    actions=["read"],
+    constraints={"paths": ["/data/**"]},
+))
+
+# 2. Guard にケーパビリティストアを渡す
+guard = Guard(policy="strict", capabilities=store)
+
+# 3. ツール呼び出しを認可
+auth = guard.authorize_tool(
+    tool_name="data_reader",
+    action="read",
+    resource="filesystem",
+    target="/data/report.csv",
+)
+print(auth.authorized)  # True
+
+# 許可されていない操作はブロック
+auth = guard.authorize_tool(
+    tool_name="data_reader",
+    action="write",          # write は未許可
+    resource="filesystem",
+    target="/data/report.csv",
+)
+print(auth.authorized)  # False
+```
+
+### Atomic Execution Pipeline（AEP）
+
+ツール実行をサンドボックス内で原子的に実行し、失敗時に副作用を自動ロールバックします。
+
+```python
+from ai_guardian.aep import AtomicPipeline
+
+pipeline = AtomicPipeline(vaporize=True, sandbox=True, timeout=30.0)
+result = await pipeline.execute(my_tool_fn, args={"path": "/data/input.csv"})
+if result.success:
+    print(result.return_value)
+else:
+    print("Failed — side effects rolled back")
+```
+
+### 安全性検証
+
+ツールの副作用が安全仕様に準拠していることを形式的に検証します。
+
+```python
+from ai_guardian.safety import SafetyVerifier, STRICT_SAFETY_SPEC, EffectSpec
+
+verifier = SafetyVerifier(spec=STRICT_SAFETY_SPEC)
+cert = verifier.verify(tool_name="file_writer", effects=[
+    EffectSpec(type="file_write", target="/data/output.csv"),
+])
+print(cert.verified)     # True
+print(cert.proof_hash)   # 検証証明のハッシュ
+```
+
+詳細は [API リファレンス](api-reference.md) を参照してください。
+
 ## 次のステップ
 
 - [設定リファレンス](configuration.md) — 閾値、カスタムルール、YAML ポリシー

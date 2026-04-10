@@ -257,12 +257,12 @@ export default function DashboardPage() {
         </div>
         <div>
           <p className="text-sm text-gd-info" style={{ fontWeight: 540 }}>
-            {ja ? "AI Guardian v1.1.0 が稼働中" : "AI Guardian v1.1.0 Active"}
+            {ja ? "AI Guardian v1.3.1 が稼働中" : "AI Guardian v1.3.1 Active"}
           </p>
           <p className="text-xs text-gd-text-secondary mt-0.5">
             {ja
-              ? "137パターンでプロンプトインジェクション・MCPセキュリティ脅威を自動検出。OSSコアは無料でご利用いただけます。"
-              : "137 patterns detect prompt injection & MCP security threats. OSS Core is free forever."}
+              ? "165+パターン・6層防御（CaMeL Capabilities / AEP / Safety Verifier含む）でプロンプトインジェクション・MCPセキュリティ脅威を自動検出。OSSコアは無料でご利用いただけます。"
+              : "165+ patterns with 6-layer defense (incl. CaMeL Capabilities, AEP, Safety Verifier) detect prompt injection & MCP security threats. OSS Core is free forever."}
           </p>
         </div>
       </div>

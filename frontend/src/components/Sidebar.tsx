@@ -127,10 +127,10 @@ export default function Sidebar() {
           <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-gd-safe-bg text-gd-safe border border-gd-subtle" style={{ fontWeight: 520 }}>
             OSS
           </span>
-          <p className="text-[11px] text-gd-text-dim font-mono">v1.1.0</p>
+          <p className="text-[11px] text-gd-text-dim font-mono">v1.3.1</p>
         </div>
         <p className="text-[10px] text-gd-text-dim">
-          {ja ? "137パターン検出 · 100%精度" : "137 patterns · 100% accuracy"}
+          {ja ? "165+パターン · 6層防御 · 25+脅威カテゴリ" : "165+ patterns · 6-layer defense · 25+ threat categories"}
         </p>
       </div>
     </aside>

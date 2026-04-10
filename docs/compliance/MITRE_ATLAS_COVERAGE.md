@@ -1,7 +1,7 @@
 # AI Guardian — MITRE ATLAS Coverage Matrix
 
-> Last updated: 2026-04-06
-> AI Guardian version: v1.0.0
+> Last updated: 2026-04-10
+> AI Guardian version: v1.3.1
 > Reference: [MITRE ATLAS v5.4.0](https://atlas.mitre.org/)
 
 ## Overview

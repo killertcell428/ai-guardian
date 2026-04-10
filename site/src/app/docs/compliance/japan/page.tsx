@@ -22,7 +22,7 @@ export default function JapanCompliancePage() {
 
   const mappingRows = [
     {
-      feature: ja ? "入力フィルター（43パターン）" : "Input Filter (43 patterns)",
+      feature: ja ? "入力フィルター（165+パターン）" : "Input Filter (165+ patterns)",
       regulation: ja ? "AIセキュリティGL「多層防御」" : 'AI Security GL "Multi-layer Defense"',
       status: "covered",
     },
@@ -135,20 +135,26 @@ export default function JapanCompliancePage() {
         <h3 id="ai-security-guideline">{ja ? "AIセキュリティ技術ガイドライン（2025年度末策定予定）" : "AI Security Technical Guideline (Draft FY2025)"}</h3>
         <p>
           {ja
-            ? "総務省が策定中。LLMを主な対象とし、プロンプトインジェクション対策を含む「多層防御」を要求。AI Guardianの3層防御（正規表現 → 類似度検知 → Human-in-the-Loop）はこのガイドラインの推奨事項に直接適合します。"
-            : "Being developed by MIC. Focuses on LLMs, requiring 'multi-layer defense' including prompt injection countermeasures. AI Guardian's 3-layer defense (regex → similarity → HitL) directly aligns with this guideline's recommendations."}
+            ? "総務省が策定中。LLMを主な対象とし、プロンプトインジェクション対策を含む「多層防御」を要求。AI Guardianの6層防御（正規表現 → 類似度検知 → Human-in-the-Loop → CaMeL Capabilities → AEP → Safety Verifier）はこのガイドラインの推奨事項を大幅に上回ります。"
+            : "Being developed by MIC. Focuses on LLMs, requiring 'multi-layer defense' including prompt injection countermeasures. AI Guardian's 6-layer defense (regex → similarity → HitL → CaMeL Capabilities → AEP → Safety Verifier) exceeds this guideline's recommendations."}
         </p>
 
         <div className="not-prose bg-guardian-50 border border-guardian-200 rounded-xl p-4 my-4">
           <p className="text-sm font-semibold text-guardian-800 mb-2">
-            {ja ? "AI Guardianの多層防御アーキテクチャ" : "AI Guardian's Multi-Layer Defense Architecture"}
+            {ja ? "AI Guardianの6層防御アーキテクチャ（v1.3.1）" : "AI Guardian's 6-Layer Defense Architecture (v1.3.1)"}
           </p>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg font-medium">Layer 1: Regex (43{ja ? "パターン" : " patterns"})</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg font-medium">L1: Regex (165+{ja ? "パターン" : " patterns"})</span>
             <span className="text-gray-400">→</span>
-            <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg font-medium">Layer 2: {ja ? "類似度検知" : "Similarity"} (40 {ja ? "フレーズ" : "phrases"})</span>
+            <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg font-medium">L2: {ja ? "類似度検知" : "Similarity"} (56 {ja ? "フレーズ" : "phrases"})</span>
             <span className="text-gray-400">→</span>
-            <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg font-medium">Layer 3: Human-in-the-Loop</span>
+            <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg font-medium">L3: Human-in-the-Loop</span>
+            <span className="text-gray-400">→</span>
+            <span className="px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg font-medium">L4: Capabilities (CaMeL)</span>
+            <span className="text-gray-400">→</span>
+            <span className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg font-medium">L5: AEP ({ja ? "実行隔離" : "Sandboxed Exec"})</span>
+            <span className="text-gray-400">→</span>
+            <span className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg font-medium">L6: Safety Verifier</span>
           </div>
         </div>
 

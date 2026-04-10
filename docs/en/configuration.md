@@ -10,15 +10,17 @@ Guard(
     policy_file: str | None = None,
     auto_block_threshold: int | None = None,
     auto_allow_threshold: int | None = None,
+    capabilities: CapabilityStore | None = None,    # Added in v1.3.0
 )
 ```
 
-| Parameter              | Type           | Default     | Description                                                          |
-|------------------------|----------------|-------------|----------------------------------------------------------------------|
-| `policy`               | `str`          | `"default"` | Built-in policy name: `"default"`, `"strict"`, or `"permissive"`    |
-| `policy_file`          | `str \| None`  | `None`      | Path to a YAML policy file (takes precedence over `policy`)          |
-| `auto_block_threshold` | `int \| None`  | `None`      | Override the block threshold (0–100)                                 |
-| `auto_allow_threshold` | `int \| None`  | `None`      | Override the allow threshold (0–100)                                 |
+| Parameter              | Type                      | Default     | Description                                                          |
+|------------------------|---------------------------|-------------|----------------------------------------------------------------------|
+| `policy`               | `str`                     | `"default"` | Built-in policy name: `"default"`, `"strict"`, or `"permissive"`    |
+| `policy_file`          | `str \| None`             | `None`      | Path to a YAML policy file (takes precedence over `policy`)          |
+| `auto_block_threshold` | `int \| None`             | `None`      | Override the block threshold (0-100)                                 |
+| `auto_allow_threshold` | `int \| None`             | `None`      | Override the allow threshold (0-100)                                 |
+| `capabilities`         | `CapabilityStore \| None` | `None`      | Capability store (v1.3.0+, required for `authorize_tool()`)         |
 
 ## Built-in Policies
 
@@ -125,6 +127,55 @@ Scores are calculated as follows:
 | 31 – 60     | MEDIUM     | Log and allow   |
 | 61 – 80     | HIGH       | Log and allow   |
 | 81 – 100    | CRITICAL   | Block           |
+
+## Safety Spec YAML Configuration
+
+Added in v1.3.0. Define safety specifications for tool execution verification in YAML.
+
+```yaml
+# safety_spec.yaml
+name: production-safety
+description: Production environment safety specification
+
+invariants:
+  - name: no_system_write
+    description: Prohibit writes to system directories
+    condition: "effect.target not matches '/etc/**'"
+
+  - name: no_secret_exfil
+    description: Prohibit sending secrets to external hosts
+    condition: "effect.type != 'network_send' or effect.target in allowed_hosts"
+
+  - name: db_read_only
+    description: Database is read-only
+    condition: "effect.type != 'db_query' or effect.metadata.operation == 'SELECT'"
+```
+
+```python
+from ai_guardian.safety import SafetyVerifier
+
+verifier = SafetyVerifier.from_yaml("safety_spec.yaml")
+```
+
+## AEP Pipeline Options
+
+Added in v1.3.0. Customize the Atomic Execution Pipeline behavior.
+
+```python
+from ai_guardian.aep import AtomicPipeline
+
+pipeline = AtomicPipeline(
+    vaporize=True,      # Roll back side effects on failure (default: True)
+    sandbox=True,       # Execute in a sandboxed process (default: False)
+    timeout=30.0,       # Timeout in seconds (default: 60.0)
+)
+```
+
+| Parameter   | Type    | Default | Description                                                     |
+|-------------|---------|---------|----------------------------------------------------------------|
+| `vaporize`  | `bool`  | `True`  | Automatically roll back side effects (file creation, etc.) on failure |
+| `sandbox`   | `bool`  | `False` | Execute in an isolated process with restricted file/network access |
+| `timeout`   | `float` | `60.0`  | Execution timeout in seconds; exceeded = force kill + rollback |
 
 ## Configuration via Environment Variables
 

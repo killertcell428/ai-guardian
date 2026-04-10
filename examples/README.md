@@ -1,6 +1,6 @@
 # Examples
 
-Runnable code samples for ai-guardian.
+Runnable code samples for ai-guardian v1.3.1.
 
 ## Setup
 
@@ -17,6 +17,7 @@ pip install 'aig-guardian[all]'
 | [`basic_usage.py`](basic_usage.py) | Core `Guard` class — input/output scanning, policies, risk scoring | none |
 | [`fastapi_integration.py`](fastapi_integration.py) | FastAPI middleware + manual check | `ai-guardian[fastapi]`, `uvicorn` |
 | [`langchain_integration.py`](langchain_integration.py) | LangChain callback for input + output scanning | `ai-guardian[langchain]`, `langchain-openai` |
+| [`langgraph_integration.py`](langgraph_integration.py) | LangGraph agent with tool authorization | `ai-guardian[langchain]`, `langgraph` |
 | [`openai_proxy.py`](openai_proxy.py) | Drop-in `SecureOpenAI` wrapper (sync + async) | `ai-guardian[openai]` |
 | [`custom_policy.py`](custom_policy.py) | YAML policy files, inline overrides, custom rules | `ai-guardian[yaml]` |
 
@@ -36,6 +37,10 @@ uvicorn examples.fastapi_integration:app --reload
 pip install 'aig-guardian[langchain]' langchain-openai
 OPENAI_API_KEY=sk-... python examples/langchain_integration.py
 
+# LangGraph agent with tool authorization (v1.3.1)
+pip install 'aig-guardian[langchain]' langgraph
+python examples/langgraph_integration.py
+
 # OpenAI proxy (live API calls optional — guard fires offline)
 pip install 'aig-guardian[openai]'
 OPENAI_API_KEY=sk-... python examples/openai_proxy.py
@@ -49,7 +54,7 @@ python examples/custom_policy.py
 
 ### `basic_usage.py`
 
-- Prompt injection detection
+- Prompt injection detection (165+ patterns, 25+ threat categories)
 - PII detection (credit card, SSN, API keys)
 - SQL injection detection
 - Policy comparison (`permissive` vs `default` vs `strict`)
@@ -71,6 +76,14 @@ python examples/custom_policy.py
 - LCEL chain integration
 - Custom `on_blocked` handler (silent logging instead of raising)
 
+### `langgraph_integration.py` (v1.3.1)
+
+- `Guard.authorize_tool()` — Capability-Based Access Control (CaMeL-inspired)
+- `CapabilityStore` with scoped grants and automatic expiry
+- `TaintLabel` (TRUSTED / UNTRUSTED / SANITIZED) enforcement
+- `AtomicPipeline` — Scan → Execute → Vaporize as indivisible operation
+- `SafetyVerifier` with `ProofCertificate` for audit trails
+
 ### `openai_proxy.py`
 
 - `SecureOpenAI` as a drop-in for `openai.OpenAI`
@@ -84,3 +97,59 @@ python examples/custom_policy.py
 - Inline `auto_block_threshold` / `auto_allow_threshold` override
 - YAML policy file with custom rules
 - Combining built-in patterns with custom regex rules
+
+## v1.3.1 New Features (Layers 4-6)
+
+### Capability-Based Access Control (Layer 4)
+
+```python
+from ai_guardian import Guard
+from ai_guardian.capabilities import CapabilityStore, TaintLabel
+
+store = CapabilityStore()
+guard = Guard(capabilities=store)
+
+# Grant a scoped capability
+store.grant("file:read", scope="*.py", ttl_seconds=3600)
+
+# Authorize a tool call — blocks UNTRUSTED data from control-flow tools
+result = guard.authorize_tool(
+    tool_name="shell:exec",
+    taint=TaintLabel.UNTRUSTED,
+)
+print(result.allowed)  # False — UNTRUSTED data cannot execute shell commands
+```
+
+### Atomic Execution Pipeline (Layer 5)
+
+```python
+from ai_guardian.aep import AtomicPipeline
+
+pipeline = AtomicPipeline(guard=guard)
+
+# Scan → Execute → Vaporize (indivisible)
+result = pipeline.run(
+    command="python script.py",
+    timeout=30,
+    vaporize=True,  # destroy artifacts after execution
+)
+print(result.stdout)
+print(result.sandbox_used)    # True
+print(result.artifacts_clean) # True
+```
+
+### Safety Verifier (Layer 6)
+
+```python
+from ai_guardian.safety import SafetyVerifier, DEFAULT_SAFETY_SPEC
+
+verifier = SafetyVerifier(spec=DEFAULT_SAFETY_SPEC)
+certificate = verifier.verify(
+    action="file:write",
+    target="output.txt",
+    content="safe content",
+)
+print(certificate.passed)      # True
+print(certificate.certificate_id)  # UUID4
+print(certificate.timestamp)       # UTC timestamp
+```

@@ -1,7 +1,7 @@
 # AI Guardian — OWASP Top 10 for LLM Applications (2025) Coverage Matrix
 
-> Last updated: 2026-04-07
-> AI Guardian version: v1.1.0 (137 patterns + active decoding)
+> Last updated: 2026-04-10
+> AI Guardian version: v1.3.1 (165+ patterns + active decoding + capabilities + AEP + safety verification)
 > Reference: [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/)
 
 ## Coverage Summary
@@ -19,7 +19,7 @@
 | LLM09 | Misinformation | Out of Scope | — | Requires model-level fact verification (not pattern matching) |
 | LLM10 | Unbounded Consumption | **Full** | 5 patterns | Regex + Heuristic |
 
-**ランタイムで検知可能な全リスクを完全カバー（8/10）。残り2件（サプライチェーン・モデルポイズニング）はモデルレジストリ・暗号学的検証等のインフラ領域であり、入出力スキャンツールのスコープ外。121パターン。**
+**ランタイムで検知可能な全リスクを完全カバー（8/10）。残り2件（サプライチェーン・モデルポイズニング）はモデルレジストリ・暗号学的検証等のインフラ領域であり、入出力スキャンツールのスコープ外。165+パターン。**
 
 ---
 

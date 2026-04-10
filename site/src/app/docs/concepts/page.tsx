@@ -16,6 +16,9 @@ export default function ConceptsPage() {
     { id: "routing", label: ja ? "リクエストルーティング" : "Request Routing" },
     { id: "hitl", label: "Human-in-the-Loop" },
     { id: "sla", label: ja ? "SLA・フォールバック" : "SLA & Fallback", level: 3 },
+    { id: "capabilities", label: ja ? "Capability-Based Access Control" : "Capability-Based Access Control" },
+    { id: "aep", label: ja ? "Atomic Execution Pipeline (AEP)" : "Atomic Execution Pipeline (AEP)" },
+    { id: "safety-verifier", label: ja ? "Safety Verifier" : "Safety Verifier" },
     { id: "policy-engine", label: ja ? "ポリシーエンジン" : "Policy Engine" },
     { id: "multi-tenancy", label: ja ? "マルチテナンシー" : "Multi-Tenancy" },
   ];
@@ -150,6 +153,44 @@ export default function ConceptsPage() {
       <ul>
         <li><code>block</code>{ja ? "（デフォルト）— 期限切れアイテムを自動ブロック" : " (default) — expired items are auto-blocked"}</li>
         <li><code>allow</code>{" — "}{ja ? "期限切れアイテムを自動承認して転送" : "expired items are auto-approved and forwarded"}</li>
+      </ul>
+
+      <h2 id="capabilities">{ja ? "Capability-Based Access Control（Layer 4）" : "Capability-Based Access Control (Layer 4)"}</h2>
+      <p>
+        {ja
+          ? "v1.3.0で追加。Google DeepMind CaMeL論文に基づき、制御フローとデータフローを分離します。Capabilityトークンは暗号ノンスで生成され、注入テキストからは偽造できません。UNTRUSTED（信頼できない）データはスキャンなしにTRUSTEDに昇格できないため、データ→制御フローのエスカレーション攻撃を防ぎます。"
+          : "Added in v1.3.0. Based on Google DeepMind's CaMeL paper, this layer separates control flow from data flow. Capability tokens are generated with cryptographic nonces — unforgeable by injected text. UNTRUSTED data cannot be promoted to TRUSTED without scanning, preventing data-to-control-flow escalation attacks."}
+      </p>
+      <ul>
+        <li><code>Capability</code>{" — "}{ja ? "暗号ノンス付きのアクセス許可トークン。スコープ・有効期限を持つ" : "access permission token with cryptographic nonce, scope, and expiry"}</li>
+        <li><code>TaintLabel</code>{" — "}TRUSTED / UNTRUSTED / SANITIZED{ja ? " のデータ出自分類" : " data provenance classification"}</li>
+        <li><code>CapabilityEnforcer</code>{" — "}{ja ? "UNTRUSTED状態でshell:exec, agent:spawn, code:evalなどの制御フロー操作をブロック" : "blocks control-flow operations (shell:exec, agent:spawn, code:eval) when data provenance is UNTRUSTED"}</li>
+        <li><code>Guard.authorize_tool()</code>{" — "}{ja ? "メインAPIにケーパビリティ検証を統合する新メソッド" : "new method integrating capability checks into the main API"}</li>
+      </ul>
+
+      <h2 id="aep">{ja ? "Atomic Execution Pipeline — AEP（Layer 5）" : "Atomic Execution Pipeline — AEP (Layer 5)"}</h2>
+      <p>
+        {ja
+          ? "v1.3.0で追加。ツール実行を「スキャン → 実行 → 蒸発」の不可分な単一操作として定義します。入力は常にスキャン済み、実行は常にサンドボックス内、成果物は常に破壊（明示的オプトアウト時は監査警告付き）。"
+          : "Added in v1.3.0. Defines tool execution as an indivisible primitive: Scan, Execute, Vaporize. Input is always scanned, execution is always sandboxed, artifacts are always destroyed (with audit warning if explicitly opted out)."}
+      </p>
+      <ul>
+        <li><code>ProcessSandbox</code>{" — "}{ja ? "stdlib-onlyの実行サンドボックス（subprocess + tempdir、環境変数除去、タイムアウト制御）" : "stdlib-only execution sandbox (subprocess + tempdir, environment stripping, timeout enforcement)"}</li>
+        <li><code>Vaporizer</code>{" — "}{ja ? "os.urandomで上書き後にunlink、検証パスで確実に破壊" : "secure artifact destruction with os.urandom overwrite before unlink, verification pass"}</li>
+        <li><code>AtomicPipeline</code>{" — "}{ja ? "スレッドセーフなオーケストレータ。3ステップの不可分性を保証" : "thread-safe orchestrator guaranteeing indivisibility of the 3-step sequence"}</li>
+      </ul>
+
+      <h2 id="safety-verifier">{ja ? "Safety Verifier（Layer 6）" : "Safety Verifier (Layer 6)"}</h2>
+      <p>
+        {ja
+          ? "v1.3.0で追加。宣言的な安全仕様（SafetySpec）を定義し、実行前に検証します。検証に合格するとProofCertificate（UUID4 + UTCタイムスタンプ）が発行され、監査証跡として使用できます。"
+          : "Added in v1.3.0. Define declarative safety specifications (SafetySpec) and verify them before execution. On passing verification, a ProofCertificate (UUID4 + UTC timestamp) is issued for audit trails."}
+      </p>
+      <ul>
+        <li><code>SafetySpec</code>{" — "}<code>allowed_effects</code>{", "}<code>forbidden_effects</code>{", "}<code>invariants</code>{ja ? " を宣言" : ""}</li>
+        <li><code>SafetyVerifier</code>{" — "}{ja ? "組み込み不変条件チェック：" : "built-in invariant checks: "}<code>check_no_secrets_in_output</code>{", "}<code>check_no_pii_in_output</code>{", "}<code>check_path_traversal</code></li>
+        <li><code>DEFAULT_SAFETY_SPEC</code>{" — "}{ja ? "8許可・10禁止・2不変条件" : "8 allowed, 10 forbidden, 2 invariants"}</li>
+        <li><code>STRICT_SAFETY_SPEC</code>{" — "}{ja ? "より厳格な安全仕様" : "stricter safety specification"}</li>
       </ul>
 
       <h2 id="policy-engine">{ja ? "ポリシーエンジン" : "Policy Engine"}</h2>

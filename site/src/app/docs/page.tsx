@@ -69,7 +69,7 @@ export default function DocsPage() {
       <ol>
         <li>
           <strong>{ja ? "入力をフィルタリング" : "Filters the input"}</strong>
-          {" — "}{ja ? "20以上の脅威パターンでメッセージをスキャンし、リスクスコア（0〜100）を計算します。" : "scans messages for 20+ threat patterns and computes a risk score (0–100)."}
+          {" — "}{ja ? "165+の検出パターン（25+脅威カテゴリ）でメッセージをスキャンし、リスクスコア（0〜100）を計算します。" : "scans messages for 165+ detection patterns across 25+ threat categories and computes a risk score (0–100)."}
         </li>
         <li>
           <strong>{ja ? "ポリシーに基づいてルーティング" : "Routes based on policy"}</strong>

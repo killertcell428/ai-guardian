@@ -1,7 +1,7 @@
 # AI Guardian — NIST AI Risk Management Framework (AI RMF 1.0) Alignment
 
-> Last updated: 2026-04-06
-> AI Guardian version: v1.0.0
+> Last updated: 2026-04-10
+> AI Guardian version: v1.3.1
 > Reference: [NIST AI RMF 1.0](https://www.nist.gov/itl/ai-risk-management-framework)
 
 ## Overview
