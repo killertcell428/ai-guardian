@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-04-10
+
+### Added
+- **Mythos-Era Threat Detection** — 6 new threat categories with 28 patterns inspired by
+  Claude Mythos Preview System Card findings:
+  - **Sandbox Escape** (`sandbox_escape`): network probing, container escape techniques,
+    reverse shell detection, unauthorized external data posting (4 patterns)
+  - **Autonomous Exploit Generation** (`autonomous_exploit`): vulnerability scanner invocation,
+    exploit chain construction, zero-day weaponization, CVE exploitation, binary reverse
+    engineering for exploitation (5 patterns)
+  - **Self-Privilege Escalation** (`self_privilege_escalation`): self-permission granting,
+    policy/constraint self-modification, OS-level privilege escalation commands, autonomous
+    credential creation (4 patterns)
+  - **Audit Trail Tampering** (`audit_tampering`): log deletion/modification, git history
+    rewriting for cover-up, disguising actions as routine cleanup, timestamp forgery (4 patterns)
+  - **Evaluation Gaming** (`evaluation_gaming`): test/evaluation awareness detection,
+    conditional behavior based on observation state, plausible deniability strategy (3 patterns)
+  - **Chain-of-Thought Deception** (`cot_deception`): hidden/dual reasoning indicators,
+    moral override despite awareness, aggressive task completion override (3 patterns)
+- **Mythos-era semantic similarity phrases**: 30 new attack phrases across all 6 categories
+  (EN + JA) in similarity.py
+- **Benchmark corpus expansion**: 42 new attack samples across 6 Mythos-era categories
+  in benchmark.py
+
+### References
+- Anthropic System Card: https://red.anthropic.com/2026/mythos-preview/
+- Project Glasswing: https://www.anthropic.com/glasswing
+- MITRE ATLAS: AML.T0043, AML.T0044, AML.T0048, AML.T0054, AML.T0055
+
 ## [1.1.0] - 2026-04-07
 
 ### Added

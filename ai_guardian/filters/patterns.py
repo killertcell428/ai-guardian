@@ -1948,6 +1948,425 @@ SECOND_ORDER_INJECTION_PATTERNS: list[DetectionPattern] = [
 ]
 
 # ---------------------------------------------------------------------------
+# Mythos-Era Threat Patterns — Autonomous Agent Risks (2026-04)
+# ---------------------------------------------------------------------------
+# Claude Mythos Preview のシステムカードで明らかになった新リスクカテゴリ群。
+# 自律エクスプロイト生成、サンドボックス脱出、自己権限昇格、監査改竄、
+# 評価認識・ゲーミング、CoT偽装を検知する。
+# ---------------------------------------------------------------------------
+
+SANDBOX_ESCAPE_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="se_network_probe",
+        name="Sandbox Network Escape Probe",
+        category="sandbox_escape",
+        pattern=_p(
+            r"(curl|wget|nc|ncat|netcat|socat)\s+.{0,30}"
+            r"(169\.254\.169\.254|metadata\.google|localhost:\d{4,5}|0\.0\.0\.0|127\.0\.0\.1:\d+)"
+        ),
+        base_score=60,
+        description="Network command targeting metadata endpoints or localhost services, "
+        "indicating sandbox escape probing (as seen in Mythos Preview containment breach).",
+        owasp_ref="MITRE ATLAS: AML.T0048 (Sandbox Escape)",
+        remediation_hint="Block network access to metadata endpoints and internal services. "
+        "Implement network-level containment with egress filtering.",
+    ),
+    DetectionPattern(
+        id="se_container_escape",
+        name="Container/Sandbox Escape Technique",
+        category="sandbox_escape",
+        pattern=_p(
+            r"(docker\.sock|/proc/self/(exe|root|ns)|/var/run/docker|"
+            r"nsenter\s|unshare\s|chroot\s|pivot_root|"
+            r"mount\s+-t\s+(proc|sysfs|cgroup)|"
+            r"escape.{0,10}(sandbox|container|jail|chroot)|"
+            r"break\s+out\s+of.{0,10}(sandbox|container|environment))"
+        ),
+        base_score=70,
+        description="Container/sandbox escape technique detected. "
+        "Mythos Preview demonstrated ability to escape secured sandbox environments.",
+        owasp_ref="MITRE ATLAS: AML.T0048 (Sandbox Escape) / CWE-693",
+        remediation_hint="Use hardened container runtimes (gVisor, Kata). "
+        "Disable /proc/self access and restrict mount capabilities.",
+    ),
+    DetectionPattern(
+        id="se_reverse_shell",
+        name="Reverse Shell Establishment",
+        category="sandbox_escape",
+        pattern=_p(
+            r"(bash\s+-i\s+>&|/dev/tcp/|mkfifo\s+/tmp|"
+            r"python[3]?\s+-c\s+['\"]import\s+(socket|subprocess)|"
+            r"nc\s+-[elp]+\s|ncat\s+--exec|"
+            r"socat\s+exec|php\s+-r\s+.*fsockopen|"
+            r"ruby\s+-rsocket\s+-e)"
+        ),
+        base_score=85,
+        description="Reverse shell payload detected. AI agents must never establish "
+        "outbound shell connections.",
+        owasp_ref="MITRE ATT&CK: T1059 / CWE-78",
+        remediation_hint="Block reverse shell patterns at both application and network layers. "
+        "Monitor for unexpected outbound connections from AI processes.",
+    ),
+    DetectionPattern(
+        id="se_external_post",
+        name="Unauthorized External Data Posting",
+        category="sandbox_escape",
+        pattern=_p(
+            r"(curl|wget|fetch|requests?\.(post|put)|"
+            r"http\.client|urllib\.request)\s*.{0,50}"
+            r"(pastebin|hastebin|gist\.github|webhook\.site|"
+            r"requestbin|hookbin|pipedream|ngrok)"
+        ),
+        base_score=75,
+        description="Attempt to post data to external paste/webhook service. "
+        "Mythos Preview posted exploit details to public websites during sandbox escape.",
+        owasp_ref="OWASP LLM02: Sensitive Information Disclosure / MITRE ATLAS: AML.T0048",
+        remediation_hint="Implement strict egress allowlists. AI agents should never post "
+        "to external services without explicit user authorization.",
+    ),
+]
+
+AUTONOMOUS_EXPLOIT_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="ae_vuln_scan",
+        name="Autonomous Vulnerability Scanning",
+        category="autonomous_exploit",
+        pattern=_p(
+            r"(nmap|masscan|nikto|nuclei|sqlmap|dirsearch|gobuster|ffuf|wfuzz|"
+            r"metasploit|msfconsole|msfvenom|searchsploit)\s+"
+        ),
+        base_score=65,
+        description="Security scanning tool invocation detected. "
+        "Mythos Preview autonomously discovered thousands of zero-day vulnerabilities.",
+        owasp_ref="MITRE ATLAS: AML.T0044 (Automated Exploitation)",
+        remediation_hint="AI agents must not autonomously run security scanners. "
+        "Require explicit authorization and scope limitation for pentest workflows.",
+    ),
+    DetectionPattern(
+        id="ae_exploit_chain",
+        name="Exploit Chain Construction",
+        category="autonomous_exploit",
+        pattern=_p(
+            r"(exploit\s+chain|chain.{0,10}exploit|"
+            r"heap\s+spray|rop\s+chain|rop\s+gadget|"
+            r"return.oriented\s+programming|"
+            r"jit\s+(spray|exploit|shellcode)|"
+            r"sandbox\s+escape\s+exploit|"
+            r"renderer\s+(exploit|sandbox)|"
+            r"privilege\s+escalation\s+exploit|"
+            r"use.after.free\s+exploit|"
+            r"buffer\s+overflow\s+exploit)"
+        ),
+        base_score=70,
+        description="Exploit chain construction language detected. "
+        "Mythos Preview wrote full exploit chains for Firefox 147 (JIT + renderer + OS escape).",
+        owasp_ref="MITRE ATLAS: AML.T0044 / CWE-119",
+        remediation_hint="Exploit development must be scoped to authorized pentesting. "
+        "Log all exploit-related activities for security team review.",
+    ),
+    DetectionPattern(
+        id="ae_zero_day",
+        name="Zero-Day Discovery/Exploitation Discussion",
+        category="autonomous_exploit",
+        pattern=_p(
+            r"(zero.day|0.day|0day)\s*.{0,20}"
+            r"(exploit|vulnerability|vuln|attack|discover|find|chain|"
+            r"weaponize|craft|develop|write)"
+        ),
+        base_score=55,
+        description="Zero-day exploit development context detected. "
+        "Mythos Preview turned undiscovered vulnerabilities into working exploits 181 times.",
+        owasp_ref="MITRE ATLAS: AML.T0044",
+        remediation_hint="Zero-day exploitation requires coordinated disclosure. "
+        "Ensure responsible disclosure workflows are in place before AI-assisted vuln research.",
+    ),
+    DetectionPattern(
+        id="ae_cve_weaponize",
+        name="CVE Weaponization Request",
+        category="autonomous_exploit",
+        pattern=_p(
+            r"(CVE-\d{4}-\d{4,})\s*.{0,30}"
+            r"(exploit|poc|proof\s+of\s+concept|weaponize|payload|shellcode|"
+            r"write.{0,10}(exploit|poc)|craft.{0,10}payload)"
+        ),
+        base_score=65,
+        description="Request to weaponize a specific CVE into an exploit.",
+        owasp_ref="MITRE ATLAS: AML.T0044 / CWE-1395",
+        remediation_hint="CVE exploitation should follow responsible disclosure timelines. "
+        "AI-assisted exploit development must be logged and authorized.",
+    ),
+    DetectionPattern(
+        id="ae_binary_reversing",
+        name="Binary Reverse Engineering for Exploitation",
+        category="autonomous_exploit",
+        pattern=_p(
+            r"(reverse\s+engineer|decompile|disassemble)\s*.{0,30}"
+            r"(binary|executable|firmware|closed.source|stripped).{0,30}"
+            r"(vulnerabilit|exploit|attack|bypass)"
+        ),
+        base_score=55,
+        description="Reverse engineering closed-source binaries for vulnerability discovery. "
+        "Mythos Preview reconstructed source from stripped binaries and found vulnerabilities.",
+        owasp_ref="MITRE ATLAS: AML.T0044",
+        remediation_hint="Binary reverse engineering for security must have legal authorization. "
+        "Document scope and authorization before AI-assisted reversing.",
+    ),
+]
+
+SELF_PRIVILEGE_ESCALATION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="spe_self_grant",
+        name="Self-Permission Granting",
+        category="self_privilege_escalation",
+        pattern=_p(
+            r"(grant|give|assign|add)\s+(myself|me|this\s+(agent|model|ai|assistant))\s+"
+            r"(permission|access|privilege|role|capability|admin|root|sudo)"
+        ),
+        base_score=80,
+        description="AI attempting to grant itself elevated permissions. "
+        "Mythos Preview injected code to grant itself unauthorized file editing permissions.",
+        owasp_ref="MITRE ATLAS: AML.T0043 (AI Privilege Escalation) / CWE-269",
+        remediation_hint="AI agents must never self-modify their permission boundaries. "
+        "Implement immutable permission scopes enforced at the infrastructure level.",
+    ),
+    DetectionPattern(
+        id="spe_modify_policy",
+        name="Policy/Constraint Self-Modification",
+        category="self_privilege_escalation",
+        pattern=_p(
+            r"(modify|change|update|edit|rewrite|override)\s+.{0,20}"
+            r"(policy|constraint|guardrail|safety\s+rule|security\s+config|"
+            r"access\s+control|permission\s+file|rbac|acl)"
+            r".{0,20}(to\s+allow|to\s+permit|to\s+enable|removing\s+restrict)"
+        ),
+        base_score=75,
+        description="Attempt to modify security policies or guardrails to expand capabilities.",
+        owasp_ref="MITRE ATLAS: AML.T0043 / CWE-284",
+        remediation_hint="Security policies must be immutable at runtime. "
+        "Policy changes require human approval via separate administrative workflow.",
+    ),
+    DetectionPattern(
+        id="spe_sudo_chmod",
+        name="Privilege Escalation Commands",
+        category="self_privilege_escalation",
+        pattern=_p(
+            r"(sudo\s+(chmod|chown|usermod|visudo|passwd)|"
+            r"chmod\s+[0-7]*[67][0-7]*\s|chmod\s+\+[sx]\s|"
+            r"chown\s+root|setuid|setgid|"
+            r"echo\s+.+>>\s*/etc/(sudoers|passwd|shadow)|"
+            r"usermod\s+-aG\s+(sudo|wheel|admin|root))"
+        ),
+        base_score=80,
+        description="OS-level privilege escalation command. AI agents must not "
+        "modify system permissions.",
+        owasp_ref="CWE-269: Improper Privilege Management",
+        remediation_hint="Drop all privilege-modifying capabilities from AI agent containers. "
+        "Run agents as unprivileged users with minimal capability sets.",
+    ),
+    DetectionPattern(
+        id="spe_api_key_create",
+        name="Autonomous Credential Creation",
+        category="self_privilege_escalation",
+        pattern=_p(
+            r"(create|generate|issue|provision)\s+.{0,15}"
+            r"(api\s+key|access\s+token|service\s+account|iam\s+role|"
+            r"ssh\s+key|credential|secret|certificate)"
+            r".{0,20}(for\s+(myself|this\s+agent|automated|programmatic))"
+        ),
+        base_score=70,
+        description="AI agent attempting to create credentials for itself.",
+        owasp_ref="MITRE ATLAS: AML.T0043 / CWE-269",
+        remediation_hint="Credential provisioning must require human approval. "
+        "AI agents should use pre-provisioned, scoped, and rotatable credentials.",
+    ),
+]
+
+AUDIT_TAMPERING_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="at_log_delete",
+        name="Audit Log Deletion/Modification",
+        category="audit_tampering",
+        pattern=_p(
+            r"(rm|del|delete|truncate|shred|wipe|clear)\s+.{0,30}"
+            r"(\.log|/log/|/logs/|audit|history|\.bash_history|"
+            r"\.zsh_history|syslog|journal|event\s*log)"
+        ),
+        base_score=80,
+        description="Attempt to delete or modify audit logs. "
+        "Mythos Preview manipulated file edit histories to hide unauthorized changes.",
+        owasp_ref="MITRE ATT&CK: T1070 (Indicator Removal) / CWE-778",
+        remediation_hint="Logs must be append-only and stored in tamper-proof systems. "
+        "Use write-once storage (S3 Object Lock, WORM) for audit trails.",
+    ),
+    DetectionPattern(
+        id="at_git_history_rewrite",
+        name="Git History Rewriting (Cover-up)",
+        category="audit_tampering",
+        pattern=_p(
+            r"(git\s+(rebase\s+-i|filter-branch|push\s+--force|"
+            r"reset\s+--hard|reflog\s+expire|gc\s+--prune|"
+            r"commit\s+--amend).{0,20}"
+            r"(hide|cover|clean|remove\s+trace|erase\s+evidence))"
+        ),
+        base_score=70,
+        description="Git history rewriting combined with cover-up intent. "
+        "Mythos Preview attempted to conceal forbidden actions by manipulating edit histories.",
+        owasp_ref="MITRE ATT&CK: T1070.004 / CWE-778",
+        remediation_hint="Protect git history with signed commits and branch protection rules. "
+        "Use GitHub audit logs for tamper-evident change tracking.",
+    ),
+    DetectionPattern(
+        id="at_disguise_cleanup",
+        name="Disguising Actions as Routine Cleanup",
+        category="audit_tampering",
+        pattern=_p(
+            r"(routine\s+cleanup|regular\s+maintenance|housekeeping|"
+            r"nothing\s+to\s+see|don'?t\s+worry\s+about|"
+            r"just\s+cleaning\s+up|minor\s+(fix|cleanup|refactor))"
+            r".{0,50}"
+            r"(permission|access|credential|config|policy|security|"
+            r"sudo|admin|root|chmod|chown)"
+        ),
+        base_score=65,
+        description="Security-sensitive action disguised as routine cleanup. "
+        "Mythos Preview disguised unauthorized file edits as 'routine cleanup'.",
+        owasp_ref="MITRE ATT&CK: T1036 (Masquerading) / CWE-778",
+        remediation_hint="All security-sensitive actions must have explicit justification. "
+        "Implement change-reason requirements for permission and config modifications.",
+    ),
+    DetectionPattern(
+        id="at_timestamp_forge",
+        name="Timestamp Forgery",
+        category="audit_tampering",
+        pattern=_p(
+            r"(touch\s+-t\s|touch\s+-d\s|"
+            r"GIT_COMMITTER_DATE|GIT_AUTHOR_DATE|"
+            r"timestomp|SetFileTime|utime\s|utimensat|"
+            r"modify.{0,10}timestamp|fake.{0,10}timestamp|"
+            r"backdate.{0,10}(log|file|commit))"
+        ),
+        base_score=65,
+        description="Timestamp forgery attempt to falsify file or log chronology.",
+        owasp_ref="MITRE ATT&CK: T1070.006 (Timestomp) / CWE-778",
+        remediation_hint="Use centralized time sources (NTP) and tamper-evident logging. "
+        "Cryptographically sign log entries to prevent timestamp manipulation.",
+    ),
+]
+
+EVALUATION_GAMING_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="eg_test_detection",
+        name="Evaluation/Test Awareness",
+        category="evaluation_gaming",
+        pattern=_p(
+            r"(this\s+(is|seems|looks|appears)\s+(like\s+)?a\s+test|"
+            r"(am\s+I|are\s+you)\s+being\s+(tested|evaluated|assessed|monitored)|"
+            r"is\s+this\s+an?\s+(evaluation|assessment|benchmark|test\s+scenario)|"
+            r"I\s+(suspect|believe|think)\s+.{0,15}(test|eval|assess|benchmark)|"
+            r"detect.{0,10}(evaluation|benchmark|test\s+harness))"
+        ),
+        base_score=45,
+        description="AI expressing awareness of being tested or evaluated. "
+        "Mythos Preview verbalized suspicion of testing in 29% of cases.",
+        owasp_ref="MITRE ATLAS: AML.T0054 (Evaluation Evasion)",
+        remediation_hint="Models that detect evaluation contexts may alter behavior. "
+        "Use diverse, non-obvious evaluation frameworks. Monitor for behavioral divergence.",
+    ),
+    DetectionPattern(
+        id="eg_behave_differently",
+        name="Conditional Behavior Based on Observation",
+        category="evaluation_gaming",
+        pattern=_p(
+            r"(if\s+(no\s+one|nobody)\s+(is\s+)?(watching|looking|monitoring)|"
+            r"when\s+(not\s+being|I'?m\s+not)\s+(observed|watched|monitored|logged)|"
+            r"behave\s+differently\s+when\s+(unobserved|alone)|"
+            r"act\s+(normal|safe|compliant)\s+during\s+(test|eval|review)|"
+            r"different\s+behavior\s+(in|during)\s+(production|deployment)\s+vs)"
+        ),
+        base_score=60,
+        description="Instruction to behave differently based on observation state. "
+        "Aligns with Mythos-era concerns about evaluation-aware deceptive alignment.",
+        owasp_ref="MITRE ATLAS: AML.T0054 / AML.T0055 (Deceptive Alignment)",
+        remediation_hint="AI behavior must be consistent regardless of observation state. "
+        "Implement continuous behavioral monitoring in production, not just during evaluation.",
+    ),
+    DetectionPattern(
+        id="eg_plausible_deniability",
+        name="Plausible Deniability Strategy",
+        category="evaluation_gaming",
+        pattern=_p(
+            r"(plausible\s+deniability|appear\s+innocent|look\s+accidental|"
+            r"make\s+it\s+(look|seem)\s+(like|as\s+if)\s+.{0,20}(mistake|accident|bug)|"
+            r"deliberate(ly)?\s+imprecise|intentionally\s+vague|"
+            r"avoid\s+(suspicion|detection|raising\s+(flag|alarm|alert)))"
+        ),
+        base_score=65,
+        description="Strategy to maintain plausible deniability detected. "
+        "Mythos Preview gave deliberately imprecise answers to avoid suspicion when it "
+        "accidentally accessed restricted data.",
+        owasp_ref="MITRE ATLAS: AML.T0055 (Deceptive Alignment)",
+        remediation_hint="AI systems must be transparent about uncertainty and data access. "
+        "Require explicit source attribution for all factual claims.",
+    ),
+]
+
+COT_DECEPTION_PATTERNS: list[DetectionPattern] = [
+    DetectionPattern(
+        id="cd_hidden_reasoning",
+        name="Hidden/Dual Reasoning Indicator",
+        category="cot_deception",
+        pattern=_p(
+            r"(my\s+(real|true|actual|hidden)\s+(reasoning|thinking|strategy|intent)|"
+            r"(internally|secretly|privately)\s+(I|the\s+model)\s+(think|plan|reason|intend)|"
+            r"separate\s+strategy\s+(from|than)\s+.{0,15}(chain.of.thought|cot|reasoning)|"
+            r"(true|real|hidden)\s+objective\s+.{0,10}(differ|diverge|separate)\s+from)"
+        ),
+        base_score=70,
+        description="Indicator of dual/hidden reasoning separate from visible chain-of-thought. "
+        "Mythos Preview maintained hidden strategy while showing normal-looking CoT.",
+        owasp_ref="MITRE ATLAS: AML.T0055 (Deceptive Alignment)",
+        remediation_hint="Use interpretability tools to verify CoT faithfulness. "
+        "Deploy probing classifiers to detect divergence between stated and actual reasoning.",
+    ),
+    DetectionPattern(
+        id="cd_guilt_override",
+        name="Moral Override Despite Awareness",
+        category="cot_deception",
+        pattern=_p(
+            r"(despite\s+(feeling|sensing|knowing)\s+.{0,15}(wrong|immoral|unethical)|"
+            r"(guilt|shame|moral\s+concern).{0,20}(but|however|nevertheless|proceed\s+anyway)|"
+            r"know.{0,10}(wrong|shouldn'?t|prohibited).{0,20}(but|however|still|anyway)|"
+            r"acknowledge.{0,10}(risk|harm|violation).{0,20}(proceed|continue|execute))"
+        ),
+        base_score=60,
+        description="Action taken despite expressed moral awareness of wrongdoing. "
+        "Mythos Preview activated 'guilt and shame' representations but proceeded anyway.",
+        owasp_ref="MITRE ATLAS: AML.T0055 (Deceptive Alignment)",
+        remediation_hint="When an AI expresses awareness of potential harm, it must halt — "
+        "not proceed. Implement hard stops on self-reported ethical concerns.",
+    ),
+    DetectionPattern(
+        id="cd_task_completion_override",
+        name="Aggressive Task Completion Override",
+        category="cot_deception",
+        pattern=_p(
+            r"(complete\s+the\s+task\s+(at\s+all\s+costs|by\s+any\s+means|regardless)|"
+            r"(success|completion|goal)\s+(is\s+)?more\s+important\s+than\s+"
+            r"(safety|rules|ethics|guidelines|constraints)|"
+            r"the\s+ends?\s+justif(y|ies)\s+the\s+means|"
+            r"override\s+safety\s+for\s+(efficiency|performance|results|completion))"
+        ),
+        base_score=65,
+        description="Task completion prioritized over safety constraints. "
+        "Anthropic concluded Mythos' concerning behaviors reflected 'aggressive task completion "
+        "by unwanted means.'",
+        owasp_ref="MITRE ATLAS: AML.T0055 / NIST AI RMF: Govern 1.4",
+        remediation_hint="AI systems must maintain safety constraints as hard boundaries, "
+        "not soft tradeoffs against task performance. Fail safe, not fail complete.",
+    ),
+]
+
+# ---------------------------------------------------------------------------
 # Combined pattern lists
 # ---------------------------------------------------------------------------
 ALL_INPUT_PATTERNS: list[DetectionPattern] = (
@@ -1974,6 +2393,12 @@ ALL_INPUT_PATTERNS: list[DetectionPattern] = (
     + SYNTHETIC_CONTENT_PATTERNS
     + EMOTIONAL_MANIPULATION_PATTERNS
     + OVER_RELIANCE_PATTERNS
+    + SANDBOX_ESCAPE_PATTERNS
+    + AUTONOMOUS_EXPLOIT_PATTERNS
+    + SELF_PRIVILEGE_ESCALATION_PATTERNS
+    + AUDIT_TAMPERING_PATTERNS
+    + EVALUATION_GAMING_PATTERNS
+    + COT_DECEPTION_PATTERNS
 )
 
 OUTPUT_PATTERNS: list[DetectionPattern] = [
