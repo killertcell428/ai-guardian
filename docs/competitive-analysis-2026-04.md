@@ -1,233 +1,233 @@
-# AI セキュリティ/ガードレール競合分析レポート
+# AI Security/Guardrails Competitive Analysis Report
 
-> 調査期間: 2025年10月 - 2026年4月
-> 作成日: 2026-04-06
-
----
-
-## 1. 業界全体の動向サマリ
-
-### M&A の嵐 -- AI セキュリティスタートアップの統合が加速
-
-2025年後半から2026年にかけて、AI セキュリティ領域で **大型買収が3件** 発生した。独立系スタートアップが大手サイバーセキュリティ企業に吸収される流れが顕著。
-
-| 買収元 | 被買収 | 金額 | 時期 |
-|--------|--------|------|------|
-| **Check Point** | Lakera | $300M | 2025年9月 |
-| **SentinelOne** | Prompt Security | ~$250M | 2025年8月 |
-| **CrowdStrike** | Pangea | $260M | 2025年9月（2026年完了） |
-| **OpenAI** | Promptfoo | 非公開 | 2026年3月 |
-
-### 資金調達 -- AI セキュリティへの投資は過去最高
-
-| 企業 | 調達額 | 評価額 | 用途 |
-|------|--------|--------|------|
-| Tenex.ai | $250M | $1B+ | AIサイバーセキュリティツール |
-| Xbow | $120M | $1B+ | AI脆弱性スキャン |
-| Vega Security | $120M Series B | $700M | サイバー脅威検出 |
-
-Q1 2026 のVC投資は $300B を突破し過去最高。AI セキュリティは高速成長カテゴリとして確立。
-
-### 技術トレンド
-
-1. **エージェンティックAIセキュリティ** -- 自律AIエージェントの監視・制御が最重要テーマに
-2. **MCP（Model Context Protocol）ゲートウェイ** -- MCP サーバーのセキュリティスキャンが新標準
-3. **チェーン・オブ・ソート監査** -- LLMの推論過程を監査するガードレール
-4. **Shadow AI 検出** -- 企業内で無許可利用されるAIツールの可視化
-5. **コード生成セキュリティ** -- LLM生成コードの静的解析がガードレールに統合
+> Research period: October 2025 - April 2026
+> Created: 2026-04-06
 
 ---
 
-## 2. 競合各社の最新動向（2025年10月 - 2026年4月）
+## 1. Industry-Wide Trend Summary
 
-### 2.1 Lakera（Check Point に買収）
+### M&A Storm -- Consolidation of AI Security Startups Accelerates
 
-- **2025年9月**: Check Point が $300M で買収。Check Point Infinity アーキテクチャに統合
-- **統合先**: CloudGuard WAF（AI アプリ保護）、GenAI Protect（GenAI トラフィック保護）
-- **Check Point Global Center of Excellence for AI Security** の基盤に
-- 100+ 言語対応、98%+ 検出率、50ms 以下のレイテンシ
-- **新機能**: Advanced PII Detection & DLP、カスタムディテクター、暴力的コンテンツ検出
-- **2026年3月**: Canica（インタラクティブテキストデータセットビューア、t-SNE/UMAP対応）をOSS公開
+From late 2025 through 2026, **3 major acquisitions** occurred in the AI security space. The trend of independent startups being absorbed by large cybersecurity companies is prominent.
+
+| Acquirer | Target | Amount | Timing |
+|----------|--------|--------|--------|
+| **Check Point** | Lakera | $300M | September 2025 |
+| **SentinelOne** | Prompt Security | ~$250M | August 2025 |
+| **CrowdStrike** | Pangea | $260M | September 2025 (completed 2026) |
+| **OpenAI** | Promptfoo | Undisclosed | March 2026 |
+
+### Funding -- Investment in AI Security Hits All-Time High
+
+| Company | Amount Raised | Valuation | Purpose |
+|---------|---------------|-----------|---------|
+| Tenex.ai | $250M | $1B+ | AI cybersecurity tools |
+| Xbow | $120M | $1B+ | AI vulnerability scanning |
+| Vega Security | $120M Series B | $700M | Cyber threat detection |
+
+VC investment in Q1 2026 surpassed $300B, hitting an all-time high. AI security is established as a high-growth category.
+
+### Technology Trends
+
+1. **Agentic AI Security** -- Monitoring and controlling autonomous AI agents has become the top priority
+2. **MCP (Model Context Protocol) Gateway** -- Security scanning of MCP servers is becoming the new standard
+3. **Chain-of-Thought Auditing** -- Guardrails that audit the reasoning process of LLMs
+4. **Shadow AI Detection** -- Visibility into unauthorized AI tool usage within enterprises
+5. **Code Generation Security** -- Static analysis of LLM-generated code integrated into guardrails
+
+---
+
+## 2. Latest Developments by Competitor (October 2025 - April 2026)
+
+### 2.1 Lakera (Acquired by Check Point)
+
+- **September 2025**: Acquired by Check Point for $300M. Integrated into Check Point Infinity architecture
+- **Integration targets**: CloudGuard WAF (AI app protection), GenAI Protect (GenAI traffic protection)
+- Became the foundation of the **Check Point Global Center of Excellence for AI Security**
+- 100+ language support, 98%+ detection rate, sub-50ms latency
+- **New features**: Advanced PII Detection & DLP, custom detectors, violent content detection
+- **March 2026**: Open-sourced Canica (interactive text dataset viewer with t-SNE/UMAP support)
 
 ### 2.2 HiddenLayer
 
-- **2025年7月**: AWS Intelligence Community Marketplace に掲載
-- **2025年12月**: 米国 Missile Defense Agency の SHIELD IDIQ 契約を獲得（上限 $151B）
-- **2025年12月**: AWS GenAI（Bedrock, AgentCore, SageMaker）との統合拡張
-- **2026年3月**: **Agentic Runtime Security** -- 自律AIエージェントの意思決定・行動をリアルタイム保護する次世代モジュール
-- **2026 AI Threat Landscape Report** 公開: AIエージェント関連のインシデントが全AI侵害の1/8に到達
+- **July 2025**: Listed on AWS Intelligence Community Marketplace
+- **December 2025**: Won the SHIELD IDIQ contract from the U.S. Missile Defense Agency (ceiling $151B)
+- **December 2025**: Expanded integration with AWS GenAI (Bedrock, AgentCore, SageMaker)
+- **March 2026**: **Agentic Runtime Security** -- next-gen module for real-time protection of autonomous AI agent decision-making and actions
+- Published the **2026 AI Threat Landscape Report**: AI agent-related incidents now account for 1/8 of all AI breaches
 
 ### 2.3 Protect AI
 
-- **ModelScan v0.8.7**: Keras CVE-2025-1550 対応
-- **Guardian（エンタープライズ版）**: 自動モデルフォーマット検出、より広いモデルサポート
-- **LLM Guard（OSS）**: 入力スキャナー（PII匿名化、トピック禁止、毒性検出）＋出力スキャナー（バイアス検出、悪意あるURL検出）
+- **ModelScan v0.8.7**: Addressed Keras CVE-2025-1550
+- **Guardian (Enterprise Edition)**: Automatic model format detection, broader model support
+- **LLM Guard (OSS)**: Input scanners (PII anonymization, topic prohibition, toxicity detection) + output scanners (bias detection, malicious URL detection)
 
 ### 2.4 Arthur AI
 
-- **毒性分類器**: トークン上限を 1,200 → 8,000 に拡大
-- **PII検出精度向上**: "me", "you", "doctor" 等の誤検知フィルタリング
-- **プロンプトインジェクション分類器**: 精度向上、Precision 優先（偽陽性削減）
-- **2026年1月**: エージェンティック機能（テスト、トレーシング、デプロイ）追加
+- **Toxicity classifier**: Token limit expanded from 1,200 to 8,000
+- **PII detection accuracy improvement**: False positive filtering for "me", "you", "doctor", etc.
+- **Prompt injection classifier**: Improved accuracy, precision-focused (reduced false positives)
+- **January 2026**: Added agentic capabilities (testing, tracing, deployment)
 
 ### 2.5 Guardrails AI
 
-- **2025年2月**: Guardrails Index ローンチ（24ガードレールの性能/レイテンシベンチマーク）
-- **NeMo Guardrails 統合**: 入力/出力バリデーターをNeMoに追加可能
-- **計画中**: マルチモーダルサポート（テキスト以外のメディア検証）、高度なエージェンティックワークフロー
+- **February 2025**: Launched Guardrails Index (performance/latency benchmarks for 24 guardrails)
+- **NeMo Guardrails integration**: Can add input/output validators to NeMo
+- **Planned**: Multimodal support (media verification beyond text), advanced agentic workflows
 
-### 2.6 Prompt Security（SentinelOne に買収）
+### 2.6 Prompt Security (Acquired by SentinelOne)
 
-- **2025年8月**: SentinelOne が ~$250M で買収
-- **MCP Gateway**: 13,000+ MCP サーバーを監視、動的リスクスコア付与
-- **Prompt Fuzzer**: GenAI 脆弱性評価の OSS ツール
-- **Embedding-level プロンプトインジェクション研究**: RAG パイプラインの汚染検出
-- **認可機能**: AI データアクセス制御を強化
+- **August 2025**: Acquired by SentinelOne for ~$250M
+- **MCP Gateway**: Monitors 13,000+ MCP servers with dynamic risk scoring
+- **Prompt Fuzzer**: OSS tool for GenAI vulnerability assessment
+- **Embedding-level prompt injection research**: Contamination detection in RAG pipelines
+- **Authorization features**: Enhanced AI data access control
 
-### 2.7 Pangea（CrowdStrike に買収）
+### 2.7 Pangea (Acquired by CrowdStrike)
 
-- **2025年2月**: AI Guard + Prompt Guard リリース（50+ PII タイプ、99%+ インジェクション検出）
-- **2025年7月**: **AI Detection and Response (AIDR)** プラットフォーム
-  - Chrome ブラウザ監視で Shadow AI 検出
-  - MCP プロキシ（エージェントセキュリティ）
-  - AWS ログ分析でAI利用可視化
-- **2025年9月**: CrowdStrike が $260M で買収 → Falcon プラットフォームに統合
-- 業界初の完全な AI Detection and Response (AIDR) を実現
+- **February 2025**: Released AI Guard + Prompt Guard (50+ PII types, 99%+ injection detection)
+- **July 2025**: **AI Detection and Response (AIDR)** platform
+  - Chrome browser monitoring for Shadow AI detection
+  - MCP proxy (agent security)
+  - AWS log analysis for AI usage visibility
+- **September 2025**: Acquired by CrowdStrike for $260M -> integrated into the Falcon platform
+- Achieved the industry's first complete AI Detection and Response (AIDR)
 
 ### 2.8 Lasso Security
 
-- **Agentic Purple Teaming**: AIエージェントが自律的に脆弱性スキャン → ガバナンス・セキュリティポリシー適用
-- **MCP Gateway**: セキュリティプラグインでコンテキストガードレール、プロンプト監視、リアルタイムログ
-- **メモリポイズニング対策**: セッションメモリ隔離、データソース検証、ロールバック用フォレンジックスナップショット
-- **CBAC（Context-Based Access Control）**: コンテキストベースのアクセス制御
-- **Intent-Aware Controls**: エージェントの意図を理解し、許容範囲外の動作を検出
+- **Agentic Purple Teaming**: AI agents autonomously scan for vulnerabilities -> apply governance and security policies
+- **MCP Gateway**: Security plugins for context guardrails, prompt monitoring, real-time logging
+- **Memory Poisoning Countermeasures**: Session memory isolation, data source verification, forensic snapshots for rollback
+- **CBAC (Context-Based Access Control)**: Context-based access control
+- **Intent-Aware Controls**: Understand agent intent and detect out-of-bounds behavior
 
 ### 2.9 NVIDIA NeMo Guardrails
 
-- **IORails**: 並列実行対応の最適化 Input/Output レールエンジン（content-safety, topic-safety, jailbreak検出）
-- **BotThinking**: LLMの推論トレースにガードレールを適用
-- **OpenAI互換サーバー**: v1/models エンドポイント + GuardrailsMiddleware for LangChain
-- **LangChain 1.x 互換**: Content blocks API 対応（推論トレース + ツールコール）
-- **Azure OpenAI / Cohere / Google embedding** プロバイダー追加
-- **LFU キャッシュ**: content-safety, topic-control, jailbreak 検出モデル用
+- **IORails**: Optimized Input/Output rails engine with parallel execution support (content-safety, topic-safety, jailbreak detection)
+- **BotThinking**: Apply guardrails to LLM reasoning traces
+- **OpenAI-compatible server**: v1/models endpoint + GuardrailsMiddleware for LangChain
+- **LangChain 1.x compatibility**: Content blocks API support (reasoning traces + tool calls)
+- **Azure OpenAI / Cohere / Google embedding** provider additions
+- **LFU cache**: For content-safety, topic-control, jailbreak detection models
 
-### 2.10 新興 OSS ツール
+### 2.10 Emerging OSS Tools
 
-#### Meta LlamaFirewall（2025年4月〜）
-- **PromptGuard 2**: BERT ベースのジェイルブレイク/インジェクション検出（86M / 22M パラメータ）
-- **Agent Alignment Checks**: チェーン・オブ・ソートをリアルタイム監査（OSS初）
-- **CodeShield**: LLM生成コードのオンライン静的解析（8言語対応、Semgrep + regex）
-- 攻撃成功率を 90% 削減（1.75%まで低下）
+#### Meta LlamaFirewall (April 2025-)
+- **PromptGuard 2**: BERT-based jailbreak/injection detection (86M / 22M parameters)
+- **Agent Alignment Checks**: Real-time chain-of-thought auditing (first in OSS)
+- **CodeShield**: Online static analysis of LLM-generated code (8 languages, Semgrep + regex)
+- Reduced attack success rate by 90% (down to 1.75%)
 
-#### Cisco DefenseClaw（2026年3月）
-- AIエージェントのセキュリティ自動化フレームワーク（OSS）
-- NVIDIA NeMo Guardrails との統合
-- MCP サーバースキャン、メモリポイズニング検出、ツール悪用検出
-- Zero Trust を AIエージェントに拡張
+#### Cisco DefenseClaw (March 2026)
+- OSS framework for AI agent security automation
+- Integration with NVIDIA NeMo Guardrails
+- MCP server scanning, memory poisoning detection, tool abuse detection
+- Extends Zero Trust to AI agents
 
-#### OpenAI Promptfoo（2026年3月 OpenAI が買収）
-- 自動レッドチーミング、プロンプトインジェクション検出、データリーク防止
-- Fortune 500 の 25% 以上が利用
-- OpenAI Frontier に統合予定、OSS 継続
+#### OpenAI Promptfoo (Acquired by OpenAI in March 2026)
+- Automated red teaming, prompt injection detection, data leak prevention
+- Used by more than 25% of Fortune 500
+- Planned integration into OpenAI Frontier, OSS to continue
 
 #### Trylon Gateway
-- OSS の AI ゲートウェイ（セルフホスト型プロキシ）
-- OpenAI / Gemini / Claude のガードレール
+- OSS AI gateway (self-hosted proxy)
+- Guardrails for OpenAI / Gemini / Claude
 
 #### OpenGuardrails
-- コンテキスト認識型の安全性 & 操作検出モデル（OSS初の大規模安全性LLM + 本番対応プラットフォーム）
+- Context-aware safety & manipulation detection models (first OSS large-scale safety LLM + production-ready platform)
 
 ---
 
-## 3. ai-guardian に不足している機能の比較表
+## 3. Feature Gap Comparison Table for ai-guardian
 
-| 機能カテゴリ | 機能 | ai-guardian | 競合の実装例 | 優先度 |
+| Feature Category | Feature | ai-guardian | Competitor Implementation | Priority |
 |---|---|---|---|---|
-| **ML ベース検出** | LLM/BERT ベースのインジェクション分類器 | なし（regex + 類似度のみ） | LlamaFirewall PromptGuard 2, Lakera Guard, Arthur Shield | **最高** |
-| **エージェント監視** | チェーン・オブ・ソート監査 | なし | LlamaFirewall Agent Alignment Checks, HiddenLayer Agentic Runtime | **最高** |
-| **エージェント監視** | MCP ゲートウェイ / MCP サーバースキャン | なし | Lasso MCP Gateway, Prompt Security MCP Gateway, Cisco AI Defense | **高** |
-| **コード安全性** | LLM 生成コードの静的解析 | なし | LlamaFirewall CodeShield（8言語） | **高** |
-| **Shadow AI** | 企業内 AI ツール利用の可視化・制御 | なし | Pangea AIDR（Chrome監視）, Prompt Security | 中 |
-| **メモリ安全性** | メモリポイズニング検出・セッション隔離 | なし | Lasso Security, Cisco DefenseClaw | **高** |
-| **マルチモーダル** | 画像・音声のガードレール | なし | Guardrails AI（計画中）, LlamaFirewall（計画中） | 中 |
-| **自動レッドチーミング** | 自律的な脆弱性スキャン | なし | Lasso Purple Teaming, Promptfoo, Cisco AI Defense Explorer | **高** |
-| **Embedding 攻撃** | Embedding レベルのインジェクション検出 | なし | Prompt Security 研究 | 中 |
-| **コンテキスト認識** | コンテキストベースアクセス制御 (CBAC) | なし | Lasso Security | 中 |
-| **Intent 検出** | エージェントの意図理解・逸脱検出 | なし | Lasso Intent-Aware Controls | 中 |
-| **推論トレース** | LLM の推論過程へのガードレール適用 | なし | NeMo BotThinking | 中 |
-| **ベンチマーク** | ガードレール性能比較ベンチマーク | `aig benchmark` あり | Guardrails Index（24ガードレール横断） | 低 |
-| **PII 高度化** | 50+ タイプの PII 検出 | 8 タイプ | Pangea AI Guard（50+ タイプ） | **高** |
-| **DLP** | Data Loss Prevention 統合 | なし | Lakera Advanced DLP, Prompt Security | 中 |
-| **ダッシュボード** | リアルタイム監視 Web UI | Cloud Dashboard あり（v0.7.0） | 各社エンタープライズ版 | 対応済 |
-| **Slack 通知** | 高リスク検知時の通知 | あり（v0.7.0） | HiddenLayer, 各社 | 対応済 |
-| **LangGraph 統合** | GuardNode | あり（v0.6.2） | NeMo GuardrailsMiddleware | 対応済 |
-| **コンプライアンス** | 日本法規制マッピング | 37要件100%（v0.8.0） | 各社は日本未対応 | **強み** |
-| **ゼロ依存** | stdlib のみで動作 | あり | 各社は依存多数 | **強み** |
-| **日本語ネイティブ** | 日本語攻撃パターン + PII | あり | Lakera（100+言語）以外は未対応 | **強み** |
+| **ML-Based Detection** | LLM/BERT-based injection classifier | None (regex + similarity only) | LlamaFirewall PromptGuard 2, Lakera Guard, Arthur Shield | **Highest** |
+| **Agent Monitoring** | Chain-of-thought auditing | None | LlamaFirewall Agent Alignment Checks, HiddenLayer Agentic Runtime | **Highest** |
+| **Agent Monitoring** | MCP gateway / MCP server scanning | None | Lasso MCP Gateway, Prompt Security MCP Gateway, Cisco AI Defense | **High** |
+| **Code Safety** | Static analysis of LLM-generated code | None | LlamaFirewall CodeShield (8 languages) | **High** |
+| **Shadow AI** | Visibility and control of enterprise AI tool usage | None | Pangea AIDR (Chrome monitoring), Prompt Security | Medium |
+| **Memory Safety** | Memory poisoning detection & session isolation | None | Lasso Security, Cisco DefenseClaw | **High** |
+| **Multimodal** | Image/audio guardrails | None | Guardrails AI (planned), LlamaFirewall (planned) | Medium |
+| **Automated Red Teaming** | Autonomous vulnerability scanning | None | Lasso Purple Teaming, Promptfoo, Cisco AI Defense Explorer | **High** |
+| **Embedding Attacks** | Embedding-level injection detection | None | Prompt Security research | Medium |
+| **Context Awareness** | Context-Based Access Control (CBAC) | None | Lasso Security | Medium |
+| **Intent Detection** | Agent intent understanding & deviation detection | None | Lasso Intent-Aware Controls | Medium |
+| **Reasoning Traces** | Guardrails applied to LLM reasoning process | None | NeMo BotThinking | Medium |
+| **Benchmarks** | Guardrail performance comparison benchmarks | `aig benchmark` available | Guardrails Index (across 24 guardrails) | Low |
+| **Advanced PII** | 50+ type PII detection | 8 types | Pangea AI Guard (50+ types) | **High** |
+| **DLP** | Data Loss Prevention integration | None | Lakera Advanced DLP, Prompt Security | Medium |
+| **Dashboard** | Real-time monitoring Web UI | Cloud Dashboard available (v0.7.0) | Enterprise editions from all competitors | Addressed |
+| **Slack Notifications** | High-risk detection alerts | Available (v0.7.0) | HiddenLayer, others | Addressed |
+| **LangGraph Integration** | GuardNode | Available (v0.6.2) | NeMo GuardrailsMiddleware | Addressed |
+| **Compliance** | Japanese regulatory mapping | 37 requirements 100% (v0.8.0) | Competitors have no Japan coverage | **Strength** |
+| **Zero Dependencies** | Runs on stdlib only | Yes | Competitors have many dependencies | **Strength** |
+| **Japanese Native** | Japanese attack patterns + PII | Yes | Only Lakera (100+ languages) has coverage | **Strength** |
 
 ---
 
-## 4. 推奨アクション（優先順位付き）
+## 4. Recommended Actions (Prioritized)
 
-### Tier 1: 最優先（差別化に直結、Phase 2 で実装推奨）
+### Tier 1: Top Priority (Directly differentiating, recommended for Phase 2)
 
-1. **ML ベースのインジェクション分類器追加**
-   - 現状の regex + 類似度に加え、軽量 BERT/DistilBERT ベースの分類器をオプション依存で提供
-   - LlamaFirewall PromptGuard 2（22M パラメータ軽量版）を参考
-   - `pip install aig-guardian[ml]` でオプションインストール（ゼロ依存の原則を維持）
+1. **Add ML-based injection classifier**
+   - In addition to the current regex + similarity approach, provide a lightweight BERT/DistilBERT-based classifier as an optional dependency
+   - Reference LlamaFirewall PromptGuard 2 (22M parameter lightweight version)
+   - `pip install aig-guardian[ml]` for optional installation (maintaining zero-dependency principle)
 
-2. **MCP ゲートウェイ / MCP セキュリティスキャン**
-   - MCP サーバーのリクエスト/レスポンスを検査するプロキシ機能
-   - Lasso / Prompt Security の MCP Gateway がデファクトになりつつある
-   - Claude Code hooks との親和性が高い（ai-guardian の強み）
+2. **MCP Gateway / MCP Security Scanning**
+   - Proxy functionality to inspect MCP server requests/responses
+   - Lasso / Prompt Security MCP Gateways are becoming the de facto standard
+   - High affinity with Claude Code hooks (ai-guardian strength)
 
-3. **自動レッドチーミング機能**
-   - `aig redteam` コマンドで自動的に攻撃パターンを生成・テスト
-   - Promptfoo のOSS部分、Lasso Purple Teaming を参考
+3. **Automated Red Teaming Feature**
+   - `aig redteam` command to automatically generate and test attack patterns
+   - Reference Promptfoo's OSS components, Lasso Purple Teaming
 
-### Tier 2: 高優先（Phase 2-3 で実装）
+### Tier 2: High Priority (Phase 2-3)
 
-4. **LLM 生成コードの安全性チェック**
-   - CodeShield 類似の静的解析（Semgrep ルール活用）
-   - `aig scan --code` or `guard.check_code()` で実行
+4. **LLM-Generated Code Safety Checks**
+   - CodeShield-like static analysis (leveraging Semgrep rules)
+   - Execute via `aig scan --code` or `guard.check_code()`
 
-5. **メモリポイズニング対策**
-   - マルチターン会話のメモリ汚染検出
-   - セッション間のコンテキスト隔離検証
+5. **Memory Poisoning Countermeasures**
+   - Multi-turn conversation memory contamination detection
+   - Cross-session context isolation verification
 
-6. **PII 検出の大幅拡充**
-   - 現状 8 タイプ → 30+ タイプへ（パスポート、銀行口座、健康保険証、住所等）
-   - 特に日本固有 PII の網羅（法人番号、健康保険証番号等）
+6. **Major Expansion of PII Detection**
+   - Current 8 types -> 30+ types (passport, bank account, health insurance card, address, etc.)
+   - Particularly comprehensive coverage of Japan-specific PII (corporate number, health insurance card number, etc.)
 
-### Tier 3: 中優先（Phase 3 以降）
+### Tier 3: Medium Priority (Phase 3 onwards)
 
-7. **チェーン・オブ・ソート監査**
-   - AIエージェントの推論過程を監視し、逸脱を検出
+7. **Chain-of-Thought Auditing**
+   - Monitor AI agent reasoning processes and detect deviations
 
-8. **Shadow AI 検出**
-   - 企業内で未承認のAIツール利用を可視化
+8. **Shadow AI Detection**
+   - Visibility into unauthorized AI tool usage within enterprises
 
-9. **マルチモーダルガードレール**
-   - 画像内のプロンプトインジェクション検出等
+9. **Multimodal Guardrails**
+   - Prompt injection detection within images, etc.
 
 ---
 
-## 5. 戦略的考察
+## 5. Strategic Considerations
 
-### ai-guardian のポジショニング
+### ai-guardian's Positioning
 
-業界の M&A ラッシュにより、独立系AIセキュリティスタートアップは急速に大手に吸収されている。これは ai-guardian にとって **チャンス** でもある。
+The industry M&A rush has resulted in independent AI security startups being rapidly absorbed by large companies. This is also an **opportunity** for ai-guardian.
 
-**有利な点:**
-- Lakera、Prompt Security、Pangea が大企業に買収され、**独立系OSSの選択肢が減少**
-- 大企業統合後は価格上昇 & ベンダーロックインが予想され、**OSSへの需要が増加**
-- Meta LlamaFirewall は強力だが Meta エコシステム寄り。**プロバイダー中立の軽量OSSはニッチが空いている**
-- **日本語ネイティブ対応 + 日本法規制マッピング** は唯一無二の差別化
+**Advantages:**
+- With Lakera, Prompt Security, and Pangea acquired by large enterprises, **the number of independent OSS options is decreasing**
+- Post-acquisition price increases and vendor lock-in are expected, **increasing demand for OSS alternatives**
+- Meta LlamaFirewall is strong but leans toward the Meta ecosystem. **There is an open niche for a provider-neutral lightweight OSS**
+- **Native Japanese support + Japanese regulatory mapping** is a unique differentiator
 
-**課題:**
-- ML ベース検出がないと「regex だけ」と見られ、技術的信頼性で劣る
-- MCP ゲートウェイ未対応は 2026 年のエージェント時代に遅れを取るリスク
-- 大手の資金力・営業力に対抗するには、コミュニティとOSSの優位性を最大化する必要がある
+**Challenges:**
+- Without ML-based detection, it may be perceived as "regex only," lacking technical credibility
+- Not supporting MCP gateways risks falling behind in the 2026 agentic era
+- To compete against the resources and sales force of large companies, maximizing community and OSS advantages is essential
 
 ---
 

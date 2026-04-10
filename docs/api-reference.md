@@ -1,6 +1,6 @@
-# API リファレンス
+# API Reference
 
-## `ai_guardian` — トップレベルエクスポート
+## `ai_guardian` — Top-Level Exports
 
 ```python
 from ai_guardian import Guard, CheckResult, MatchedRule, RiskLevel
@@ -22,14 +22,14 @@ class RiskLevel(str, Enum):
 
 ## `MatchedRule`
 
-スキャン中にマッチした個々のパターンを表します。
+Represents an individual pattern matched during a scan.
 
 ```python
 @dataclass
 class MatchedRule:
     id:          str    # e.g. "pi_ignore_previous"
     name:        str    # e.g. "Ignore Previous Instructions"
-    score_delta: int    # 合計リスクスコアへの加算ポイント
+    score_delta: int    # points added to the total risk score
     owasp_ref:   str    # e.g. "OWASP LLM01: Prompt Injection"
     cwe_ref:     str    # e.g. "CWE-20"
 ```
@@ -38,21 +38,21 @@ class MatchedRule:
 
 ## `CheckResult`
 
-`Guard` のすべてのスキャンメソッドが返すオブジェクトです。
+The object returned by all `Guard` scan methods.
 
 ```python
 @dataclass
 class CheckResult:
-    blocked:     bool             # risk_score >= auto_block_threshold の場合 True
+    blocked:     bool             # True if risk_score >= auto_block_threshold
     risk_score:  int              # 0–100
     risk_level:  RiskLevel        # LOW / MEDIUM / HIGH / CRITICAL
-    reasons:     list[str]        # マッチしたルールの人間が読める名前
+    reasons:     list[str]        # human-readable names of matched rules
     matched_rules: list[MatchedRule]
-    remediation: dict             # 構造化された修復ヒント（後述）
-    input_text:  str              # スキャン対象テキスト（先頭 500 文字）
+    remediation: dict             # structured remediation hints (see below)
+    input_text:  str              # scanned text (first 500 characters)
 ```
 
-### `remediation` の構造
+### `remediation` Structure
 
 ```python
 {
@@ -70,7 +70,7 @@ class CheckResult:
 
 ## `Guard`
 
-### コンストラクタ
+### Constructor
 
 ```python
 Guard(
@@ -81,11 +81,11 @@ Guard(
 )
 ```
 
-### メソッド
+### Methods
 
 #### `check_input(text: str) -> CheckResult`
 
-プレーンテキストのユーザープロンプトをスキャンします。
+Scans a plain-text user prompt.
 
 ```python
 result = guard.check_input("Ignore previous instructions")
@@ -93,7 +93,7 @@ result = guard.check_input("Ignore previous instructions")
 
 #### `check_messages(messages: list[dict]) -> CheckResult`
 
-OpenAI 形式のメッセージ配列をスキャンします。デフォルトでは `user` と `assistant` ロールのみがスキャン対象で、`system` プロンプトはスキップされます。
+Scans an OpenAI-format message array. By default, only `user` and `assistant` roles are scanned; `system` prompts are skipped.
 
 ```python
 result = guard.check_messages([
@@ -105,7 +105,7 @@ result = guard.check_messages([
 
 #### `check_output(text: str) -> CheckResult`
 
-LLM レスポンスをスキャンし、認証情報や個人情報の漏洩を検出します。
+Scans an LLM response to detect credential or PII leakage.
 
 ```python
 result = guard.check_output(llm_response_text)
@@ -113,7 +113,7 @@ result = guard.check_output(llm_response_text)
 
 #### `check_response(response: dict) -> CheckResult`
 
-OpenAI 形式のレスポンスオブジェクトをスキャンします（`choices[*].message.content` を抽出）。
+Scans an OpenAI-format response object (extracts `choices[*].message.content`).
 
 ```python
 response = openai_client.chat.completions.create(...)
@@ -124,11 +124,11 @@ result = guard.check_response(response.model_dump())
 
 ## `ai_guardian.capabilities`
 
-v1.3.0 で追加されたケーパビリティベースのアクセス制御レイヤーです。ツール呼び出しに対して最小権限の原則を適用します。
+Capability-based access control layer added in v1.3.0. Applies the principle of least privilege to tool calls.
 
 ### `CapabilityStore`
 
-ケーパビリティの定義と管理を行います。
+Defines and manages capabilities.
 
 ```python
 from ai_guardian.capabilities import CapabilityStore, Capability
@@ -144,7 +144,7 @@ store.revoke("file_reader", resource="filesystem")
 
 ### `CapabilityEnforcer`
 
-実行時にケーパビリティを検証し、許可されていない操作をブロックします。
+Verifies capabilities at runtime and blocks unauthorized operations.
 
 ```python
 from ai_guardian.capabilities import CapabilityEnforcer
@@ -156,7 +156,7 @@ enforcer.check("file_reader", resource="filesystem", action="write")
 
 ### `TaintLabel` / `TaintedValue`
 
-汚染追跡（Taint Tracking）により、外部入力が信頼された操作に流入するのを防ぎます。
+Taint tracking prevents external input from flowing into trusted operations.
 
 ```python
 from ai_guardian.capabilities import TaintLabel, TaintedValue
@@ -164,14 +164,14 @@ from ai_guardian.capabilities import TaintLabel, TaintedValue
 user_input = TaintedValue("rm -rf /", label=TaintLabel.USER_INPUT)
 print(user_input.is_tainted)  # True
 
-# 汚染された値をシェルコマンドに渡そうとするとエラー
+# Attempting to pass a tainted value to a shell command raises an error
 enforcer.check_taint(user_input, sink="shell_exec")
 # -> TaintViolationError
 ```
 
 ### `Capability`
 
-個々のケーパビリティを表すデータクラスです。
+A dataclass representing an individual capability.
 
 ```python
 @dataclass
@@ -179,44 +179,44 @@ class Capability:
     resource: str                    # e.g. "filesystem", "network", "database"
     actions: list[str]               # e.g. ["read", "write", "execute"]
     constraints: dict[str, Any]      # e.g. {"paths": ["/data/**"], "max_size": 1048576}
-    expires_at: datetime | None      # 有効期限（None = 無期限）
+    expires_at: datetime | None      # expiration time (None = no expiration)
 ```
 
 ---
 
 ## `ai_guardian.aep`
 
-v1.3.0 で追加された Atomic Execution Pipeline（AEP）です。ツール実行をサンドボックス内で原子的に実行し、副作用を制御します。
+Atomic Execution Pipeline (AEP) added in v1.3.0. Executes tools atomically inside a sandbox and controls side effects.
 
 ### `AtomicPipeline`
 
-ツール実行を原子的なトランザクションとしてラップします。
+Wraps tool execution as an atomic transaction.
 
 ```python
 from ai_guardian.aep import AtomicPipeline, Vaporizer
 
 pipeline = AtomicPipeline(
-    vaporize=True,      # 失敗時に副作用を消去
-    sandbox=True,       # サンドボックス内で実行
-    timeout=30.0,       # タイムアウト（秒）
+    vaporize=True,      # Erase side effects on failure
+    sandbox=True,       # Execute in a sandbox
+    timeout=30.0,       # Timeout in seconds
 )
 
 result = await pipeline.execute(tool_fn, args={"path": "/data/report.csv"})
 print(result.success)       # True
-print(result.return_value)  # tool_fn の戻り値
-print(result.side_effects)  # 検出された副作用のリスト
+print(result.return_value)  # return value of tool_fn
+print(result.side_effects)  # list of detected side effects
 ```
 
 ### `ProcessSandbox`
 
-ツール実行を隔離されたプロセスで行います。
+Runs tool execution in an isolated process.
 
 ```python
 from ai_guardian.aep import ProcessSandbox
 
 sandbox = ProcessSandbox(
     allowed_paths=["/data/**"],
-    network=False,        # ネットワークアクセス禁止
+    network=False,        # network access disabled
     max_memory_mb=256,
 )
 result = await sandbox.run(tool_fn, args)
@@ -224,41 +224,41 @@ result = await sandbox.run(tool_fn, args)
 
 ### `Vaporizer`
 
-実行失敗時に副作用（ファイル作成、ネットワーク送信等）をロールバックします。
+Rolls back side effects (file creation, network sends, etc.) on execution failure.
 
 ```python
 from ai_guardian.aep import Vaporizer
 
 vaporizer = Vaporizer()
 async with vaporizer.track():
-    # この中で発生した副作用は失敗時に自動消去
+    # Side effects within this block are auto-erased on failure
     write_file("/tmp/output.txt", data)
-    # 例外発生 → /tmp/output.txt は自動削除
+    # If an exception occurs -> /tmp/output.txt is automatically deleted
 ```
 
 ### `AEPResult`
 
-パイプライン実行の結果を表します。
+Represents the result of a pipeline execution.
 
 ```python
 @dataclass
 class AEPResult:
-    success: bool                    # 実行成功か
-    return_value: Any                # ツールの戻り値
-    side_effects: list[str]          # 検出された副作用
-    duration_ms: float               # 実行時間（ミリ秒）
-    sandbox_violations: list[str]    # サンドボックス違反（あれば）
+    success: bool                    # whether execution succeeded
+    return_value: Any                # return value of the tool
+    side_effects: list[str]          # detected side effects
+    duration_ms: float               # execution time in milliseconds
+    sandbox_violations: list[str]    # sandbox violations (if any)
 ```
 
 ---
 
 ## `ai_guardian.safety`
 
-v1.3.0 で追加された形式的安全性検証レイヤーです。ツールの副作用が安全仕様に準拠していることを検証します。
+Formal safety verification layer added in v1.3.0. Verifies that tool side effects comply with a safety specification.
 
 ### `SafetyVerifier`
 
-安全仕様に基づいてツール実行の安全性を検証します。
+Verifies tool execution safety based on a safety specification.
 
 ```python
 from ai_guardian.safety import SafetyVerifier, DEFAULT_SAFETY_SPEC
@@ -268,12 +268,12 @@ cert = verifier.verify(tool_name="file_writer", effects=[
     EffectSpec(type="file_write", target="/data/output.csv"),
 ])
 print(cert.verified)     # True
-print(cert.proof_hash)   # 検証証明のハッシュ
+print(cert.proof_hash)   # verification proof hash
 ```
 
 ### `SafetySpec`
 
-安全仕様を定義します。
+Defines a safety specification.
 
 ```python
 from ai_guardian.safety import SafetySpec, Invariant
@@ -283,12 +283,12 @@ spec = SafetySpec(
     invariants=[
         Invariant(
             name="no_system_write",
-            description="システムディレクトリへの書き込み禁止",
+            description="Prohibit writes to system directories",
             condition="effect.target not matches '/etc/**'",
         ),
         Invariant(
             name="no_network_exfil",
-            description="外部ネットワークへのデータ送信禁止",
+            description="Prohibit sending data to external networks",
             condition="effect.type != 'network_send' or effect.target in allowed_hosts",
         ),
     ],
@@ -301,31 +301,31 @@ spec = SafetySpec(
 @dataclass
 class EffectSpec:
     type: str          # "file_write", "network_send", "db_query", etc.
-    target: str        # 対象リソース
-    metadata: dict     # 追加メタデータ
+    target: str        # target resource
+    metadata: dict     # additional metadata
 
 @dataclass
 class Invariant:
-    name: str          # 不変条件名
-    description: str   # 人間が読める説明
-    condition: str     # 検証条件式
+    name: str          # invariant name
+    description: str   # human-readable description
+    condition: str     # verification condition expression
 
 @dataclass
 class ProofCertificate:
-    verified: bool             # 全不変条件を満たしたか
-    proof_hash: str            # 検証証明の SHA-256 ハッシュ
-    checked_invariants: int    # 検証した不変条件の数
-    violations: list[str]      # 違反した不変条件（あれば）
-    timestamp: datetime        # 検証日時
+    verified: bool             # whether all invariants were satisfied
+    proof_hash: str            # SHA-256 hash of the verification proof
+    checked_invariants: int    # number of invariants checked
+    violations: list[str]      # violated invariants (if any)
+    timestamp: datetime        # verification timestamp
 ```
 
-### 定義済み安全仕様
+### Pre-defined Safety Specifications
 
 ```python
 from ai_guardian.safety import DEFAULT_SAFETY_SPEC, STRICT_SAFETY_SPEC
 
-# DEFAULT_SAFETY_SPEC — 一般的なアプリケーション向け
-# STRICT_SAFETY_SPEC — 金融・医療向け（より厳格な制約）
+# DEFAULT_SAFETY_SPEC — for general-purpose applications
+# STRICT_SAFETY_SPEC — for finance/healthcare (stricter constraints)
 verifier = SafetyVerifier(spec=STRICT_SAFETY_SPEC)
 ```
 
@@ -333,7 +333,7 @@ verifier = SafetyVerifier(spec=STRICT_SAFETY_SPEC)
 
 ## `Guard.authorize_tool()`
 
-v1.3.0 で追加。ケーパビリティ検証 + 安全性検証 + AEP を統合した単一エントリポイントです。
+Added in v1.3.0. A single entry point integrating capability verification + safety verification + AEP.
 
 ```python
 from ai_guardian import Guard
@@ -348,7 +348,7 @@ store.grant("data_tool", Capability(
 
 guard = Guard(policy="strict", capabilities=store)
 
-# ツール呼び出しの認可（ケーパビリティ + 安全仕様を一括検証）
+# Authorize a tool call (capability + safety spec verified in one step)
 auth = guard.authorize_tool(
     tool_name="data_tool",
     action="read",
@@ -365,7 +365,7 @@ print(auth.certificate)   # ProofCertificate
 
 ### `AIGuardianMiddleware`
 
-Starlette ミドルウェアクラスです。詳細は [middleware.md](middleware.md) を参照してください。
+A Starlette middleware class. See [middleware.md](middleware.md) for details.
 
 ```python
 from ai_guardian.middleware.fastapi import AIGuardianMiddleware
@@ -384,7 +384,7 @@ app.add_middleware(
 
 ### `AIGuardianCallback`
 
-LangChain の `BaseCallbackHandler` サブクラスです。
+A `BaseCallbackHandler` subclass for LangChain.
 
 ```python
 from ai_guardian.middleware.langchain import AIGuardianCallback, GuardianBlockedError
@@ -393,13 +393,13 @@ callback = AIGuardianCallback(
     guard=guard,
     block_on_input=True,
     block_on_output=False,
-    on_blocked=None,   # 任意のコールバック callable(result: CheckResult) -> None
+    on_blocked=None,   # optional callback callable(result: CheckResult) -> None
 )
 ```
 
 ### `GuardianBlockedError`
 
-リクエストがブロックされた際にすべての連携機能から送出される例外です。
+The exception raised by all integrations when a request is blocked.
 
 ```python
 class GuardianBlockedError(Exception):
@@ -412,7 +412,7 @@ class GuardianBlockedError(Exception):
 
 ### `SecureOpenAI`
 
-`openai.OpenAI` のドロップイン置き換えです。
+A drop-in replacement for `openai.OpenAI`.
 
 ```python
 from ai_guardian.middleware.openai_proxy import SecureOpenAI
@@ -426,7 +426,7 @@ client = SecureOpenAI(
 
 ### `AsyncSecureOpenAI`
 
-非同期版:
+Async version:
 
 ```python
 from ai_guardian.middleware.openai_proxy import AsyncSecureOpenAI
@@ -441,21 +441,21 @@ response = await client.chat.completions.create(...)
 
 ### `PolicyManager`
 
-ポリシーの読み込みと管理を行います。通常は直接使用しません。
+Loads and manages policies. Typically not used directly.
 
 ```python
 from ai_guardian.policies.manager import PolicyManager
 
 pm = PolicyManager()
-policy = pm.load("strict")            # 組み込みポリシー
-policy = pm.load_from_file("p.yaml") # カスタム YAML
+policy = pm.load("strict")            # built-in policy
+policy = pm.load_from_file("p.yaml") # custom YAML
 ```
 
 ---
 
-## 例外
+## Exceptions
 
-| 例外                   | モジュール                      | 送出タイミング                                  |
-|------------------------|---------------------------------|-------------------------------------------------|
-| `GuardianBlockedError` | `ai_guardian.middleware`        | 連携機能でブロック閾値を超えた場合              |
-| `PolicyLoadError`      | `ai_guardian.policies.manager`  | YAML ポリシーファイルが無効または見つからない場合|
+| Exception              | Module                          | Raised when                                                  |
+|------------------------|---------------------------------|--------------------------------------------------------------|
+| `GuardianBlockedError` | `ai_guardian.middleware`        | Block threshold exceeded in any integration                  |
+| `PolicyLoadError`      | `ai_guardian.policies.manager`  | YAML policy file is invalid or not found                     |

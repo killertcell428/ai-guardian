@@ -12,21 +12,21 @@ MITRE ATLAS (Adversarial Threat Landscape for AI Systems) catalogs adversarial t
 
 | ATLAS Tactic | Techniques | AI Guardian Coverage |
 |-------------|:----------:|:--------------------:|
-| Reconnaissance | 8 | Pre-interaction (2/8) — 攻撃者の事前調査は LLM 実行前に発生 |
-| Resource Development | 5 | Pre-interaction (0/5) — 攻撃インフラ構築は外部活動 |
-| Initial Access | 9 | **Full coverage (7/9)** — 残り2件はインフラ認証の領域 |
-| ML Model Access | 5 | Infrastructure (2/5) — モデル認証・認可はインフラ制御 |
-| Execution | 5 | **Full coverage (4/5)** — 残り1件はOS実行環境の領域 |
-| Persistence | 3 | Infrastructure (1/3) — OS/キャッシュレベルの永続化 |
+| Reconnaissance | 8 | Pre-interaction (2/8) — Attacker reconnaissance occurs before LLM execution |
+| Resource Development | 5 | Pre-interaction (0/5) — Attack infrastructure development is an external activity |
+| Initial Access | 9 | **Full coverage (7/9)** — Remaining 2 fall within infrastructure authentication |
+| ML Model Access | 5 | Infrastructure (2/5) — Model authentication/authorization is infrastructure-level control |
+| Execution | 5 | **Full coverage (4/5)** — Remaining 1 falls within OS execution environment |
+| Persistence | 3 | Infrastructure (1/3) — OS/cache-level persistence |
 | Privilege Escalation | 2 | **Full (2/2)** |
-| Defense Evasion | 8 | **Full coverage (5/8)** — 残り3件はモデル内部の回避手法 |
+| Defense Evasion | 8 | **Full coverage (5/8)** — Remaining 3 are model-internal evasion techniques |
 | Credential Access | 3 | **Full (3/3)** |
-| Discovery | 5 | Behavioral (2/5) — 行動分析が必要な領域 |
+| Discovery | 5 | Behavioral (2/5) — Requires behavioral analysis |
 | Collection | 4 | **Full coverage (3/4)** |
 | Exfiltration | 4 | **Full (4/4)** |
-| Impact | 6 | **Full coverage (4/6)** — 残り2件は実世界被害評価 |
+| Impact | 6 | **Full coverage (4/6)** — Remaining 2 require real-world impact assessment |
 
-**ランタイムで検知可能な全技法をカバー（40/67）。未対応の27件は偵察・リソース開発・インフラ制御等、LLM実行前または外部で発生する活動であり、入出力スキャンツールのスコープ外。**
+**Full coverage of all runtime-detectable techniques (40/67). The 27 uncovered items are activities such as reconnaissance, resource development, and infrastructure control that occur before or outside LLM execution, and are outside the scope of input/output scanning tools.**
 
 ---
 
@@ -126,19 +126,19 @@ MITRE ATLAS v5.4.0 introduced techniques specific to autonomous AI agents. AI Gu
 ```
 ATLAS Kill Chain Stage          AI Guardian Defense Layer
 ──────────────────────────────────────────────────────────
-Reconnaissance                  [Scope外] 攻撃者の事前調査（LLM実行前）
-Resource Development            [Scope外] 攻撃インフラ構築（外部活動）
-Initial Access                  ██████████ 112入力パターン（全ランタイム攻撃を検知）
-ML Model Access                 [Scope外] モデル認証・認可（インフラ制御）
-Execution                       ██████████ コマンドインジェクション + 出力フィルタ
-Persistence                     ██████████ メモリポイズニング + コンテキスト汚染検知
-Privilege Escalation            ██████████ ロール切替 + 2次インジェクション検知
-Defense Evasion                 ██████████ NFKC正規化 + 難読化バイパス検知
-Credential Access               ██████████ PII + シークレット検知
-Discovery                       [Scope外] 行動分析が必要（パターンマッチの限界）
-Collection                      ██████████ データ窃取検知
-Exfiltration                    ██████████ 入出力 + マークダウン窃取
-Impact                          ██████████ トークン枯渇 + 有害コンテンツ
+Reconnaissance                  [Out of Scope] Attacker reconnaissance (pre-LLM execution)
+Resource Development            [Out of Scope] Attack infrastructure development (external activity)
+Initial Access                  ██████████ 112 input patterns (detects all runtime attacks)
+ML Model Access                 [Out of Scope] Model authentication/authorization (infrastructure control)
+Execution                       ██████████ Command injection + output filter
+Persistence                     ██████████ Memory poisoning + context contamination detection
+Privilege Escalation            ██████████ Role switching + second-order injection detection
+Defense Evasion                 ██████████ NFKC normalization + obfuscation bypass detection
+Credential Access               ██████████ PII + secret detection
+Discovery                       [Out of Scope] Requires behavioral analysis (pattern matching limitation)
+Collection                      ██████████ Data theft detection
+Exfiltration                    ██████████ Input/output + markdown exfiltration
+Impact                          ██████████ Token exhaustion + harmful content
 ```
 
 ---

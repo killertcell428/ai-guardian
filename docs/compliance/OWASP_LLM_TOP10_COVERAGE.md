@@ -19,7 +19,7 @@
 | LLM09 | Misinformation | Out of Scope | — | Requires model-level fact verification (not pattern matching) |
 | LLM10 | Unbounded Consumption | **Full** | 5 patterns | Regex + Heuristic |
 
-**ランタイムで検知可能な全リスクを完全カバー（8/10）。残り2件（サプライチェーン・モデルポイズニング）はモデルレジストリ・暗号学的検証等のインフラ領域であり、入出力スキャンツールのスコープ外。165+パターン。**
+**Full coverage of all runtime-detectable risks (8/10). The remaining 2 (Supply Chain, Model Poisoning) fall within infrastructure domains such as model registries and cryptographic verification, and are outside the scope of input/output scanning tools. 165+ patterns.**
 
 ---
 

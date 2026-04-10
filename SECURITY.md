@@ -1,6 +1,6 @@
-# セキュリティポリシー
+# Security Policy
 
-## サポート対象バージョン
+## Supported Versions
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -10,63 +10,63 @@
 | 1.0.x   | :x:                |
 | 0.x.x   | :x:                |
 
-セキュリティパッチは最新のマイナーバージョンに対してのみリリースします。
+Security patches are released only for the latest minor version.
 
-## 脆弱性の報告
+## Reporting a Vulnerability
 
-**セキュリティ上の脆弱性について、公開の GitHub Issue を作成しないでください。**
+**Please do not create a public GitHub Issue for security vulnerabilities.**
 
-### 方法 1 — GitHub Private Security Advisory（推奨）
+### Method 1 — GitHub Private Security Advisory (Recommended)
 
-1. リポジトリの **Security** タブ → **Advisories** → **New draft security advisory** に移動します。
-2. 詳細（説明、影響を受けるバージョン、再現手順、修正案）を記入します。
-3. 送信してください。メンテナーが **72時間以内** に返答します。
+1. Navigate to the repository's **Security** tab → **Advisories** → **New draft security advisory**.
+2. Fill in the details (description, affected versions, reproduction steps, proposed fix).
+3. Submit. A maintainer will respond within **72 hours**.
 
-### 方法 2 — メール
+### Method 2 — Email
 
-以下の情報を **security@killertcell428.dev** に送信してください。
+Send the following information to **security@killertcell428.dev**:
 
-- 脆弱性の説明
-- 再現手順
-- 影響を受けるバージョン
-- 既知の緩和策
-- 連絡先情報（任意、謝辞掲載のため）
+- Description of the vulnerability
+- Reproduction steps
+- Affected versions
+- Known mitigations
+- Contact information (optional, for acknowledgment purposes)
 
-PGP key: リクエストに応じて提供します。
+PGP key: Available upon request.
 
-## 対応プロセス
+## Response Process
 
-1. **受領確認** — 72時間以内に受領を確認します。
-2. **評価** — 7日以内に影響度と深刻度を評価します。
-3. **修正** — パッチを開発・テストします。
-4. **公開** — 報告者とリリース日を調整し、GitHub Security Advisory を公開します。
-5. **クレジット** — 報告者の許可を得た上で、advisory および CHANGELOG にお名前を掲載します。
+1. **Acknowledgment** — We will confirm receipt within 72 hours.
+2. **Assessment** — We will evaluate the impact and severity within 7 days.
+3. **Fix** — We will develop and test a patch.
+4. **Disclosure** — We will coordinate the release date with the reporter and publish a GitHub Security Advisory.
+5. **Credit** — With the reporter's permission, we will credit them in the advisory and CHANGELOG.
 
-私たちは [responsible disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure) の方針に従っています。公開前に合理的な猶予期間（通常90日間）をいただくようお願いします。
+We follow a [responsible disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure) policy. We ask for a reasonable grace period (typically 90 days) before public disclosure.
 
-## 対象範囲
+## Scope
 
-以下は **対象範囲内** です:
+The following is **in scope**:
 
-- `Guard` クラスの検出ロジックのバイパス（false-negative を利用した攻撃）
-- ライブラリ自体からの情報漏洩
-- 細工された入力によるリモートコード実行
-- 公開パッケージにおける依存関係の脆弱性
-- セルフホスト型バックエンド（`backend/`）のセキュリティ問題
+- Bypass of `Guard` class detection logic (attacks exploiting false negatives)
+- Information leakage from the library itself
+- Remote code execution via crafted input
+- Dependency vulnerabilities in published packages
+- Security issues in the self-hosted backend (`backend/`)
 
-以下は **対象範囲外** です:
+The following is **out of scope**:
 
-- ホストマシンへの物理アクセスを必要とする攻撃
-- メンテナーに対するソーシャルエンジニアリング
-- ai-guardian に直接的な影響を及ぼさないサードパーティ依存関係の問題
+- Attacks requiring physical access to the host machine
+- Social engineering against maintainers
+- Third-party dependency issues that do not directly impact ai-guardian
 
-## セキュリティ設計に関する補足
+## Note on Security Design
 
-ai-guardian は **多層防御の一層** であり、完全なセキュリティソリューションではありません。既知の攻撃パターンとのパターンマッチングによって動作するため、以下と組み合わせて使用してください。
+ai-guardian is **one layer of defense in depth** and is not a complete security solution. It operates by pattern matching against known attack patterns and should be used in combination with:
 
-- API 境界での入力バリデーション
-- ユーザーへの表示前の出力サニタイズ
-- LLM システムプロンプトに対する最小権限の原則
-- レート制限と監査ログ
+- Input validation at API boundaries
+- Output sanitization before displaying to users
+- Principle of least privilege for LLM system prompts
+- Rate limiting and audit logging
 
-高度な攻撃者が現在のパターンセットを回避する入力を作成する可能性があります。検出パターンの維持・拡充は継続的に行っており、通常の PR プロセスによるコントリビューションを歓迎します。
+Sophisticated attackers may craft inputs that evade the current pattern set. We continuously maintain and expand detection patterns, and welcome contributions through the standard PR process.

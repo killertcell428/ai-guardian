@@ -1,80 +1,80 @@
-# Human-in-the-Loop（セルフホスト型ダッシュボード）
+# Human-in-the-Loop (Self-Hosted Dashboard)
 
-オープンソースのコアライブラリは、リスクスコアに基づいて自動的にブロック/許可の判定を行います。
-**セルフホスト型バックエンド**は、自動判定では対応しきれないケースに向けた Human-in-the-Loop（HITL）レビュー機能を追加します。人間の判断が必要な中リスクのリクエスト、コンプライアンス上の監査証跡、マルチテナントのポリシー管理などに対応します。
+The open-source core library automatically makes block/allow decisions based on risk scores.
+The **self-hosted backend** adds Human-in-the-Loop (HITL) review capabilities for cases that cannot be handled by automated decisions alone. This covers medium-risk requests requiring human judgment, compliance audit trails, and multi-tenant policy management.
 
-## アーキテクチャ
+## Architecture
 
 ```
-ユーザーリクエスト
-     │
-     ▼
-ai-guardian core      ← パターンマッチング、リスクスコアリング
-     │
-  CRITICAL ──────────► 自動ブロック（人間のレビュー不要）
-     │
-  MEDIUM/HIGH ────────► レビューキュー（人間がレビュー）
-     │
-   LOW ────────────────► 自動許可（人間のレビュー不要）
-     │
-     ▼
-人間のレビュアー      ← 承認 / 却下 / エスカレーション
-     │
-     ▼
-監査ログ             ← 変更不可能なイベント証跡
+User Request
+     |
+     v
+ai-guardian core      <- pattern matching, risk scoring
+     |
+  CRITICAL ----------> Auto-block (no human review needed)
+     |
+  MEDIUM/HIGH --------> Review Queue (human review)
+     |
+   LOW ---------------> Auto-allow (no human review needed)
+     |
+     v
+Human Reviewer       <- approve / reject / escalate
+     |
+     v
+Audit Log            <- immutable event trail
 ```
 
-## Docker Compose でのクイックスタート
+## Quick Start with Docker Compose
 
 ```bash
-# リポジトリをクローン
+# Clone the repository
 git clone https://github.com/killertcell428/ai-guardian
 cd ai-guardian
 
-# 環境変数をコピーして設定
+# Copy and configure environment variables
 cp .env.example .env
-# .env を編集: SECRET_KEY, OPENAI_API_KEY, POSTGRES_PASSWORD を設定
+# Edit .env: set SECRET_KEY, OPENAI_API_KEY, POSTGRES_PASSWORD
 
-# 全サービスを起動
+# Start all services
 docker compose up -d
 
-# データベースマイグレーションを実行
+# Run database migrations
 docker compose exec backend alembic upgrade head
 
-# 最初の管理者ユーザーを作成
+# Create the first admin user
 docker compose exec backend python -m app.cli create-admin \
   --email admin@example.com --password changeme
 ```
 
-サービス一覧:
-- **ダッシュボード**: http://localhost:3000
+Services:
+- **Dashboard**: http://localhost:3000
 - **API**: http://localhost:8000
-- **API ドキュメント**: http://localhost:8000/docs
+- **API Docs**: http://localhost:8000/docs
 
-## レビューキュー
+## Review Queue
 
-MEDIUM または HIGH と判定されたリクエストはレビューキューに入ります。
+Requests assessed as MEDIUM or HIGH are placed in the review queue.
 
-### レビュアーのワークフロー
+### Reviewer Workflow
 
-1. http://localhost:3000 のダッシュボードにログイン
-2. **Review Queue** に移動
-3. 各アイテムに対して以下を実行:
-   - **Approve** — リクエストを LLM に転送
-   - **Reject** — リクエストを恒久的にブロック
-   - **Escalate** — 上位レビュアーに回付
+1. Log in to the dashboard at http://localhost:3000
+2. Navigate to the **Review Queue**
+3. For each item, perform one of the following:
+   - **Approve** — forward the request to the LLM
+   - **Reject** — permanently block the request
+   - **Escalate** — route to a senior reviewer
 
-### API エンドポイント
+### API Endpoints
 
 ```
-GET  /api/v1/review/queue          保留中のアイテム一覧
-GET  /api/v1/review/{id}           アイテムの詳細取得
-POST /api/v1/review/{id}/approve   承認
-POST /api/v1/review/{id}/reject    却下
-POST /api/v1/review/{id}/escalate  エスカレーション
+GET  /api/v1/review/queue          List pending items
+GET  /api/v1/review/{id}           Get item details
+POST /api/v1/review/{id}/approve   Approve
+POST /api/v1/review/{id}/reject    Reject
+POST /api/v1/review/{id}/escalate  Escalate
 ```
 
-使用例:
+Example:
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/review/abc123/approve \
@@ -83,25 +83,25 @@ curl -X POST http://localhost:8000/api/v1/review/abc123/approve \
   -d '{"note": "Reviewed and approved — internal user, not a threat."}'
 ```
 
-## マルチテナントポリシー管理
+## Multi-Tenant Policy Management
 
-テナント（チーム、プロダクト、顧客）ごとに独自のポリシーを設定できます。
+Each tenant (team, product, or customer) can have its own policy.
 
 ```bash
-# テナントを作成
+# Create a tenant
 curl -X POST http://localhost:8000/api/v1/admin/tenants \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -d '{"name": "Acme Corp", "policy": "strict"}'
 
-# テナントのポリシーを更新
+# Update a tenant's policy
 curl -X PUT http://localhost:8000/api/v1/policies/acme-corp \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -d '{"auto_block_threshold": 70, "custom_rules": [...]}'
 ```
 
-## OpenAI 互換プロキシ
+## OpenAI-Compatible Proxy
 
-バックエンドは OpenAI 互換のプロキシエンドポイントを公開しています。任意の OpenAI SDK クライアントからセルフホストインスタンスに接続できます。
+The backend exposes an OpenAI-compatible proxy endpoint. Any OpenAI SDK client can connect to the self-hosted instance.
 
 ```python
 import openai
@@ -117,47 +117,47 @@ response = client.chat.completions.create(
 )
 ```
 
-すべてのリクエストはスキャン・ログ記録され、MEDIUM/HIGH リスクの場合は OpenAI に転送される前にレビューキューに入ります。
+All requests are scanned and logged. MEDIUM/HIGH risk requests are placed in the review queue before being forwarded to OpenAI.
 
-## 監査ログ
+## Audit Log
 
-すべてのスキャンイベントは変更不可能な監査ログに記録されます。
+All scan events are recorded in an immutable audit log.
 
 ```
 GET /api/v1/audit?tenant=acme-corp&from=2026-01-01&to=2026-12-31
 ```
 
-各エントリには以下が含まれます:
+Each entry includes:
 - `request_id` — UUID
 - `tenant_id`
 - `risk_score`, `risk_level`
 - `reasons`, `remediation`
 - `decision` — `allowed` / `blocked` / `pending_review`
-- `reviewer_id`（人間がレビューした場合）
+- `reviewer_id` (if reviewed by a human)
 - `timestamp`
 
-## スケーリング
+## Scaling
 
-本番環境へのデプロイでは以下を推奨します:
+For production deployments, the following is recommended:
 
-- ロードバランサーの背後に `backend` の複数レプリカを配置
-- マネージド PostgreSQL を使用（例: AWS RDS, GCP Cloud SQL）
-- マネージド Redis を使用（例: AWS ElastiCache）
-- バックエンド環境で `WORKERS=4`（または CPU コア数の 2 倍）を設定
+- Place multiple `backend` replicas behind a load balancer
+- Use managed PostgreSQL (e.g., AWS RDS, GCP Cloud SQL)
+- Use managed Redis (e.g., AWS ElastiCache)
+- Set `WORKERS=4` (or 2x CPU cores) in the backend environment
 
-詳細なデプロイ手順は `backend/README.md` を参照してください。
+See `backend/README.md` for detailed deployment instructions.
 
-## SaaS 版とセルフホスト版の比較
+## SaaS vs. Self-Hosted Comparison
 
-| 機能                        | コアライブラリ | セルフホスト | SaaS（近日公開） |
-|-----------------------------|:------------:|:-----------:|:------------------:|
-| パターン検出                | ✅           | ✅          | ✅                 |
-| カスタム YAML ポリシー      | ✅           | ✅          | ✅                 |
-| Human-in-the-Loop キュー    | —            | ✅          | ✅                 |
-| 監査ログ                    | —            | ✅          | ✅                 |
-| マルチテナント管理          | —            | ✅          | ✅                 |
-| 分析ダッシュボード          | —            | ✅          | ✅                 |
-| マネージドホスティング      | —            | —           | ✅                 |
-| SSO / SAML                  | —            | —           | ✅                 |
+| Feature                     | Core Library | Self-Hosted | SaaS (Coming Soon) |
+|-----------------------------|:------------:|:-----------:|:-------------------:|
+| Pattern detection           | Yes          | Yes         | Yes                 |
+| Custom YAML policies        | Yes          | Yes         | Yes                 |
+| Human-in-the-Loop queue     | --           | Yes         | Yes                 |
+| Audit log                   | --           | Yes         | Yes                 |
+| Multi-tenant management     | --           | Yes         | Yes                 |
+| Analytics dashboard         | --           | Yes         | Yes                 |
+| Managed hosting             | --           | --          | Yes                 |
+| SSO / SAML                  | --           | --          | Yes                 |
 
-マネージド SaaS 版に興味がありますか？ [ウェイトリストに登録 →](https://github.com/killertcell428/ai-guardian/discussions)
+Interested in the managed SaaS version? [Join the waitlist ->](https://github.com/killertcell428/ai-guardian/discussions)

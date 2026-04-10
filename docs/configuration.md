@@ -1,6 +1,6 @@
-# 設定
+# Configuration
 
-## Guard コンストラクタ
+## Guard Constructor
 
 ```python
 Guard(
@@ -8,21 +8,21 @@ Guard(
     policy_file: str | None = None,
     auto_block_threshold: int | None = None,
     auto_allow_threshold: int | None = None,
-    capabilities: CapabilityStore | None = None,    # v1.3.0 追加
+    capabilities: CapabilityStore | None = None,    # Added in v1.3.0
 )
 ```
 
-| パラメータ             | 型                        | デフォルト  | 説明                                                     |
-|------------------------|---------------------------|-------------|----------------------------------------------------------|
-| `policy`               | `str`                     | `"default"` | 組み込みポリシー名: `"default"`, `"strict"`, `"permissive"` |
-| `policy_file`          | `str \| None`             | `None`      | YAML ポリシーファイルのパス（`policy` より優先）         |
-| `auto_block_threshold` | `int \| None`             | `None`      | ブロック閾値の上書き（0〜100）                           |
-| `auto_allow_threshold` | `int \| None`             | `None`      | 許可閾値の上書き（0〜100）                               |
-| `capabilities`         | `CapabilityStore \| None` | `None`      | ケーパビリティストア（v1.3.0+、`authorize_tool()` に必要）|
+| Parameter              | Type                      | Default     | Description                                                          |
+|------------------------|---------------------------|-------------|----------------------------------------------------------------------|
+| `policy`               | `str`                     | `"default"` | Built-in policy name: `"default"`, `"strict"`, or `"permissive"`    |
+| `policy_file`          | `str \| None`             | `None`      | Path to a YAML policy file (takes precedence over `policy`)          |
+| `auto_block_threshold` | `int \| None`             | `None`      | Override the block threshold (0-100)                                 |
+| `auto_allow_threshold` | `int \| None`             | `None`      | Override the allow threshold (0-100)                                 |
+| `capabilities`         | `CapabilityStore \| None` | `None`      | Capability store (v1.3.0+, required for `authorize_tool()`)         |
 
-## 組み込みポリシー
+## Built-in Policies
 
-### `"default"`（推奨）
+### `"default"` (recommended)
 
 ```
 block  when score >= 81   (CRITICAL)
@@ -46,30 +46,30 @@ allow  when score <= 40
 log    otherwise
 ```
 
-## インライン閾値の上書き
+## Inline Threshold Overrides
 
 ```python
-# スコア 70 以上をブロック、25 以下を許可
+# Block at score 70 or above, allow at 25 or below
 guard = Guard(auto_block_threshold=70, auto_allow_threshold=25)
 ```
 
-## YAML ポリシーファイル
+## YAML Policy Files
 
-`pip install 'aig-guardian[yaml]'` が必要です。
+Requires `pip install 'aig-guardian[yaml]'`.
 
 ```yaml
 # policy.yaml
 name: my-company-policy
 description: Custom policy for ACME Corp
 
-# リクエストを自動ブロックするスコア（0-100）
+# Score at which requests are automatically blocked (0-100)
 auto_block_threshold: 75
 
-# リクエストを追加チェックなしで自動許可するスコア（0-100）
+# Score at which requests are automatically allowed without further checks (0-100)
 auto_allow_threshold: 20
 
 custom_rules:
-  # 競合他社名の言及をブロック
+  # Block mentions of a competitor
   - id: block_competitor
     name: Competitor Mention
     description: Flag any message mentioning CompetitorX
@@ -77,7 +77,7 @@ custom_rules:
     score_delta: 60
     enabled: true
 
-  # 財務データの一括取得を警告
+  # Warn on bulk financial data extraction attempts
   - id: bulk_financial_export
     name: Bulk Financial Data Request
     description: Detect attempts to export large amounts of financial records
@@ -90,95 +90,95 @@ custom_rules:
 guard = Guard(policy_file="policy.yaml")
 ```
 
-### YAML スキーマリファレンス
+### YAML Schema Reference
 
-| フィールド             | 型       | 必須 | 説明                                              |
-|------------------------|----------|------|---------------------------------------------------|
-| `name`                 | string   | いいえ | 人間が読める名前                                  |
-| `description`          | string   | いいえ | 自由記述の説明文                                  |
-| `auto_block_threshold` | integer  | いいえ | ブロック閾値の上書き（0〜100）                    |
-| `auto_allow_threshold` | integer  | いいえ | 許可閾値の上書き（0〜100）                        |
-| `custom_rules`         | list     | いいえ | `CustomRule` オブジェクトのリスト（後述）         |
+| Field                  | Type     | Required | Description                                          |
+|------------------------|----------|----------|------------------------------------------------------|
+| `name`                 | string   | No       | Human-readable policy name                           |
+| `description`          | string   | No       | Free-text description                                |
+| `auto_block_threshold` | integer  | No       | Override block threshold (0-100)                     |
+| `auto_allow_threshold` | integer  | No       | Override allow threshold (0-100)                     |
+| `custom_rules`         | list     | No       | List of `CustomRule` objects (see below)             |
 
-#### CustomRule のフィールド
+#### CustomRule Fields
 
-| フィールド    | 型      | 必須 | 説明                                                              |
-|---------------|---------|------|-------------------------------------------------------------------|
-| `id`          | string  | はい | 一意の識別子（snake_case）                                        |
-| `name`        | string  | はい | `reasons` に表示される人間が読めるラベル                          |
-| `description` | string  | いいえ | 詳細な説明                                                        |
-| `pattern`     | string  | はい | Python 正規表現（デフォルトで `re.IGNORECASE` 付きでコンパイル）  |
-| `score_delta` | integer | はい | パターンがマッチした際にリスクスコアに加算されるポイント（1〜100）|
-| `enabled`     | boolean | はい | `false` にするとルールを削除せず無効化できる                      |
+| Field         | Type    | Required | Description                                                                  |
+|---------------|---------|----------|------------------------------------------------------------------------------|
+| `id`          | string  | Yes      | Unique identifier (snake_case)                                               |
+| `name`        | string  | Yes      | Human-readable label shown in `reasons`                                      |
+| `description` | string  | No       | Detailed description                                                         |
+| `pattern`     | string  | Yes      | Python regex (compiled with `re.IGNORECASE` by default)                      |
+| `score_delta` | integer | Yes      | Points added to the risk score when the pattern matches (1-100)              |
+| `enabled`     | boolean | Yes      | Set to `false` to disable the rule without removing it                       |
 
-## リスクスコアリングモデル
+## Risk Scoring Model
 
-スコアは以下のように算出されます。
+Scores are calculated as follows:
 
-1. マッチしたパターンごとに `score_delta` が加算される。
-2. 同一カテゴリ内では、ノイズの多い入力によるスコアの暴走を防ぐため、**最大ベーススコアの 2 倍**が上限となる。
-3. 最終スコアは `[0, 100]` にクランプされる。
+1. Each matched pattern contributes its `score_delta` to the total.
+2. Within the same category, the contribution is capped at **2x the base score** to prevent runaway scores on noisy input.
+3. The final score is clamped to `[0, 100]`.
 
-| スコア範囲  | リスクレベル | アクション     |
-|-------------|------------|----------------|
-| 0 〜 30     | LOW        | 安全           |
-| 31 〜 60    | MEDIUM     | ログ記録＆許可 |
-| 61 〜 80    | HIGH       | ログ記録＆許可 |
-| 81 〜 100   | CRITICAL   | ブロック       |
+| Score range | Risk level | Action          |
+|-------------|------------|-----------------|
+| 0 - 30      | LOW        | Safe            |
+| 31 - 60     | MEDIUM     | Log and allow   |
+| 61 - 80     | HIGH       | Log and allow   |
+| 81 - 100    | CRITICAL   | Block           |
 
-## Safety Spec（安全仕様）の YAML 設定
+## Safety Spec YAML Configuration
 
-v1.3.0 で追加。ツール実行の安全性を検証するための仕様を YAML で定義できます。
+Added in v1.3.0. Define safety specifications for tool execution verification in YAML.
 
 ```yaml
 # safety_spec.yaml
 name: production-safety
-description: 本番環境向け安全仕様
+description: Production environment safety specification
 
 invariants:
   - name: no_system_write
-    description: システムディレクトリへの書き込みを禁止
+    description: Prohibit writes to system directories
     condition: "effect.target not matches '/etc/**'"
 
   - name: no_secret_exfil
-    description: シークレットの外部送信を禁止
+    description: Prohibit sending secrets to external hosts
     condition: "effect.type != 'network_send' or effect.target in allowed_hosts"
 
   - name: db_read_only
-    description: データベースは読み取りのみ
+    description: Database is read-only
     condition: "effect.type != 'db_query' or effect.metadata.operation == 'SELECT'"
 ```
 
 ```python
 from ai_guardian.safety import SafetyVerifier, SafetySpec
 
-# YAML から読み込み
+# Load from YAML
 verifier = SafetyVerifier.from_yaml("safety_spec.yaml")
 ```
 
-## AEP パイプライン設定
+## AEP Pipeline Configuration
 
-v1.3.0 で追加。Atomic Execution Pipeline の動作をカスタマイズします。
+Added in v1.3.0. Customize the Atomic Execution Pipeline behavior.
 
 ```python
 from ai_guardian.aep import AtomicPipeline
 
 pipeline = AtomicPipeline(
-    vaporize=True,      # 失敗時に副作用をロールバック（デフォルト: True）
-    sandbox=True,       # サンドボックス内で実行（デフォルト: False）
-    timeout=30.0,       # タイムアウト秒数（デフォルト: 60.0）
+    vaporize=True,      # Roll back side effects on failure (default: True)
+    sandbox=True,       # Execute in a sandboxed process (default: False)
+    timeout=30.0,       # Timeout in seconds (default: 60.0)
 )
 ```
 
-| パラメータ   | 型      | デフォルト | 説明                                                   |
-|-------------|---------|-----------|--------------------------------------------------------|
-| `vaporize`  | `bool`  | `True`    | 実行失敗時に副作用（ファイル作成等）を自動ロールバック |
-| `sandbox`   | `bool`  | `False`   | 隔離プロセスで実行（ファイル・ネットワークアクセスを制限）|
-| `timeout`   | `float` | `60.0`    | 実行タイムアウト（秒）。超過時は強制終了＋ロールバック |
+| Parameter   | Type    | Default | Description                                                            |
+|-------------|---------|---------|------------------------------------------------------------------------|
+| `vaporize`  | `bool`  | `True`  | Automatically roll back side effects (file creation, etc.) on failure  |
+| `sandbox`   | `bool`  | `False` | Execute in an isolated process with restricted file/network access     |
+| `timeout`   | `float` | `60.0`  | Execution timeout in seconds; exceeded = force kill + rollback         |
 
-## 環境変数による設定
+## Configuration via Environment Variables
 
-セルフホスト型バックエンド専用です（`backend/.env.example` を参照）。
+For the self-hosted backend only (see `backend/.env.example`).
 
 ```bash
 DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/ai_guardian

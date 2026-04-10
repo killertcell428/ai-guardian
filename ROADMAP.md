@@ -1,281 +1,281 @@
-# AI Guardian — OSS から収益化へのロードマップ
+# AI Guardian — Roadmap from OSS to Monetization
 
-> 最終更新: 2026-04-10
-> 戦略: OSS で信頼を獲得 → SaaS で収益化 → エンタープライズで拡大
-
----
-
-## ビジョン
-
-**「すべての AI エージェントに、当たり前のようにセキュリティ層が存在する世界」**
-
-Gartner が 2030 年までに「Guardian Agent」技術が Agentic AI 市場の 10-15% を占めると予測。
-AI Guardian はその OSS 版として、開発者・企業が自社でコントロールできるガバナンス基盤を提供する。
+> Last updated: 2026-04-10
+> Strategy: Build trust with OSS -> Monetize with SaaS -> Scale with Enterprise
 
 ---
 
-## 収益モデル（想定）
+## Vision
+
+**"A world where every AI agent has a security layer as a matter of course."**
+
+Gartner predicts that "Guardian Agent" technology will account for 10-15% of the Agentic AI market by 2030.
+AI Guardian serves as the OSS version, providing a governance foundation that developers and enterprises can control themselves.
+
+---
+
+## Revenue Model (Projected)
 
 ```
-OSS Core（無料・永久）
-  └→ コミュニティ信頼・スター・ダウンロード・認知
-      └→ Cloud Pro（$49/月〜）
-          └→ Enterprise（要見積もり・$500/月〜）
+OSS Core (free, forever)
+  -> Community trust, stars, downloads, awareness
+      -> Cloud Pro ($49/mo+)
+          -> Enterprise (custom quotes, $500/mo+)
 ```
 
-| ティア | 対象 | 価格 | 主な機能 |
-|--------|------|------|---------|
-| **OSS Free** | 個人・スタートアップ | 無料 | Guard クラス・165+パターン・CLI・MCP Scanner・Red Team・Capabilities・AEP・Safety Verification |
-| **Cloud Pro** | 小規模チーム (2-20名) | $49/月 | Webダッシュボード・Slack通知・月次レポート |
-| **Business** | 中規模企業 (20-200名) | $299/月 | 複数テナント・SSO・SLA・カスタムポリシー |
-| **Enterprise** | 大企業・金融・医療 | 要見積 | オンプレ・LDAP・監査対応・専任サポート |
+| Tier | Target | Price | Key Features |
+|------|--------|-------|-------------|
+| **OSS Free** | Individuals & startups | Free | Guard class, 165+ patterns, CLI, MCP Scanner, Red Team, Capabilities, AEP, Safety Verification |
+| **Cloud Pro** | Small teams (2-20) | $49/mo | Web dashboard, Slack notifications, monthly reports |
+| **Business** | Mid-size companies (20-200) | $299/mo | Multi-tenant, SSO, SLA, custom policies |
+| **Enterprise** | Large enterprises, finance, healthcare | Custom | On-premises, LDAP, audit compliance, dedicated support |
 
 ---
 
-## Phase 0: 種まき（〜2026-04-12）✅ Phase 1 先行完了
+## Phase 0: Seeding (through 2026-04-12) -- Phase 1 started early
 
-**ゴール**: 最初の 50 スター・100 PyPI DL/日・コミュニティの芽
+**Goal**: First 50 stars, 100 PyPI DL/day, early community growth
 
-### マーケティング
-- [x] HN で既存スレッドに返信（新規アカウント投稿制限のため Show HN → 返信に変更）
-- [x] Zenn 記事投稿（MCP信頼モデルは内容が浅く取り消し → 別記事を投稿済）
-- [x] Reddit r/Python, r/netsec, r/MachineLearning 投稿
-- [x] DEV.to 英語記事投稿
-- [ ] Awesome list への PR 送信（3リスト）
+### Marketing
+- [x] HN: replied to existing threads (switched from Show HN -> replies due to new account posting limits)
+- [x] Zenn article published (MCP trust model article was too shallow and withdrawn -> replaced with a different article)
+- [x] Reddit r/Python, r/netsec, r/MachineLearning posts
+- [x] DEV.to English article published
+- [ ] Submit PRs to awesome lists (3 lists)
 
-### プロダクト
-- [x] PyPI v0.7.0 リリース（v0.4.0 → v0.5.0 → v0.6.0 → v0.6.1 → v0.7.0）
-- [x] GitHub Discussions 有効化
-- [x] good-first-issue 3件作成
-- [x] Gandalf Challenge の動作確認・デバッグ（levels.py構文修正、全7レベル正常動作）
+### Product
+- [x] PyPI v0.7.0 release (v0.4.0 -> v0.5.0 -> v0.6.0 -> v0.6.1 -> v0.7.0)
+- [x] GitHub Discussions enabled
+- [x] Created 3 good-first-issues
+- [x] Gandalf Challenge verified & debugged (levels.py syntax fix, all 7 levels working)
 
-### KPI 目標
-| 指標 | 現在 | 2週間後目標 |
-|------|------|------------|
+### KPI Targets
+| Metric | Current | 2-Week Target |
+|--------|---------|---------------|
 | GitHub Stars | 4 | 50 |
-| PyPI DL/月 | 不明 | 500 |
-| Zenn/Qiita いいね合計 | 計測中 | 100 |
+| PyPI DL/month | Unknown | 500 |
+| Zenn/Qiita total likes | Tracking | 100 |
 
 ---
 
-## Phase 1: 点火（2026-04-12 〜 2026-05-31）
+## Phase 1: Ignition (2026-04-12 through 2026-05-31)
 
-**ゴール**: 300 スター・1,000 PyPI DL/月・初の外部コントリビューター
+**Goal**: 300 stars, 1,000 PyPI DL/month, first external contributor
 
-### マーケティング
-- [ ] Qiita/Zenn で週 1 記事ペース継続
-- [ ] Twitter/X で週 3〜5 投稿ペース継続
-- [ ] **Product Hunt ローンチ（5/13 水曜 予定）** ← 詳細は `content/product_hunt_strategy.md`
-  - ⚠️ Coming Soon ページは廃止済み（2025-08）。Maker 信頼構築 + 外部チャネルで代替
-  - [x] Phase A: PH アカウント & Draft 作成、毎日コメント活動（〜4/20） ← アカウント&Draft完了（4/7）、コメント活動継続中
-  - [ ] Phase B: 外部チャネル種まき & 支援者 50-100名 獲得（4/14〜4/28）
-  - [ ] ギャラリー画像 5枚 + OG image PNG + デモ動画（〜4/21）
-  - [ ] ローンチコピー最終レビュー & 支援者事前連絡（〜4/28）
-  - [ ] LP 改善 & 全アセット PH アップロード（〜5/5）
-  - [ ] Go/NoGo 判断（5/5）→ 基準未達なら 5/20 or 5/27 に延期
-  - [ ] ローンチ実行 12:01 AM PT & 全 SNS 段階的展開（5/13）
-- [ ] AI系 Meetup での 5分 LT 登壇
-- [ ] LangChain/LlamaIndex Discord でシェア
-- [x] ~~全日本AIハッカソン 2026（4/25）~~ → 不参加（取消）
+### Marketing
+- [ ] Maintain weekly article pace on Qiita/Zenn
+- [ ] Maintain 3-5 posts/week pace on Twitter/X
+- [ ] **Product Hunt Launch (planned for Wednesday 5/13)** <- Details in `content/product_hunt_strategy.md`
+  - Note: Coming Soon pages were discontinued (August 2025). Using Maker trust building + external channels instead
+  - [x] Phase A: Create PH account & Product Draft, daily commenting activity (through 4/20) <- Account & Draft done (4/7), commenting ongoing
+  - [ ] Phase B: External channel seeding & acquire 50-100 supporters (4/14-4/28)
+  - [ ] Gallery images x5 + OG image PNG + demo video (by 4/21)
+  - [ ] Final launch copy review & supporter pre-notification (by 4/28)
+  - [ ] LP improvements & upload all assets to PH (by 5/5)
+  - [ ] Go/NoGo decision (5/5) -> if criteria not met, postpone to 5/20 or 5/27
+  - [ ] Launch execution 12:01 AM PT & phased SNS rollout (5/13)
+- [ ] 5-minute lightning talk at AI meetup
+- [ ] Share in LangChain/LlamaIndex Discord
+- [x] ~~All Japan AI Hackathon 2026 (4/25)~~ -> Not participating (cancelled)
 
-### プロダクト
-- [x] Anthropic SDK 統合（Issue #3） ← v0.5.0 完了
-- [x] Policy Template Hub 公開（業種別ポリシー YAML） ← v0.5.0 完了
-- [x] バッジ「Secured by AI Guardian」作成（採用企業が README に貼れる） ← 完了
-- [x] VS Code 拡張のプロトタイプ（aig scan をエディタから実行） ← v0.6.0 完了
-- [x] **LangGraph GuardNode** 統合 ← v0.6.2 追加（Phase 1 先行実装）
-- [x] **ベンチマーク 100% 精度達成**（53/53 attacks, 0% false positive） ← v0.6.1
-- [x] **韓国語・中国語パターン追加**（Issue #7）← v0.8.1
-- [x] **間接インジェクション検知**（Issue #6: RAG/Webスクレイピング）← v0.8.1
-- [x] **コンプライアンス文書作成**（OWASP/NIST/MITRE/CSA）← v0.8.1
-- [x] **AI事業者ガイドライン v1.2 完全対応**（37/37要件）← v0.8.2
-- [x] **🔴 MCPセキュリティスキャナー強化**（`aig mcp --trust --diff`）— ラグプル検知、権限分析、サーバー信頼スコア、スナップショット管理 ← v1.1.0
-- [x] **レイテンシベンチマーク公開** — Markdownレポート生成、shields.ioバッジ、競合比較テーブル ← v1.1.0
-- [x] **Base64/Unicode/Emoji難読化検出の強化** — 実デコード再スキャン、Cyrillic/Greek confusable正規化、emoji除去 ← v1.1.0
-- [x] **ケーパビリティベースのアクセス制御** — CapabilityStore、CapabilityEnforcer、TaintTracking、最小権限の原則を適用 ← v1.3.0
-- [x] **Atomic Execution Pipeline（AEP）** — サンドボックス実行、副作用ロールバック（Vaporizer）、タイムアウト制御 ← v1.3.0
-- [x] **形式的安全性検証** — SafetyVerifier、SafetySpec（YAML定義）、不変条件検証、ProofCertificate ← v1.3.0
-- [x] **`Guard.authorize_tool()`** — ケーパビリティ + 安全性検証 + AEP の統合エントリポイント ← v1.3.0
-- [x] **165+パターン到達** — 検出パターン数が137→165+に拡張 ← v1.3.1
+### Product
+- [x] Anthropic SDK integration (Issue #3) <- v0.5.0 complete
+- [x] Policy Template Hub published (industry-specific YAML policies) <- v0.5.0 complete
+- [x] "Secured by AI Guardian" badge created (for adopters to put in their README) <- Done
+- [x] VS Code extension prototype (run aig scan from the editor) <- v0.6.0 complete
+- [x] **LangGraph GuardNode** integration <- v0.6.2 added (Phase 1 early implementation)
+- [x] **Benchmark 100% accuracy achieved** (53/53 attacks, 0% false positive) <- v0.6.1
+- [x] **Korean & Chinese patterns added** (Issue #7) <- v0.8.1
+- [x] **Indirect injection detection** (Issue #6: RAG/web scraping) <- v0.8.1
+- [x] **Compliance documentation created** (OWASP/NIST/MITRE/CSA) <- v0.8.1
+- [x] **Full compliance with Japan AI Business Operator Guidelines v1.2** (37/37 requirements) <- v0.8.2
+- [x] **MCP Security Scanner enhanced** (`aig mcp --trust --diff`) -- rug pull detection, permission analysis, server trust score, snapshot management <- v1.1.0
+- [x] **Latency benchmarks published** -- Markdown report generation, shields.io badges, competitor comparison table <- v1.1.0
+- [x] **Base64/Unicode/Emoji obfuscation detection enhanced** -- actual decoding + re-scanning, Cyrillic/Greek confusable normalization, emoji removal <- v1.1.0
+- [x] **Capability-based access control** -- CapabilityStore, CapabilityEnforcer, TaintTracking, principle of least privilege <- v1.3.0
+- [x] **Atomic Execution Pipeline (AEP)** -- sandbox execution, side effect rollback (Vaporizer), timeout control <- v1.3.0
+- [x] **Formal safety verification** -- SafetyVerifier, SafetySpec (YAML definition), invariant verification, ProofCertificate <- v1.3.0
+- [x] **`Guard.authorize_tool()`** -- unified entry point for capabilities + safety verification + AEP <- v1.3.0
+- [x] **165+ patterns reached** -- detection patterns expanded from 137 to 165+ <- v1.3.1
 
-### KPI 目標
-| 指標 | 目標 |
-|------|------|
+### KPI Targets
+| Metric | Target |
+|--------|--------|
 | GitHub Stars | 300 |
-| PyPI DL/月 | 1,000 |
-| 外部 PR 数 | 3+ |
-| Discussions 投稿数 | 10+ |
+| PyPI DL/month | 1,000 |
+| External PRs | 3+ |
+| Discussions posts | 10+ |
 
 ---
 
-## Phase 2: 成長（2026-06-01 〜 2026-08-31）
+## Phase 2: Growth (2026-06-01 through 2026-08-31)
 
-**ゴール**: 1,000 スター・5,000 PyPI DL/月・SaaS β版リリース・初課金
+**Goal**: 1,000 stars, 5,000 PyPI DL/month, SaaS beta release, first revenue
 
-### マーケティング
-- [x] ~~Product Hunt Launch~~ → Phase 1 に前倒し（5/13 ローンチ予定）
-- [ ] Lablab.ai x Anthropic Hackathon（5/26〜6/2）参加
-- [ ] DevNetwork Hackathon（5/11〜28）参加
-- [ ] 企業導入事例 1本作成（自社 or 知人企業）
-- [ ] AI Security Conference 登壇（「個人開発でOSS作った話」）
+### Marketing
+- [x] ~~Product Hunt Launch~~ -> Moved up to Phase 1 (5/13 launch planned)
+- [ ] Lablab.ai x Anthropic Hackathon (5/26-6/2) participation
+- [ ] DevNetwork Hackathon (5/11-28) participation
+- [ ] Create 1 enterprise adoption case study (own company or acquaintance's company)
+- [ ] AI Security Conference talk ("How I built an OSS as a solo developer")
 
-### プロダクト（SaaS β）
-- [x] **Cloud Dashboard β**: ログ可視化・課金ページ・使用量メーター・PlanGate
-- [x] **Stripe 決済統合**: Free/Pro/Business/Enterprise プラン、Webhook 6件実装、プラン制御ミドルウェア
-- [x] **チーム管理**: メンバー一覧・招待・ロール設定・プラン上限制御
-- [x] **Slack 通知**: 高リスク検知時の Webhook 通知（Block Kit メッセージ、Settings UI、通知設定API）
-- [ ] メールリスト → β招待フロー構築
-- [x] **自動レッドチーミング強化** (`aig redteam --adaptive`) — 適応型変異、マルチステップ攻撃チェーン、Markdown/HTMLレポート生成、HTTPエンドポイントテスト ← v1.1.0（Phase 1 先行実装）
-- [x] **メモリポイズニング検出強化** — 9パターン（cross-session、gradual drift、tool permission override、EN/JA/KO/ZH） ← v1.1.0（Phase 1 先行実装）
-- [x] **Second-Order インジェクション検出強化** — 9パターン（tool chain、response craft、shared context、EN/JA/KO/ZH） ← v1.1.0（Phase 1 先行実装）
+### Product (SaaS Beta)
+- [x] **Cloud Dashboard beta**: Log visualization, billing page, usage meter, PlanGate
+- [x] **Stripe payment integration**: Free/Pro/Business/Enterprise plans, 6 webhooks implemented, plan control middleware
+- [x] **Team management**: Member list, invitations, role settings, plan limit controls
+- [x] **Slack notifications**: High-risk detection webhook notifications (Block Kit messages, Settings UI, notification settings API)
+- [ ] Email list -> beta invitation flow setup
+- [x] **Automated red teaming enhanced** (`aig redteam --adaptive`) -- adaptive mutations, multi-step attack chains, Markdown/HTML report generation, HTTP endpoint testing <- v1.1.0 (Phase 1 early implementation)
+- [x] **Memory poisoning detection enhanced** -- 9 patterns (cross-session, gradual drift, tool permission override, EN/JA/KO/ZH) <- v1.1.0 (Phase 1 early implementation)
+- [x] **Second-order injection detection enhanced** -- 9 patterns (tool chain, response craft, shared context, EN/JA/KO/ZH) <- v1.1.0 (Phase 1 early implementation)
 
-### KPI 目標
-| 指標 | 目標 |
-|------|------|
+### KPI Targets
+| Metric | Target |
+|--------|--------|
 | GitHub Stars | 1,000 |
-| PyPI DL/月 | 5,000 |
-| SaaS β登録者 | 100 |
-| MRR | 初収益（$1〜$500） |
+| PyPI DL/month | 5,000 |
+| SaaS beta signups | 100 |
+| MRR | First revenue ($1-$500) |
 
 ---
 
-## Phase 3: 収益化（2026-09-01 〜 2026-12-31）
+## Phase 3: Monetization (2026-09-01 through 2026-12-31)
 
-**ゴール**: MRR $1,000+・企業導入 3 社・持続可能な開発体制
+**Goal**: MRR $1,000+, 3 enterprise adoptions, sustainable development structure
 
-### マーケティング
-- [ ] 「Powered by AI Guardian」ロゴプログラム開始
-- [ ] 日経クロステック / IT Leaders への PR（情シス向けメディア）
-- [ ] ISACAカンファレンス出展・登壇
-- [ ] 企業向けウェビナー開催
+### Marketing
+- [ ] Launch "Powered by AI Guardian" logo program
+- [ ] PR to Nikkei xTECH / IT Leaders (targeting IT department media)
+- [ ] ISACA conference exhibition & talk
+- [ ] Host enterprise webinars
 
-### プロダクト（Enterprise 対応）
-- [ ] **オンプレ版インストーラー**（Docker Compose one-command deploy）
-- [ ] **LDAP/SSO 統合**（Okta, Azure AD）
-- [ ] **コンプライアンスレポート自動生成**（AI事業者GL, ISO27001 対応）
-- [ ] **マルチテナント強化**: テナント別ポリシー・使用量管理
-- [ ] **SLA 付きサポート**（Pro: 24h, Enterprise: 4h）
-- [ ] **軽量ML分類器（オプション）** — BERTベースのインジェクション検出をオプション依存として提供。ゼロ依存コアは維持
-- [ ] **SIEM連携**（Splunk/Datadog/Azure Sentinel）— エンタープライズの既存インフラに組み込み
+### Product (Enterprise Features)
+- [ ] **On-premises installer** (Docker Compose one-command deploy)
+- [ ] **LDAP/SSO integration** (Okta, Azure AD)
+- [ ] **Automated compliance report generation** (Japan AI Business Operator GL, ISO27001)
+- [ ] **Multi-tenant enhancements**: Per-tenant policies and usage management
+- [ ] **SLA-backed support** (Pro: 24h, Enterprise: 4h)
+- [ ] **Lightweight ML classifier (optional)** -- BERT-based injection detection as optional dependency. Zero-dependency core maintained
+- [ ] **SIEM integration** (Splunk/Datadog/Azure Sentinel) -- integration into existing enterprise infrastructure
 
-### KPI 目標
-| 指標 | 目標 |
-|------|------|
+### KPI Targets
+| Metric | Target |
+|--------|--------|
 | MRR | $1,000 |
-| 有料顧客数 | 20 |
+| Paying customers | 20 |
 | GitHub Stars | 3,000 |
-| PyPI DL/月 | 10,000 |
-| 企業導入 | 3社 |
+| PyPI DL/month | 10,000 |
+| Enterprise adoptions | 3 |
 
 ---
 
-## Phase 4: スケール（2027-01〜）
+## Phase 4: Scale (2027-01 onwards)
 
-**ゴール**: MRR $10,000+・資金調達検討・チーム拡大
+**Goal**: MRR $10,000+, consider fundraising, team expansion
 
-- [ ] シリーズ A / エンジェル調達検討
-- [ ] フルタイム開発者採用（OSS コントリビューターから）
-- [ ] AWS/GCP/Azure Marketplace 掲載
-- [ ] GENIAC-PRIZE 応募
-- [ ] 海外展開（US, EU）
+- [ ] Consider Series A / angel funding
+- [ ] Hire full-time developer (from OSS contributors)
+- [ ] AWS/GCP/Azure Marketplace listing
+- [ ] Apply to GENIAC-PRIZE
+- [ ] International expansion (US, EU)
 
 ---
 
-## 競合との差別化軸
+## Competitive Differentiation
 
-| 軸 | AI Guardian | Guardrails AI | NeMo Guardrails | llm-guard | Cisco AI Defense |
+| Axis | AI Guardian | Guardrails AI | NeMo Guardrails | llm-guard | Cisco AI Defense |
 |----|-------------|---------------|-----------------|-----------|-----------------|
-| インストール | `pip install aig-guardian`（1行） | 複雑 | 複雑 | やや複雑(ML) | SDK依存 |
-| 依存 | **ゼロ**（stdlib のみ） | 多数 | NVIDIA必須 | ML多数 | Cisco必須 |
-| 価格 | **無料 OSS** | OSS（一部有料） | 無料 | OSS | 有料 |
-| 日本語対応 | **ネイティブ**（JA/KO/ZH） | なし | なし | なし | なし |
-| MCPセキュリティ | **対応（唯一）** | なし | なし | なし | なし |
-| AI事業者GL v1.2 | **37/37 完全対応** | なし | なし | なし | なし |
-| コンプライアンス | OWASP/NIST/MITRE/CSA | なし | なし | 一部 | SOC 2 |
-| Remediation | **あり**（修正方法を説明） | なし | なし | なし | なし |
+| Installation | `pip install aig-guardian` (one line) | Complex | Complex | Somewhat complex (ML) | SDK dependency |
+| Dependencies | **Zero** (stdlib only) | Many | NVIDIA required | Many (ML) | Cisco required |
+| Price | **Free OSS** | OSS (partially paid) | Free | OSS | Paid |
+| Japanese support | **Native** (JA/KO/ZH) | None | None | None | None |
+| MCP security | **Supported (only one)** | None | None | None | None |
+| Japan AI Guidelines v1.2 | **37/37 full compliance** | None | None | None | None |
+| Compliance | OWASP/NIST/MITRE/CSA | None | None | Partial | SOC 2 |
+| Remediation | **Yes** (explains how to fix) | None | None | None | None |
 
-### 市場動向（2026年4月）
-- **独立系競合の大半が大手に買収**: Lakera→Check Point($300M), Prompt Security→SentinelOne(~$250M), Pangea→CrowdStrike($260M), CalypsoAI→F5($180M), Promptfoo→OpenAI
-- **新興OSS脅威**: Meta LlamaFirewall（3層防御）、Cisco DefenseClaw（Zero Trust）
-- **市場規模**: AIセキュリティツール市場は2026年に82億ドル規模
-- **AI Guardianの機会**: 独立系OSSの選択肢激減 → ベンダーロックイン回避のOSS需要が増加
-
----
-
-## 収益シミュレーション（保守的）
-
-| 時期 | Pro ($49/月) | Business ($299/月) | MRR | ARR |
-|------|-------------|-------------------|-----|-----|
-| 2026-08（β） | 5社 | 0社 | $245 | $2,940 |
-| 2026-12 | 15社 | 3社 | $1,632 | $19,584 |
-| 2027-06 | 50社 | 15社 | $6,935 | $83,220 |
-| 2027-12 | 100社 | 40社 | $16,860 | $202,320 |
-
-> 日本市場は SMB が多く、$49/月は「月1回のランチ代」程度。意思決定が早い。
-> エンタープライズ 1 社で Pro 20社分の売上。情シスルートを重点開拓。
+### Market Trends (April 2026)
+- **Most independent competitors acquired by large companies**: Lakera->Check Point($300M), Prompt Security->SentinelOne(~$250M), Pangea->CrowdStrike($260M), CalypsoAI->F5($180M), Promptfoo->OpenAI
+- **Emerging OSS threats**: Meta LlamaFirewall (3-layer defense), Cisco DefenseClaw (Zero Trust)
+- **Market size**: AI security tools market estimated at $8.2B in 2026
+- **AI Guardian's opportunity**: Drastic decrease in independent OSS options -> growing demand for OSS to avoid vendor lock-in
 
 ---
 
-## 直近アクション一覧（優先順位付き）
+## Revenue Simulation (Conservative)
 
-### 🔴 今すぐ（今週）
-1. ~~HN 返信投稿~~ ✅ 完了（Show HN → 返信に変更）
-2. ~~Zenn 記事投稿~~ ✅ 完了（別記事で代替）
-3. ~~Reddit 3本投稿~~ ✅ 投稿済
-4. ~~DEV.to 英語記事投稿~~ ✅ 投稿済
-5. ~~Gandalf Challenge 動作確認~~ ✅ 修正済
-6. ~~v0.7.0 リリース~~ ✅ 2026-03-31
+| Period | Pro ($49/mo) | Business ($299/mo) | MRR | ARR |
+|--------|-------------|-------------------|-----|-----|
+| 2026-08 (beta) | 5 customers | 0 customers | $245 | $2,940 |
+| 2026-12 | 15 customers | 3 customers | $1,632 | $19,584 |
+| 2027-06 | 50 customers | 15 customers | $6,935 | $83,220 |
+| 2027-12 | 100 customers | 40 customers | $16,860 | $202,320 |
 
-### 🟠 今月（Phase 0 完走〜Phase 1 移行）
-7. Awesome list PR 送信（3リスト）
-8. AI Meetup LT 登壇申し込み
+> The Japanese market has many SMBs, and $49/mo is about "one lunch per month." Decision-making is fast.
+> A single enterprise customer equals the revenue of 20 Pro customers. Prioritize IT department acquisition channels.
 
-### 🔴 今すぐ（今週 4/6〜）
-9. ~~**PH アカウント作成 & Product Draft 登録**（〜4/8）~~ ✅ 完了（4/7）
-10. **PH で毎日 2-3件にコメント開始**（4/6〜 継続）
+---
 
-### 🟡 今月〜来月（Phase 1: PH ローンチ中心）
-11. **Maker 信頼構築: PH コミュニティ参加**（〜4/20、目標: 20+コメント）
-12. **ギャラリー画像 5枚 + OG image + デモ動画**（〜4/21）
-13. **外部チャネル種まき & 支援者 50-100名 獲得**（4/14〜4/28）
-14. **ローンチコピー最終レビュー & 支援者事前連絡**（〜4/28）
-15. **LP 改善 & 全アセット PH アップロード**（〜5/5）
-16. **Go/NoGo 判断**（5/5）
-17. **Product Hunt ローンチ 12:01 AM PT**（5/13 水）
-18. Qiita/Zenn 週1記事ペース（PH前に3本は出したい）
-19. メールリスト → β招待フロー構築
+## Immediate Action Items (Prioritized)
+
+### Now (This Week)
+1. ~~HN reply post~~ Done (switched Show HN -> replies)
+2. ~~Zenn article published~~ Done (replaced with alternative article)
+3. ~~Reddit 3 posts~~ Posted
+4. ~~DEV.to English article published~~ Posted
+5. ~~Gandalf Challenge verification~~ Fixed
+6. ~~v0.7.0 release~~ 2026-03-31
+
+### This Month (Phase 0 completion through Phase 1 transition)
+7. Awesome list PR submissions (3 lists)
+8. AI meetup LT talk application
+
+### Now (This Week 4/6 onwards)
+9. ~~**PH account creation & Product Draft registration** (by 4/8)~~ Done (4/7)
+10. **Start daily 2-3 PH comments** (4/6 onwards, ongoing)
+
+### This Month to Next Month (Phase 1: PH Launch focus)
+11. **Maker trust building: PH community participation** (through 4/20, target: 20+ comments)
+12. **Gallery images x5 + OG image + demo video** (by 4/21)
+13. **External channel seeding & acquire 50-100 supporters** (4/14-4/28)
+14. **Final launch copy review & supporter pre-notification** (by 4/28)
+15. **LP improvements & upload all assets to PH** (by 5/5)
+16. **Go/NoGo decision** (5/5)
+17. **Product Hunt Launch 12:01 AM PT** (5/13 Wed)
+18. Qiita/Zenn weekly article pace (aim for 3 articles before PH launch)
+19. Email list -> beta invitation flow setup
 
 ---
 
 ---
 
-## 自動開発ループ（Research → Dev → Content）
+## Automated Development Loop (Research -> Dev -> Content)
 
-2026-04-03 より、以下の半自動ループで AI Guardian を継続的に強化する。
+Starting 2026-04-03, AI Guardian is continuously strengthened through the following semi-automated loop.
 
 ```
-月曜 09:00 JST — Research Scout    → content/research_backlog/
-水曜 09:00 JST — Feature Dev       → パターン追加・テスト・CHANGELOG
-金曜 09:00 JST — Content Writer    → content/articles/ ドラフト + content/ph_comments/ PHコメント
-人間レビュー   — 記事確認・投稿・PHコメント投稿・SNS展開
+Monday 09:00 JST — Research Scout    -> content/research_backlog/
+Wednesday 09:00 JST — Feature Dev    -> pattern addition, tests, CHANGELOG
+Friday 09:00 JST — Content Writer    -> content/articles/ drafts + content/ph_comments/ PH comments
+Human Review      — review articles, publish, post PH comments, SNS outreach
 ```
 
-| トリガー名 | トリガーID | スケジュール | 出力 |
-|-----------|-----------|------------|------|
-| `aig-research-scout` | `trig_017oPfYD5zp4hy25sYM1gPvw` | 毎週月曜 00:00 UTC | content/research_backlog/ |
-| `aig-feature-dev` | `trig_01DhcJ8X6TLdJrGD8V4bX6M2` | 毎週水曜 00:00 UTC | パターン追加・テスト |
-| `aig-content-writer` | `trig_01Tqos8yAwkigrH4DiXaxsz4` | 毎週金曜 00:00 UTC | content/articles/ + content/ph_comments/ |
+| Trigger Name | Trigger ID | Schedule | Output |
+|-------------|-----------|----------|--------|
+| `aig-research-scout` | `trig_017oPfYD5zp4hy25sYM1gPvw` | Every Monday 00:00 UTC | content/research_backlog/ |
+| `aig-feature-dev` | `trig_01DhcJ8X6TLdJrGD8V4bX6M2` | Every Wednesday 00:00 UTC | Pattern additions, tests |
+| `aig-content-writer` | `trig_01Tqos8yAwkigrH4DiXaxsz4` | Every Friday 00:00 UTC | content/articles/ + content/ph_comments/ |
 
-詳細: [docs/DEV_LOOP.md](docs/DEV_LOOP.md)
+Details: [docs/DEV_LOOP.md](docs/DEV_LOOP.md)
 
-### KPI
-| 指標 | 目標 |
-|------|------|
-| 週次リサーチ実行率 | 90%+ |
-| 月間新パターン追加数 | 4-8個 |
-| 月間記事投稿数 | 2-4本 |
-| ベンチマーク精度維持 | 100% |
+### KPIs
+| Metric | Target |
+|--------|--------|
+| Weekly research execution rate | 90%+ |
+| Monthly new patterns added | 4-8 |
+| Monthly articles published | 2-4 |
+| Benchmark accuracy maintenance | 100% |
 
 ---
 
-*このロードマップは月次で見直す。KPI 達成状況に応じてフェーズを前倒し・後ろ倒しする。*
+*This roadmap is reviewed monthly. Phases may be moved up or pushed back based on KPI performance.*

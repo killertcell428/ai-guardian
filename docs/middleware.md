@@ -1,10 +1,10 @@
-# ミドルウェア & 連携ガイド
+# Middleware & Integration Guide
 
-## FastAPI / Starlette ミドルウェア
+## FastAPI / Starlette Middleware
 
-**インストール:** `pip install 'aig-guardian[fastapi]'`
+**Install:** `pip install 'aig-guardian[fastapi]'`
 
-### 基本セットアップ
+### Basic Setup
 
 ```python
 from fastapi import FastAPI
@@ -16,9 +16,9 @@ guard = Guard(policy="strict")
 app.add_middleware(AIGuardianMiddleware, guard=guard)
 ```
 
-このミドルウェアは、JSON ボディに `"messages"` キー（OpenAI チャット形式）を含むすべての **POST / PUT / PATCH** リクエストをインターセプトし、各 user/assistant メッセージをスキャンします。
+This middleware intercepts all **POST / PUT / PATCH** requests whose JSON body contains a `"messages"` key (OpenAI chat format) and scans each user/assistant message.
 
-ブロックされたリクエストには **HTTP 400** レスポンスが返されます。
+Blocked requests receive an **HTTP 400** response.
 
 ```json
 {
@@ -38,25 +38,25 @@ app.add_middleware(AIGuardianMiddleware, guard=guard)
 }
 ```
 
-### ミドルウェアのコンストラクタオプション
+### Middleware Constructor Options
 
 ```python
 app.add_middleware(
     AIGuardianMiddleware,
     guard=guard,
-    scan_output=True,      # レスポンスボディもスキャンする（デフォルト: False）
-    exclude_paths=["/health", "/metrics"],  # これらのエンドポイントをスキップ
+    scan_output=True,      # Also scan response bodies (default: False)
+    exclude_paths=["/health", "/metrics"],  # Skip these endpoints
 )
 ```
 
-### ルートハンドラでスキャン結果にアクセス
+### Accessing the Scan Result in a Route Handler
 
 ```python
 from fastapi import Request
 
 @app.post("/chat")
 async def chat(request: Request):
-    # ミドルウェア実行後に利用可能
+    # Available after the middleware has run
     result = request.state.guardian_result
     if result:
         print(result.risk_score)
@@ -64,11 +64,11 @@ async def chat(request: Request):
 
 ---
 
-## LangChain コールバック
+## LangChain Callback
 
-**インストール:** `pip install 'aig-guardian[langchain]'`
+**Install:** `pip install 'aig-guardian[langchain]'`
 
-### 基本セットアップ
+### Basic Setup
 
 ```python
 from langchain_openai import ChatOpenAI
@@ -87,18 +87,18 @@ except GuardianBlockedError as e:
     print(f"Blocked: {e.result.reasons}")
 ```
 
-### コールバックのオプション
+### Callback Options
 
 ```python
 AIGuardianCallback(
     guard=guard,
-    block_on_input=True,    # LLM 入力をスキャン（デフォルト: True）
-    block_on_output=True,   # LLM 出力をスキャン（デフォルト: False）
-    on_blocked=None,        # ブロック時に例外を投げる前に呼ばれるコールバック（任意）
+    block_on_input=True,    # Scan LLM input (default: True)
+    block_on_output=True,   # Scan LLM output (default: False)
+    on_blocked=None,        # Optional callable invoked before raising on block
 )
 ```
 
-### LCEL チェーンとの連携
+### Usage with LCEL Chains
 
 ```python
 from langchain_core.prompts import ChatPromptTemplate
@@ -118,11 +118,11 @@ except GuardianBlockedError as e:
 
 ---
 
-## OpenAI プロキシラッパー
+## OpenAI Proxy Wrapper
 
-**インストール:** `pip install 'aig-guardian[openai]'`
+**Install:** `pip install 'aig-guardian[openai]'`
 
-### 基本セットアップ
+### Basic Setup
 
 ```python
 from ai_guardian import Guard
@@ -131,7 +131,7 @@ from ai_guardian.middleware.openai_proxy import SecureOpenAI
 guard = Guard()
 client = SecureOpenAI(api_key="sk-...", guard=guard)
 
-# openai.OpenAI と同一の API
+# Drop-in replacement for openai.OpenAI
 response = client.chat.completions.create(
     model="gpt-4o",
     messages=[{"role": "user", "content": "Hello!"}],
@@ -139,19 +139,19 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-ブロックされたリクエストは、ネットワーク通信が発生する前に `GuardianBlockedError` を送出します。
+Blocked requests raise `GuardianBlockedError` before any network call is made.
 
-### レスポンスのスキャン
+### Scanning Responses
 
 ```python
 client = SecureOpenAI(
     api_key="sk-...",
     guard=guard,
-    scan_response=True,   # LLM の出力もスキャン（デフォルト: False）
+    scan_response=True,   # Also scan LLM output (default: False)
 )
 ```
 
-### 非同期クライアント
+### Async Client
 
 ```python
 from ai_guardian.middleware.openai_proxy import AsyncSecureOpenAI
@@ -166,9 +166,9 @@ response = await client.chat.completions.create(
 
 ---
 
-## `GuardianBlockedError` の処理
+## Handling `GuardianBlockedError`
 
-すべての連携機能は、リクエストがブロックされた場合に `ai_guardian.middleware.GuardianBlockedError` を送出します。この例外には完全な `CheckResult` が含まれています。
+All integrations raise `ai_guardian.middleware.GuardianBlockedError` when a request is blocked. The exception carries the full `CheckResult`.
 
 ```python
 from ai_guardian.middleware import GuardianBlockedError
@@ -185,9 +185,9 @@ except GuardianBlockedError as e:
 
 ---
 
-## ケーパビリティベースの認可（v1.3.0+）
+## Capability-Based Authorization (v1.3.0+)
 
-ミドルウェア層でもケーパビリティ検証を適用できます。`Guard` に `CapabilityStore` を設定すると、ツール呼び出しを含むリクエストに対して自動的にケーパビリティチェックが実行されます。
+Capability enforcement can also be applied at the middleware layer. When a `CapabilityStore` is configured on the `Guard`, requests containing tool calls are automatically checked against the granted capabilities.
 
 ```python
 from ai_guardian import Guard
@@ -198,26 +198,26 @@ store.grant("chat_tool", Capability(resource="llm", actions=["invoke"]))
 
 guard = Guard(policy="strict", capabilities=store)
 
-# FastAPI ミドルウェアに設定 → ツール呼び出しも自動検証
+# Configure with FastAPI middleware — tool calls are auto-verified
 app.add_middleware(AIGuardianMiddleware, guard=guard)
 ```
 
-ケーパビリティが不足している場合、**HTTP 403** レスポンスが返されます。
+Requests with insufficient capabilities receive an **HTTP 403** response.
 
 ---
 
-## 連携の組み合わせ
+## Combining Integrations
 
-多層防御のために複数の連携ポイントを重ねて使用できます。
+Multiple integration points can be stacked for defence-in-depth.
 
 ```python
-# 1. FastAPI ミドルウェア — HTTP レイヤーでブロック
+# 1. FastAPI middleware — block at the HTTP layer
 app.add_middleware(AIGuardianMiddleware, guard=guard)
 
-# 2. LangChain コールバック — LLM 呼び出し前にブロック
+# 2. LangChain callback — block before the LLM call
 callback = AIGuardianCallback(guard=guard, block_on_output=True)
 
-# 3. ルートロジック内での手動チェック — 独自のエラーハンドリング用
+# 3. Manual check inside route logic — for custom error handling
 @app.post("/chat")
 async def chat(body: ChatBody):
     result = guard.check_messages(body.messages)
