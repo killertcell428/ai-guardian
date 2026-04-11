@@ -86,8 +86,11 @@ _CONFUSABLES: dict[str, str] = {
 
 _CONFUSABLE_TABLE = str.maketrans(_CONFUSABLES)
 
-# Emoji Unicode ranges for stripping
-_EMOJI_PATTERN = re.compile(
+# Emoji Unicode ranges for stripping.
+# These broad ranges are intentional — we need to match all emoji codepoints
+# to strip emoji-interleaved evasion attacks (e.g., "I🔥G🔥N🔥O🔥R🔥E").
+# CodeQL py/overly-permissive-regex-range is a false positive here.
+_EMOJI_PATTERN = re.compile(  # lgtm[py/overly-permissive-regex-range]
     "["
     "\U0001f600-\U0001f64f"  # Emoticons
     "\U0001f300-\U0001f5ff"  # Misc Symbols and Pictographs

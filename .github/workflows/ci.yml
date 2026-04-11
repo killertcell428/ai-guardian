@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# Restrict default permissions to read-only for security.
+# Individual jobs grant additional permissions as needed.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

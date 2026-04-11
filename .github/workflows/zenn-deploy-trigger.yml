@@ -2,8 +2,10 @@ name: Trigger Zenn Deploy
 
 on:
   schedule:
-    # 明日 2026-04-07 朝8時 (JST) = 前日23時 (UTC) に1回だけ実行
     - cron: '0 23 6 4 *'
+
+permissions:
+  contents: write
 
 jobs:
   trigger:

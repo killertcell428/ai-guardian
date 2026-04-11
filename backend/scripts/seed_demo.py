@@ -46,7 +46,7 @@ async def seed() -> None:
             )
             admin = admin_result.scalar_one_or_none()
             if admin and admin.api_key_hash:
-                print(f"\n  Login:  {DEMO_ADMIN_EMAIL} / {DEMO_PASSWORD}")
+                print(f"\n  Login:  {DEMO_ADMIN_EMAIL} / ********")
                 print("  API Key: (already generated — check previous seed output)")
             return
 
@@ -110,19 +110,32 @@ async def seed() -> None:
 
         await db.commit()
 
-        # Print credentials
+        # Print credentials — mask sensitive values in logs.
+        # The API key is shown once at initial seed only.
+        masked_key = raw_key[:8] + "..." + raw_key[-4:]
         print("\n" + "=" * 60)
         print("  AI Guardian Demo — Ready!")
         print("=" * 60)
         print(f"\n  Dashboard Login:")
-        print(f"    Admin:    {DEMO_ADMIN_EMAIL} / {DEMO_PASSWORD}")
-        print(f"    Reviewer: {DEMO_REVIEWER_EMAIL} / {DEMO_PASSWORD}")
+        print(f"    Admin:    {DEMO_ADMIN_EMAIL} / ********")
+        print(f"    Reviewer: {DEMO_REVIEWER_EMAIL} / ********")
         print(f"\n  API Key (for proxy requests):")
-        print(f"    {raw_key}")
+        print(f"    {masked_key}")
+        print(f"\n  Full API key written to: .ai-guardian/demo_api_key")
         print(f"\n  Use in code:")
-        print(f'    client = OpenAI(api_key="{raw_key}",')
+        print(f'    client = OpenAI(api_key="<your-api-key>",')
         print(f'                    base_url="http://localhost:8000/api/v1/proxy")')
         print("=" * 60)
+
+        # Write full key to file instead of logging it
+        key_dir = __import__("pathlib").Path(".ai-guardian")
+        key_dir.mkdir(parents=True, exist_ok=True)
+        key_file = key_dir / "demo_api_key"
+        key_file.write_text(raw_key)
+        try:
+            key_file.chmod(0o600)
+        except OSError:
+            pass
 
 
 async def main() -> None:
