@@ -39,6 +39,23 @@ from ai_guardian.scanner import (
     scan_rag_context,
 )
 from ai_guardian.similarity import check_similarity
+from ai_guardian.cross_session import (
+    CorrelationAlert,
+    CrossSessionCorrelator,
+    SessionRecord,
+    SessionStore,
+    SleeperAlert,
+    SleeperDetector,
+)
+from ai_guardian.supply_chain import (
+    DependencyAlert,
+    DependencyVerifier,
+    PinnedTool,
+    SBOMEntry,
+    SBOMGenerator,
+    ToolPinManager,
+    ToolVerificationResult,
+)
 from ai_guardian.types import AuthorizationResult, CheckResult, MatchedRule, RiskLevel
 
 __all__ = [
@@ -71,5 +88,20 @@ __all__ = [
     "ContainmentLevel",
     "DriftAlert",
     "AnomalyAlert",
+    # Supply Chain Security (Phase 4a)
+    "ToolPinManager",
+    "PinnedTool",
+    "ToolVerificationResult",
+    "SBOMGenerator",
+    "SBOMEntry",
+    "DependencyVerifier",
+    "DependencyAlert",
+    # Cross-Session Analysis (Phase 4b)
+    "SessionStore",
+    "SessionRecord",
+    "CrossSessionCorrelator",
+    "CorrelationAlert",
+    "SleeperDetector",
+    "SleeperAlert",
 ]
-__version__ = "1.4.0"
+__version__ = "1.5.0"

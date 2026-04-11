@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-04-11
+
+### Added — Policy DSL, Cryptographic Audit, Supply Chain, Cross-Session
+
+#### Policy DSL (`ai_guardian.spec_lang`)
+- **AgentSpec-inspired** YAML-based rule engine with triggers, predicates (AND logic),
+  and enforcement actions (block/allow/warn/throttle/quarantine).
+- 9 built-in predicates: `resource_is`, `target_matches`, `risk_above/below`,
+  `taint_is`, `session_age_above`, `action_count_above`, `tool_name_matches`,
+  `contains_pattern`. Custom predicates via `register_predicate()`.
+- 7 default rules including untrusted shell/agent/MCP blocking, risk-based blocking,
+  .env file protection. Rules sorted by priority (highest first).
+- `RuleEvaluator` with `evaluate()` and `evaluate_first_match()`.
+- 75 new tests.
+
+#### Cryptographic Audit Logs (`ai_guardian.audit`)
+- **HMAC-SHA256 signed** append-only log entries with **SHA-256 hash chain** linking.
+  Tamper-evident: modifying, deleting, or reordering entries breaks the chain.
+- `SignedAuditLog`: thread-safe append with auto key generation/persistence.
+- `AuditVerifier`: 4-check verification (signatures, chain, sequence, timestamps).
+- `HashChain`: genesis hash, chain verification with broken-index reporting.
+- Race-condition fix: concurrent key generation uses file lock.
+- 49 new tests (including tamper detection, thread safety, replay attack).
+
+#### Supply Chain Security (`ai_guardian.supply_chain`)
+- **`ToolPinManager`**: SHA-256 hash pinning for MCP tool definitions. Pin on first use,
+  verify on subsequent runs. Detects modified, new, and removed tools.
+  Unicode NFC normalization + `ensure_ascii=True` for deterministic hashing.
+- **`SBOMGenerator`**: AI dependency Software Bill of Materials (CycloneDX 1.5 format).
+  Scans Python packages (20 AI/LLM prefixes), MCP tools, and model registrations.
+- **`DependencyVerifier`**: Known vulnerability database (litellm, ultralytics).
+  Improved version range parsing (handles pre-release suffixes, `"to"` separator).
+- 37 new tests.
+
+#### Cross-Session Analysis (`ai_guardian.cross_session`)
+- **`SessionStore`**: JSON file-based persistence with hardened path sanitization
+  (regex allowlist, resolved path validation, null byte stripping).
+- **`CrossSessionCorrelator`**: 4 analysis types — escalation trend, resource drift,
+  recurring threat, unusual session (z-score outlier detection).
+- **`SleeperDetector`**: 3 detection methods — memory-to-action correlation, temporal
+  trigger patterns (dates, time spans), conditional activation patterns.
+  Full E2E test simulating Monday-plant/Friday-activate attack.
+- 38 new tests.
+
+### Fixed (from pre-release security review)
+- **[Critical] Audit key race condition** — `_resolve_key()` now uses file lock for
+  concurrent key generation. Warning emitted on auto-generation.
+- **[High] Session store path traversal** — `_session_path()` now uses regex allowlist
+  (alphanumeric + hyphens only) + resolved path validation.
+- **[High] Version range parsing** — handles pre-release suffixes and validates both
+  sides contain dots before treating as range.
+- **[Medium] DSL ReDoS** — `contains_pattern` input capped at 50,000 chars.
+- **[Medium] DSL None target** — `_target_matches` returns False on None target.
+- **[Medium] Hash pinning Unicode bypass** — `ensure_ascii=True` + NFC normalization.
+
+### Research Basis
+- [AgentSpec](https://arxiv.org/abs/2503.18666) (ICSE 2026) — Runtime constraint DSL
+- [Aegis](https://arxiv.org/abs/2603.16938) — Cryptographic runtime governance, immutable logging
+- [Palo Alto Unit42: Memory Poisoning](https://unit42.paloaltonetworks.com/indirect-prompt-injection-poisons-ai-longterm-memory/)
+- [Environment-Injected Memory Poisoning](https://arxiv.org/abs/2604.02623) — Temporal decoupling
+
 ## [1.4.0] - 2026-04-11
 
 ### Added — Runtime Behavioral Monitoring, Memory Defense, Multi-Agent Security

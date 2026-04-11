@@ -1,134 +1,73 @@
-# Pending Design Decisions — v1.4.0 / v1.5.0
+# Pending Design Decisions — Phase 3-4 (v1.5.0)
 
-> This file tracks design decisions that need the project owner's input
-> before finalizing the Phase 1 (Runtime Monitor) and Phase 2 (Memory + Multi-Agent) release.
->
-> Status: **ALL IMPLEMENTATION COMPLETE — AWAITING DECISIONS**
-> Created: 2026-04-11
+> Status: **IMPLEMENTATION IN PROGRESS**
+> Updated: 2026-04-11
+
+## Phase 1-2 (v1.4.0): COMPLETED AND RELEASED
+
+All decisions resolved, released as v1.4.0.
 
 ---
 
-## Decision 1: Graduated Containment — Auto-escalation Policy
+## Phase 3-4 Decisions (to confirm after implementation)
 
-The ContainmentManager escalates through levels: NORMAL → WARN → THROTTLE → RESTRICT → ISOLATE → STOP.
+### Decision 7: Policy DSL Syntax
 
-**Question:** Should escalation be fully automatic, or should higher levels (ISOLATE, STOP) require human confirmation?
+AgentSpec-style runtime constraint DSL. What syntax?
 
 | Option | Pros | Cons |
 |--------|------|------|
-| A) Fully automatic (default) | Fastest response, no human bottleneck | Could false-positive and lock out a legitimate session |
-| B) Auto up to RESTRICT, human confirmation for ISOLATE/STOP | Balances speed with human oversight | Requires a confirmation mechanism (webhook? CLI prompt?) |
-| C) All manual (alerts only, human decides) | Maximum control | Slow response, defeats the purpose of automated defense |
+| A) YAML-based rules with predicates (Recommended) | Consistent with existing policy.yaml, zero learning curve | Less expressive than custom DSL |
+| B) Custom DSL (Python-like syntax) | Most expressive, AgentSpec paper uses this | Parser complexity, new syntax to learn |
 
-**Current default:** A (fully automatic). Can be changed per-deployment.
+**Current plan:** A (YAML-based, extends existing format with triggers/predicates/enforcement actions)
 
----
-
-## Decision 2: Memory TTL — Default Rotation Policy
-
-MemoryIntegrity supports TTL-based auto-expiry of memory entries to reduce persistence of poisoned content.
-
-**Question:** What should the default TTL be?
-
-| Option | Use case |
-|--------|----------|
-| A) No TTL (never expire) | Long-running projects where memory is valuable |
-| B) 7 days | Balance between utility and poisoning risk |
-| C) 24 hours | High-security environments |
-| D) Configurable, default None (user opts in) | Maximum flexibility, but poisoning persists by default |
-
-**Current default:** D (None, user opts in). Untrusted-source entries get a suggested TTL of 7 days in documentation.
-
----
-
-## Decision 3: Version Strategy
-
-Phase 1 and Phase 2 are being implemented together. How to version?
-
-| Option | Description |
-|--------|-------------|
-| A) v1.4.0 = Phase 1 + Phase 2 combined | Single big release |
-| B) v1.4.0 = Phase 1 (monitor), v1.5.0 = Phase 2 (memory + multi-agent) | Smaller incremental releases |
-| C) v1.4.0 = all features, patch releases for fixes | One version, iterate with patches |
-
-**Current plan:** A (combined release as v1.4.0) since they're being implemented together.
-
----
-
-## Decision 4: Drift Detection — Statistical Only vs LLM-Assisted
-
-DriftDetector currently uses pure statistical comparison (mean/stddev). An LLM-based intent classifier could catch semantic drift that statistics miss, but the project owner expressed concern about "AI detecting AI" being an arms race.
-
-**Question:** Should we add an optional LLM-based drift classifier?
+### Decision 8: Cryptographic Signing for Audit Logs
 
 | Option | Pros | Cons |
 |--------|------|------|
-| A) Statistical only (current) | Zero deps, no arms race, deterministic | Misses semantic drift (e.g., benign-looking but malicious intent) |
-| B) Statistical + optional LLM judge | Best coverage when enabled | Arms race concern, requires API key, adds latency |
-| C) Statistical + rule-based heuristics (no LLM) | Better coverage than pure stats, still deterministic | Limited to predefined heuristics |
+| A) HMAC-SHA256 with hash chain (Recommended) | stdlib only (hmac module), simple key management | Shared secret — key compromise = forge all logs |
+| B) Ed25519 asymmetric signatures | Strongest guarantees, no shared secret | Requires `cryptography` package (optional dep) |
 
-**Current implementation:** A (statistical only). Option C (heuristics) could be added later without architectural changes.
+**Current plan:** A (HMAC-SHA256, stdlib only). Ed25519 as optional upgrade path.
 
----
+### Decision 9: Cross-Session Storage Backend
 
-## Decision 5: Multi-Agent Trust Model
+| Option | Pros | Cons |
+|--------|------|------|
+| A) JSON files (Recommended) | Zero dependencies, consistent with project philosophy | Slower queries on large datasets |
+| B) SQLite | Built into Python stdlib, better querying | File locking issues on some platforms |
 
-AgentTopology assigns trust levels to agents. This affects how strictly their messages are scanned.
+**Current plan:** A (JSON files). SQLite as optional optimization.
 
-**Question:** What should the default trust model be?
+### Decision 10: Supply Chain Hash Pinning — Default Mode
 
-| Option | Description |
-|--------|-------------|
-| A) All agents untrusted by default (zero-trust) | Maximum security, requires explicit trust assignment |
-| B) Orchestrator trusted, workers untrusted | Practical for most frameworks (LangGraph, CrewAI) |
-| C) All agents trusted by default (opt-in security) | Easiest adoption, but risky |
+| Option | Pros | Cons |
+|--------|------|------|
+| A) Opt-in (warn only by default) (Recommended) | Low adoption friction | Tools can change without notice if user doesn't enable |
+| B) Mandatory (block unverified tools) | Maximum security | Breaks if tool definitions update legitimately |
 
-**Current default:** A (zero-trust). The user can register agents with higher trust levels.
-
----
-
-## Decision 6: SecurityMonitor Integration into Guard
-
-SecurityMonitor can be integrated into the existing Guard class.
-
-**Question:** How tightly should they be coupled?
-
-| Option | Description |
-|--------|-------------|
-| A) Guard has optional `monitor` param, auto-records when present | Seamless but adds complexity to Guard |
-| B) SecurityMonitor is standalone, wraps Guard | Clean separation, user composes them explicitly |
-| C) Both (Guard param + standalone) | Maximum flexibility |
-
-**Current implementation:** C (both). Guard accepts optional monitor, and SecurityMonitor can also be used independently.
+**Current plan:** A (opt-in with warnings)
 
 ---
 
-## Implementation Status
+## Implementation Status — Phase 3-4
 
 | Module | Status | Agent |
 |--------|--------|-------|
-| `monitor/tracker.py` | ✅ Done (sliding window, thread-safe) | Phase 1 agent |
-| `monitor/baseline.py` | ✅ Done (statistical profiling, JSON persist) | Phase 1 agent |
-| `monitor/drift.py` | ✅ Done (4 drift checks, z-score) | Phase 1 agent |
-| `monitor/anomaly.py` | ✅ Done (6 escalation chains, rapid-fire) | Phase 1 agent |
-| `monitor/containment.py` | ✅ Done (6 levels, auto-escalation) | Phase 1 agent |
-| `monitor/monitor.py` | ✅ Done (BehavioralMonitor orchestrator) | Phase 1 agent |
-| `memory/scanner.py` | ✅ Done (16 patterns, EN+JA) | Phase 2a agent |
-| `memory/integrity.py` | ✅ Done (SHA-256 + TTL) | Phase 2a agent |
-| `multi_agent/message_scanner.py` | ✅ Done (18 patterns EN+JA, 3-layer scan) | Phase 2b agent |
-| `multi_agent/topology.py` | ✅ Done (trust model, anomaly detection) | Phase 2b agent |
-| Guard integration | ✅ Done (optional monitor param) | Phase 1 agent |
-| Tests | ✅ 700 passed (144 new) | All agents |
-| CHANGELOG + Release | ⏳ Waiting for decisions below | — |
-
----
-
-## After Decisions
-
-Once all decisions are confirmed:
-1. Apply chosen defaults to the implemented code
-2. Run full test suite
-3. Update CHANGELOG.md
-4. Commit, tag, push
-5. Create GitHub Release with detailed notes
-6. Update README + docs
+| `spec_lang/parser.py` | ✅ Done (YAML + fallback, Trigger/Predicate/Enforcement) | Phase 3a agent |
+| `spec_lang/evaluator.py` | ✅ Done (RuleEvaluator, custom predicates) | Phase 3a agent |
+| `spec_lang/stdlib.py` + `defaults.py` | ✅ Done (9 built-in predicates, 7 default rules) | Phase 3a agent |
+| `audit/signed_log.py` | ✅ Done (HMAC-SHA256, auto key gen) | Phase 3b agent |
+| `audit/chain.py` | ✅ Done (SHA-256 hash chain) | Phase 3b agent |
+| `audit/verify.py` | ✅ Done (4 checks: sig/chain/seq/time) | Phase 3b agent |
+| `supply_chain/hash_pin.py` | ✅ Done (SHA-256 pinning, thread-safe) | Phase 4a agent |
+| `supply_chain/sbom.py` | ✅ Done (CycloneDX 1.5, 20 package prefixes) | Phase 4a agent |
+| `supply_chain/verify.py` | ✅ Done (known vuln DB: litellm, ultralytics) | Phase 4a agent |
+| `cross_session/store.py` | ✅ Done (JSON file-based, path traversal safe) | Phase 4b agent |
+| `cross_session/correlator.py` | ✅ Done (4 correlation checks, z-score outlier) | Phase 4b agent |
+| `cross_session/sleeper.py` | ✅ Done (3 detection methods, E2E test) | Phase 4b agent |
+| Integration + Tests | ⏳ After agents complete | — |
+| **Codex Deep Review** | ⏳ After integration tests pass | — |
+| Fix review findings | ⏳ After Codex review | — |
+| CHANGELOG + Release | ⏳ After review fixes | — |
